@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>即時塗鴉挑戰｜內建範本辨識版</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700;900&display=swap');
+    *{box-sizing:border-box}
+    body{
+      font-family:'Noto Sans TC',sans-serif;
+      background:#ffc800;
+      touch-action:none;
+    }
+    .canvas-container{box-shadow:8px 8px 0 rgba(0,0,0,.14)}
+    #drawing-canvas{
+      cursor:crosshair;
+      background:#fff;
+      width:100%;
+      height:100%;
+      display:block;
+      touch-action:none;
+    }
+    .btn-shadow{
+      box-shadow:4px 4px 0 rgba(0,0,0,.25);
+      transition:.1s;
+      border:2px solid #111;
+      font-weight:900;
+    }
+    .btn-shadow:active{transform:translate(2px,2px);box-shadow:2px 2px 0 rgba(0,0,0,.25)}
+    .mini-card{box-shadow:4px 4px 0 rgba(0,0,0,.12)}
+    .hidden{display:none!important}
+  </style>
+</head>
+<body class="min-h-[100dvh] p-4 overflow-hidden flex flex-col items-center justify-center">
+
+  <section id="menu-screen" class="text-center w-full max-w-4xl">
+    <h1 class="text-5xl sm:text-7xl font-black mb-3 text-black">即時塗鴉挑戰</h1>
+    <p class="text-xl sm:text-2xl mb-3 text-black/75 font-bold">內建範本辨識版｜不用 AI、不用 API Key、可離線遊玩</p>
+    <p class="text-base sm:text-lg mb-8 text-black/65">系統會把你的塗鴉與內建簡筆素描範本比對，計算相似度分數。</p>
+    <div id="category-grid" class="grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto"></div>
+    <div class="mt-8 bg-white/80 border-4 border-black rounded-2xl p-4 text-left max-w-3xl mx-auto">
+      <h2 class="font-black text-xl mb-2">玩法說明</h2>
+      <p class="leading-relaxed">每局 6 回合。看到題目後，請在 20 秒內畫出簡筆圖。完成後，系統會將你的作品標準化成黑白線稿，和該題目的內建參考素描比對，並顯示「你的畫」與「參考素描」對照。</p>
+    </div>
+  </section>
+
+  <section id="prompt-screen" class="hidden text-center">
+    <div class="bg-white inline-block px-5 py-2 rounded-full border-4 border-black font-black text-xl mb-4">第 <span id="prompt-round">1</span> / 6 回合</div>
+    <p class="text-3xl mb-2 text-black/70 font-bold">【<span id="prompt-category"></span>】請畫出</p>
+    <h2 id="target-word" class="text-6xl sm:text-8xl font-black mb-5 text-black">...</h2>
+    <div id="target-hints" class="mb-8 flex flex-wrap gap-2 justify-center"></div>
+    <button id="begin-draw-btn" class="bg-black text-white text-3xl px-12 py-4 rounded-full btn-shadow">開始畫！</button>
+  </section>
+
+  <section id="game-screen" class="hidden w-full h-[100dvh] max-h-[820px] max-w-3xl flex flex-col items-center py-2">
+    <div class="w-full flex justify-between items-center mb-3 px-1 shrink-0">
+      <div class="text-xl sm:text-2xl font-black">目標：<span id="current-target" class="underline">...</span></div>
+      <div id="timer" class="text-2xl sm:text-3xl font-black bg-white px-4 py-1 rounded-full border-4 border-black">20s</div>
+    </div>
+    <div class="canvas-container relative bg-white rounded-xl border-4 border-black overflow-hidden w-full flex-1 min-h-0">
+      <canvas id="drawing-canvas"></canvas>
+    </div>
+    <div class="flex gap-4 mt-4 w-full shrink-0">
+      <button id="clear-btn" class="flex-1 bg-red-400 hover:bg-red-500 text-white text-xl py-3 rounded-xl btn-shadow">清除畫布</button>
+      <button id="submit-btn" class="flex-1 bg-green-500 hover:bg-green-600 text-white text-xl py-3 rounded-xl btn-shadow">我畫好了！</button>
+    </div>
+  </section>
+
+  <section id="result-screen" class="hidden text-center w-full max-w-4xl">
+    <h2 id="result-title" class="text-5xl sm:text-6xl font-black mb-4">比對完成！</h2>
+    <div id="score-display" class="text-3xl sm:text-4xl font-black text-blue-600 mb-2 bg-white inline-block px-6 py-2 rounded-full border-4 border-black">相似度：0 / 100</div>
+    <p id="score-breakdown" class="text-lg sm:text-xl font-black text-black/65 mb-4">輪廓：0｜覆蓋：0｜速度：0</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+      <div class="bg-white p-4 rounded-xl border-4 border-black mini-card">
+        <h3 class="text-2xl font-black mb-2">你的畫</h3>
+        <img id="final-sketch" class="max-h-64 mx-auto border-2 border-gray-100 bg-white rounded-lg" />
+      </div>
+      <div class="bg-white p-4 rounded-xl border-4 border-black mini-card">
+        <h3 class="text-2xl font-black mb-2">參考素描</h3>
+        <img id="template-sketch" class="max-h-64 mx-auto border-2 border-gray-100 bg-white rounded-lg" />
+      </div>
+    </div>
+    <p id="result-detail" class="text-xl sm:text-2xl mb-6 text-black/75 font-bold">系統正在比對...</p>
+    <button id="play-again-btn" class="bg-blue-500 hover:bg-blue-600 text-white text-2xl sm:text-3xl px-12 py-4 rounded-full btn-shadow">下一回合</button>
+  </section>
+
+  <section id="final-screen" class="hidden text-center w-full h-[100dvh] max-w-5xl mx-auto flex flex-col items-center overflow-y-auto pb-10 px-2">
+    <h2 class="text-5xl sm:text-6xl font-black mb-4 mt-6 shrink-0">遊戲結束！</h2>
+    <p class="text-2xl sm:text-3xl mb-5 shrink-0 font-bold">六回合總結</p>
+    <div class="text-4xl sm:text-5xl font-black text-blue-600 mb-7 bg-white inline-block px-8 py-4 rounded-full border-4 border-black shrink-0">總分：<span id="final-total-score">0</span> / 600</div>
+    <div id="history-gallery" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full mb-8 shrink-0"></div>
+    <div id="advice-display" class="bg-white p-6 rounded-xl border-4 border-black text-left text-lg sm:text-xl text-black/80 leading-relaxed mb-8 w-full"></div>
+    <button id="restart-game-btn" class="bg-green-500 hover:bg-green-600 text-white text-3xl px-12 py-4 rounded-full btn-shadow shrink-0 mb-8">回主選單</button>
+  </section>
+
+<script>
+const categoriesData = {
+  "動物": ["貓","狗","魚","鳥","蝴蝶","兔子","大象","烏龜","蛇","企鵝","螃蟹","長頸鹿"],
+  "植物": ["樹","花","仙人掌","蘑菇","葉子","竹子","向日葵","荷花","蘋果樹","玫瑰","幸運草","紅蘿蔔"],
+  "物品": ["房子","披薩","電腦","汽車","腳踏車","書","帽子","咖啡杯","火箭","雨傘","吉他","時鐘"],
+  "節日": ["聖誕樹","燈籠","月餅","龍舟","紅包","南瓜燈","禮物","蛋糕","煙火","聖誕老人","愛心氣球","幽靈"],
+  "動作": ["跑步","游泳","跳舞","睡覺","唱歌","看書","投籃","煮飯","揮手","微笑","爬山","拍照"],
+  "人物": ["小丑","忍者","公主","國王","超人","嬰兒","老人","外星人","機器人","美人魚","巫師","海盜"],
+  "職業": ["警察","醫生","老師","廚師","太空人","消防員","農夫","法官","歌手","畫家","司機","攝影師"],
+  "成語": ["畫蛇添足","守株待兔","井底之蛙","對牛彈琴","盲人摸象","鶴立雞群","畫龍點睛","一箭雙鵰","雪中送炭","火上澆油","人山人海","大海撈針"]
+};
+
+const templateInfo = {
+  "貓": ["三角耳朵","圓臉","鬍鬚","尾巴"], "狗":["垂耳","圓臉","身體","尾巴"], "魚":["橢圓身體","三角尾巴","眼睛","魚鰭"],
+  "鳥":["身體","翅膀","鳥嘴","腳"], "蝴蝶":["左右翅膀","身體","觸角"], "兔子":["長耳朵","圓臉","小尾巴"],
+  "大象":["大耳朵","長鼻子","身體"], "烏龜":["龜殼","頭","四肢"], "蛇":["彎曲長線","頭","舌頭"], "企鵝":["橢圓身體","白肚子","小翅膀"], "螃蟹":["圓身","鉗子","多隻腳"], "長頸鹿":["長脖子","斑點","四腳"],
+  "樹":["樹冠","樹幹"], "花":["花瓣","花心","莖"], "仙人掌":["主幹","左右手臂","刺"], "蘑菇":["菇傘","菇柄"], "葉子":["葉形","葉脈"],
+  "竹子":["竹節","葉片"], "向日葵":["大花瓣","圓花心","莖"], "荷花":["花瓣","水面","葉"], "蘋果樹":["樹冠","樹幹","蘋果"], "玫瑰":["螺旋花","莖","刺"], "幸運草":["四片葉"], "紅蘿蔔":["錐形身體","葉子"],
+  "房子":["三角屋頂","方形牆","門窗"], "披薩":["三角形","起司","配料"], "電腦":["螢幕","底座","鍵盤"], "汽車":["車身","輪子"], "腳踏車":["兩輪","車架","把手"], "書":["封面","書頁"], "帽子":["帽頂","帽沿"], "咖啡杯":["杯身","把手","熱氣"], "火箭":["尖頭","尾焰"], "雨傘":["傘面","傘柄"], "吉他":["琴身","琴頸"], "時鐘":["圓形","指針"],
+  "聖誕樹":["三層樹","星星"], "燈籠":["圓燈身","流蘇"], "月餅":["圓形","花紋"], "龍舟":["船身","龍頭"], "紅包":["長方形","封口"], "南瓜燈":["南瓜","眼睛","嘴"], "禮物":["盒子","緞帶"], "蛋糕":["蛋糕層","蠟燭"], "煙火":["放射線"], "聖誕老人":["帽子","鬍子"], "愛心氣球":["愛心","線"], "幽靈":["飄動外形","眼睛"],
+  "跑步":["人形","跨步"], "游泳":["人形","水波"], "跳舞":["人形","動作線"], "睡覺":["床","Z字"], "唱歌":["人臉","音符"], "看書":["人形","書"], "投籃":["人形","球框"], "煮飯":["鍋子","熱氣"], "揮手":["人形","手臂"], "微笑":["臉","笑嘴"], "爬山":["人形","山"], "拍照":["人形","相機"],
+  "小丑":["圓鼻","帽子","笑臉"], "忍者":["蒙面","頭巾"], "公主":["皇冠","裙子"], "國王":["皇冠","披風"], "超人":["披風","胸章"], "嬰兒":["圓臉","奶嘴"], "老人":["拐杖","眼鏡"], "外星人":["大眼睛","觸角"], "機器人":["方頭","身體"], "美人魚":["人身","魚尾"], "巫師":["尖帽","法杖"], "海盜":["眼罩","帽子"],
+  "警察":["帽子","徽章"], "醫生":["聽診器","十字"], "老師":["黑板","教鞭"], "廚師":["高帽","鍋鏟"], "太空人":["頭盔","背包"], "消防員":["安全帽","水管"], "農夫":["草帽","鋤頭"], "法官":["槌子","法袍"], "歌手":["麥克風"], "畫家":["畫筆","畫板"], "司機":["方向盤"], "攝影師":["相機"],
+  "畫蛇添足":["蛇","多餘的腳"], "守株待兔":["樹樁","兔子"], "井底之蛙":["井","青蛙"], "對牛彈琴":["牛","琴"], "盲人摸象":["人","大象"], "鶴立雞群":["高鳥","小雞群"], "畫龍點睛":["龍","眼睛"], "一箭雙鵰":["箭","兩隻鳥"], "雪中送炭":["雪","炭火"], "火上澆油":["火","油壺"], "人山人海":["許多人","山形"], "大海撈針":["海浪","針"]
+};
+
+let currentCategory="", currentTarget="", currentRound=1, totalScore=0, timeLeft=20, timerInterval=null;
+let availablePrompts=[], gameHistory=[], isDrawing=false, lastX=0, lastY=0, strokeCount=0;
+let promptCountdownInterval=null, promptAutoAdvanceTimer=null, countdownInterval=null, autoAdvanceTimer=null;
+const maxRounds=6;
+const screens={menu:qs('menu-screen'), prompt:qs('prompt-screen'), game:qs('game-screen'), result:qs('result-screen'), final:qs('final-screen')};
+const canvas=qs('drawing-canvas'), ctx=canvas.getContext('2d');
+
+function qs(id){return document.getElementById(id)}
+function switchScreen(key){Object.values(screens).forEach(s=>s.classList.add('hidden'));screens[key].classList.remove('hidden')}
+function rand(arr){return arr[Math.floor(Math.random()*arr.length)]}
+
+function init(){
+  const colors=["bg-yellow-500","bg-green-500","bg-blue-500","bg-red-500","bg-purple-500","bg-orange-500","bg-teal-500","bg-pink-500"];
+  qs('category-grid').innerHTML=Object.keys(categoriesData).map((cat,i)=>`<button class="category-btn ${colors[i%colors.length]} hover:brightness-95 text-white text-2xl px-6 py-4 rounded-full btn-shadow" data-category="${cat}">${cat}</button>`).join('');
+  document.querySelectorAll('.category-btn').forEach(btn=>btn.addEventListener('click',startGameSession));
+  qs('begin-draw-btn').addEventListener('click',startGame);
+  qs('clear-btn').addEventListener('click',clearCanvas);
+  qs('submit-btn').addEventListener('click',finishRound);
+  qs('play-again-btn').addEventListener('click',nextRoundLogic);
+  qs('restart-game-btn').addEventListener('click',()=>switchScreen('menu'));
+  setupCanvas(); window.addEventListener('resize',setupCanvas);
+
+  canvas.addEventListener('mousedown',startDrawing);
+  canvas.addEventListener('mousemove',draw);
+  canvas.addEventListener('mouseup',stopDrawing);
+  canvas.addEventListener('mouseout',stopDrawing);
+  canvas.addEventListener('touchstart',e=>{e.preventDefault();const p=getTouch(e);startDrawing(p)}, {passive:false});
+  canvas.addEventListener('touchmove',e=>{e.preventDefault();const p=getTouch(e);draw(p)}, {passive:false});
+  canvas.addEventListener('touchend',stopDrawing);
+}
+
+function getTouch(e){const t=e.touches[0],r=canvas.getBoundingClientRect();return {offsetX:t.clientX-r.left, offsetY:t.clientY-r.top}}
+function setupCanvas(){
+  const box=canvas.parentElement; if(!box || box.clientWidth===0)return;
+  const old=canvas.toDataURL ? canvas.toDataURL() : null;
+  canvas.width=box.clientWidth; canvas.height=box.clientHeight;
+  ctx.lineJoin='round'; ctx.lineCap='round'; ctx.lineWidth=7; ctx.strokeStyle='#000';
+  clearCanvas();
+}
+function clearCanvas(){ctx.fillStyle='white';ctx.fillRect(0,0,canvas.width,canvas.height);strokeCount=0}
+function startDrawing(e){isDrawing=true;lastX=e.offsetX;lastY=e.offsetY;strokeCount++}
+function draw(e){if(!isDrawing)return;ctx.beginPath();ctx.moveTo(lastX,lastY);ctx.lineTo(e.offsetX,e.offsetY);ctx.stroke();lastX=e.offsetX;lastY=e.offsetY}
+function stopDrawing(){isDrawing=false}
+
+function startGameSession(e){
+  currentCategory=e.target.dataset.category;
+  availablePrompts=[...categoriesData[currentCategory]];
+  currentRound=1; totalScore=0; gameHistory=[];
+  showPrompt();
+}
+function showPrompt(){
+  currentTarget=rand(availablePrompts);
+  availablePrompts=availablePrompts.filter(x=>x!==currentTarget);
+  qs('prompt-category').innerText=currentCategory;
+  qs('target-word').innerText=currentTarget;
+  qs('prompt-round').innerText=currentRound;
+  const hints=templateInfo[currentTarget]||["抓主要外形","簡單線條"];
+  qs('target-hints').innerHTML=hints.map(h=>`<span class="bg-white border-2 border-black rounded-full px-3 py-1 font-bold">${h}</span>`).join('');
+  let p=3; const btn=qs('begin-draw-btn'); btn.innerText=`開始畫！(${p}s)`;
+  clearInterval(promptCountdownInterval); clearTimeout(promptAutoAdvanceTimer);
+  promptCountdownInterval=setInterval(()=>{p--; if(p>0)btn.innerText=`開始畫！(${p}s)`},1000);
+  promptAutoAdvanceTimer=setTimeout(startGame,3000);
+  switchScreen('prompt');
+}
+function startGame(){
+  clearInterval(promptCountdownInterval); clearTimeout(promptAutoAdvanceTimer); clearInterval(timerInterval);
+  qs('current-target').innerText=currentTarget; timeLeft=20; clearCanvas();
+  qs('timer').innerText=timeLeft+'s'; switchScreen('game'); setupCanvas();
+  timerInterval=setInterval(()=>{timeLeft--; qs('timer').innerText=timeLeft+'s'; if(timeLeft<=0)finishRound()},1000);
+}
+function finishRound(){
+  clearInterval(timerInterval);
+  const timeRemaining=Math.max(0,timeLeft);
+  if(strokeCount===0){handleResult({isCorrect:false,score:0,detail:"畫布是空白的，無法比對。",metrics:{shape:0,coverage:0,density:0},template:templateDataURL(currentTarget)},0);return}
+  const result=evaluateByTemplate(currentTarget,timeRemaining);
+  handleResult(result,timeRemaining);
+}
+function nextRoundLogic(){
+  clearTimeout(autoAdvanceTimer); clearInterval(countdownInterval);
+  if(currentRound<maxRounds){currentRound++; showPrompt()} else showFinalScreen();
+}
+
+function handleResult(result,timeRemaining){
+  const score=Math.max(0,Math.min(100,result.score));
+  totalScore=parseFloat((totalScore+score).toFixed(2));
+  const playerImg=canvas.toDataURL('image/png');
+  gameHistory.push({target:currentTarget,score,isCorrect:result.isCorrect,image:playerImg,template:result.template,detail:result.detail});
+  qs('final-sketch').src=playerImg;
+  qs('template-sketch').src=result.template;
+  qs('score-display').innerText=`相似度：${score.toFixed(2)} / 100`;
+  qs('score-breakdown').innerText=`輪廓吻合：${result.metrics.shape.toFixed(1)}｜覆蓋完整：${result.metrics.coverage.toFixed(1)}｜線條密度：${result.metrics.density.toFixed(1)}｜速度：${result.metrics.speed.toFixed(1)}`;
+  qs('result-title').innerText=result.isCorrect?"成功辨識！":"差一點！";
+  qs('result-title').className=result.isCorrect?"text-5xl sm:text-6xl font-black mb-4 text-green-600":"text-5xl sm:text-6xl font-black mb-4 text-red-500";
+  qs('result-detail').innerText=result.detail;
+  let c=4; const btn=qs('play-again-btn');
+  const update=()=>btn.innerText=currentRound<maxRounds?`下一回合 (${c}s)`:`查看總成績 (${c}s)`;
+  update(); clearInterval(countdownInterval); clearTimeout(autoAdvanceTimer);
+  countdownInterval=setInterval(()=>{c--; if(c>0)update()},1000);
+  autoAdvanceTimer=setTimeout(nextRoundLogic,4000);
+  switchScreen('result');
+}
+function showFinalScreen(){
+  qs('final-total-score').innerText=totalScore.toFixed(2);
+  qs('history-gallery').innerHTML=gameHistory.map((it,i)=>`
+    <div class="bg-white p-3 rounded-xl border-4 border-black mini-card">
+      <div class="font-black text-xl mb-2">${i+1}. ${it.target}</div>
+      <div class="grid grid-cols-2 gap-2">
+        <div><div class="font-bold text-sm mb-1">你的畫</div><img src="${it.image}" class="w-full aspect-square object-contain border rounded bg-white"></div>
+        <div><div class="font-bold text-sm mb-1">參考</div><img src="${it.template}" class="w-full aspect-square object-contain border rounded bg-white"></div>
+      </div>
+      <div class="${it.isCorrect?'text-green-600':'text-red-500'} font-black text-2xl mt-2">${it.score.toFixed(2)} 分</div>
+    </div>`).join('');
+  qs('advice-display').innerHTML=makeLocalAdvice();
+  switchScreen('final');
+}
+function makeLocalAdvice(){
+  const low=gameHistory.filter(x=>x.score<60).map(x=>x.target);
+  const avg=gameHistory.reduce((s,x)=>s+x.score,0)/Math.max(1,gameHistory.length);
+  let msg=`<h3 class="text-3xl font-black mb-3 text-purple-600">🎨 本機塗鴉小老師建議</h3>`;
+  msg+=`<p>這次平均分數約 <b>${avg.toFixed(1)}</b> 分。這個版本不是 AI，而是把你的線稿和內建簡筆範本比對，所以最重要的是：<b>畫大一點、畫在中央、抓住關鍵特徵</b>。</p>`;
+  if(low.length) msg+=`<p class="mt-3">分數較低的題目：<b>${low.join("、")}</b>。建議下一次先畫外框，再補上最有辨識度的細節，例如耳朵、尾巴、輪子、屋頂、指針或翅膀。</p>`;
+  msg+=`<p class="mt-3">小技巧：20 秒內不要追求漂亮，先用圓形、三角形、長方形組成主體，再加 2～3 個特徵，比畫很多雜線更容易被系統判定相似喔！</p>`;
+  return msg;
+}
+
+/* ===== 本機範本辨識核心 ===== */
+function evaluateByTemplate(target,timeRemaining){
+  const player=normalizedMaskFromCanvas(canvas);
+  const tempCanvas=makeTemplateCanvas(target,128);
+  const templ=normalizedMaskFromCanvas(tempCanvas);
+  if(player.count<25){
+    return {isCorrect:false, score:0, detail:"線條太少，請至少畫出主要外形。", metrics:{shape:0,coverage:0,density:0,speed:0}, template:tempCanvas.toDataURL()};
+  }
+  const pd=dilate(player.mask,128,2), td=dilate(templ.mask,128,3);
+  let playerHit=0, templHit=0;
+  for(let i=0;i<player.mask.length;i++){
+    if(player.mask[i] && td[i]) playerHit++;
+    if(templ.mask[i] && pd[i]) templHit++;
+  }
+  const precision=playerHit/Math.max(1,player.count);
+  const recall=templHit/Math.max(1,templ.count);
+  const densityPenalty=Math.min(1, Math.max(0.35, templ.count/Math.max(templ.count, Math.abs(player.count-templ.count)+templ.count*0.65)));
+  const shape=100*precision;
+  const coverage=100*recall;
+  const density=100*densityPenalty;
+  const speed=Math.min(5,timeRemaining*0.25);
+  let base=(shape*0.42+coverage*0.43+density*0.15);
+  const score=Math.min(100, Math.max(0, base*0.95+speed));
+  const pass=score>=58;
+  const hints=(templateInfo[target]||[]).slice(0,4).join("、");
+  return {
+    isCorrect:pass,
+    score,
+    detail: pass ? `你的作品和「${target}」參考素描相似度不錯，已符合主要輪廓特徵！` : `差一點！建議加強「${target}」的關鍵特徵：${hints || "外形與主要線條"}。`,
+    metrics:{shape,coverage,density,speed},
+    template:tempCanvas.toDataURL()
+  };
+}
+function normalizedMaskFromCanvas(src){
+  const size=128, t=document.createElement('canvas'); t.width=t.height=size; const c=t.getContext('2d');
+  c.fillStyle='white'; c.fillRect(0,0,size,size);
+  const sw=src.width, sh=src.height;
+  const tmp=document.createElement('canvas'); tmp.width=sw; tmp.height=sh; const tc=tmp.getContext('2d');
+  tc.drawImage(src,0,0);
+  const data=tc.getImageData(0,0,sw,sh).data;
+  let minX=sw,minY=sh,maxX=0,maxY=0,count=0;
+  for(let y=0;y<sh;y++)for(let x=0;x<sw;x++){
+    const i=(y*sw+x)*4, a=data[i+3], dark=a>0 && data[i]<180 && data[i+1]<180 && data[i+2]<180;
+    if(dark){count++; if(x<minX)minX=x;if(y<minY)minY=y;if(x>maxX)maxX=x;if(y>maxY)maxY=y;}
+  }
+  if(count===0)return {mask:new Uint8Array(size*size), count:0};
+  const bw=maxX-minX+1,bh=maxY-minY+1, side=Math.max(bw,bh), pad=10, drawSize=size-pad*2;
+  c.drawImage(src, minX, minY, bw, bh, pad+(drawSize-(bw/side)*drawSize)/2, pad+(drawSize-(bh/side)*drawSize)/2, (bw/side)*drawSize, (bh/side)*drawSize);
+  return maskFromCanvas(t);
+}
+function maskFromCanvas(can){
+  const size=can.width, d=can.getContext('2d').getImageData(0,0,size,size).data;
+  const mask=new Uint8Array(size*size); let count=0;
+  for(let i=0;i<mask.length;i++){const j=i*4; if(d[j]<190 && d[j+1]<190 && d[j+2]<190 && d[j+3]>0){mask[i]=1;count++;}}
+  return {mask,count};
+}
+function dilate(mask,size,r){
+  const out=new Uint8Array(mask.length);
+  for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+    if(!mask[y*size+x])continue;
+    for(let dy=-r;dy<=r;dy++)for(let dx=-r;dx<=r;dx++){
+      if(dx*dx+dy*dy>r*r)continue; const nx=x+dx,ny=y+dy;
+      if(nx>=0&&ny>=0&&nx<size&&ny<size)out[ny*size+nx]=1;
+    }
+  }
+  return out;
+}
+function templateDataURL(target){return makeTemplateCanvas(target,128).toDataURL()}
+
+/* ===== 內建簡筆素描範本：用 canvas 畫，不需外部圖片 ===== */
+function makeTemplateCanvas(target,size=128){
+  const can=document.createElement('canvas'); can.width=can.height=size; const p=can.getContext('2d');
+  p.fillStyle='white';p.fillRect(0,0,size,size);p.strokeStyle='black';p.fillStyle='black';p.lineWidth=6;p.lineCap='round';p.lineJoin='round';
+  drawTemplate(p,target); return can;
+}
+function path(p,cmd){p.beginPath();cmd();p.stroke()}
+function circle(p,x,y,r,fill=false){p.beginPath();p.arc(x,y,r,0,Math.PI*2);fill?p.fill():p.stroke()}
+function line(p,x1,y1,x2,y2){path(p,()=>{p.moveTo(x1,y1);p.lineTo(x2,y2)})}
+function oval(p,x,y,rx,ry){p.beginPath();p.ellipse(x,y,rx,ry,0,0,Math.PI*2);p.stroke()}
+function rect(p,x,y,w,h){p.strokeRect(x,y,w,h)}
+function triangle(p,a,b,c,d,e,f){path(p,()=>{p.moveTo(a,b);p.lineTo(c,d);p.lineTo(e,f);p.closePath()})}
+
+function drawPerson(p,x=64,y=58){circle(p,x,y-20,10);line(p,x,y-10,x,y+22);line(p,x,y,x-18,y+10);line(p,x,y,x+18,y+10);line(p,x,y+22,x-15,y+45);line(p,x,y+22,x+15,y+45)}
+function drawFace(p){circle(p,64,58,30);circle(p,53,52,3,true);circle(p,75,52,3,true);path(p,()=>{p.arc(64,62,13,0,Math.PI)})}
+function drawTemplate(p,t){
+  if(t==="貓"){circle(p,56,52,28);triangle(p,34,34,42,12,50,36);triangle(p,62,36,78,12,80,38);circle(p,48,50,3,true);circle(p,64,50,3,true);line(p,40,60,18,55);line(p,40,66,18,68);line(p,72,60,98,55);line(p,72,66,98,68);oval(p,62,88,38,22);path(p,()=>{p.moveTo(92,86);p.bezierCurveTo(120,72,112,34,86,48)})}
+  else if(t==="狗"){circle(p,58,50,26);path(p,()=>{p.moveTo(36,38);p.bezierCurveTo(16,44,20,74,42,66)});path(p,()=>{p.moveTo(78,38);p.bezierCurveTo(100,44,96,74,75,66)});circle(p,50,48,3,true);circle(p,66,48,3,true);oval(p,62,88,38,20);path(p,()=>{p.moveTo(94,84);p.lineTo(115,70);p.lineTo(108,96)})}
+  else if(t==="魚"){oval(p,58,64,38,24);triangle(p,92,64,118,42,118,86);circle(p,42,58,3,true);triangle(p,58,42,72,20,78,48);triangle(p,58,86,72,108,78,80)}
+  else if(t==="鳥"){oval(p,60,65,28,34);triangle(p,84,55,108,47,86,64);circle(p,70,50,3,true);path(p,()=>{p.moveTo(50,64);p.quadraticCurveTo(28,74,54,88)});line(p,55,98,45,116);line(p,65,98,75,116)}
+  else if(t==="蝴蝶"){oval(p,42,54,25,34);oval(p,86,54,25,34);oval(p,42,86,20,24);oval(p,86,86,20,24);line(p,64,38,64,104);line(p,64,38,50,22);line(p,64,38,78,22)}
+  else if(t==="兔子"){oval(p,48,24,10,28);oval(p,72,24,10,28);circle(p,60,58,26);circle(p,52,54,3,true);circle(p,68,54,3,true);oval(p,62,92,34,22);circle(p,96,88,8)}
+  else if(t==="大象"){oval(p,60,72,42,28);circle(p,42,48,24);circle(p,72,48,24);path(p,()=>{p.moveTo(58,62);p.bezierCurveTo(54,86,64,100,48,112)});line(p,34,92,34,112);line(p,82,92,82,112)}
+  else if(t==="烏龜"){oval(p,64,70,42,28);circle(p,104,64,13);line(p,34,52,18,38);line(p,34,88,18,104);line(p,76,96,88,114);line(p,76,44,88,26);line(p,40,70,88,70);line(p,64,46,64,94)}
+  else if(t==="蛇"){path(p,()=>{p.moveTo(22,80);p.bezierCurveTo(45,30,88,112,108,54);p.bezierCurveTo(116,34,94,30,90,48)});line(p,92,48,110,40);line(p,92,48,110,58)}
+  else if(t==="企鵝"){oval(p,64,66,30,46);oval(p,64,76,18,30);circle(p,54,44,3,true);circle(p,74,44,3,true);triangle(p,64,50,56,58,72,58);line(p,36,68,18,82);line(p,92,68,110,82);line(p,52,112,40,120);line(p,76,112,88,120)}
+  else if(t==="螃蟹"){oval(p,64,70,34,22);circle(p,50,64,3,true);circle(p,78,64,3,true);line(p,34,66,12,50);circle(p,10,48,8);line(p,94,66,116,50);circle(p,118,48,8);for(let i=0;i<3;i++){line(p,38,78,18,88+i*8);line(p,90,78,110,88+i*8)}}
+  else if(t==="長頸鹿"){line(p,62,28,62,84);oval(p,66,30,18,12);line(p,54,20,50,8);line(p,70,20,74,8);oval(p,64,88,34,20);line(p,42,100,42,120);line(p,84,100,84,120);for(const [x,y] of [[55,50],[66,60],[56,78],[76,88]])circle(p,x,y,3,true)}
+  else if(["樹","蘋果樹"].includes(t)){line(p,64,66,64,116);line(p,64,86,42,106);line(p,64,86,88,106);circle(p,64,44,30);circle(p,44,55,22);circle(p,84,55,22); if(t==="蘋果樹"){circle(p,50,50,4,true);circle(p,76,58,4,true);circle(p,64,34,4,true)}}
+  else if(["花","向日葵"].includes(t)){const petals=t==="向日葵"?14:8;for(let i=0;i<petals;i++){const a=i*Math.PI*2/petals;oval(p,64+Math.cos(a)*22,44+Math.sin(a)*22,9,15)}circle(p,64,44,13);line(p,64,58,64,112);path(p,()=>{p.moveTo(64,84);p.quadraticCurveTo(38,78,42,64)});path(p,()=>{p.moveTo(64,92);p.quadraticCurveTo(90,84,88,70)})}
+  else if(t==="仙人掌"){path(p,()=>{p.moveTo(62,112);p.lineTo(62,34);p.quadraticCurveTo(64,18,76,34);p.lineTo(76,112)});path(p,()=>{p.moveTo(62,62);p.lineTo(40,62);p.lineTo(40,44)});path(p,()=>{p.moveTo(76,72);p.lineTo(98,72);p.lineTo(98,50)});for(let y=42;y<100;y+=14){line(p,56,y,50,y-5);line(p,82,y,88,y-5)}}
+  else if(t==="蘑菇"){path(p,()=>{p.moveTo(28,58);p.quadraticCurveTo(64,8,100,58);p.closePath()});rect(p,50,58,28,50);circle(p,48,42,5,true);circle(p,68,34,5,true);circle(p,82,50,4,true)}
+  else if(t==="葉子"){path(p,()=>{p.moveTo(24,74);p.quadraticCurveTo(66,18,104,74);p.quadraticCurveTo(64,116,24,74)});line(p,24,74,104,74);line(p,62,74,48,52);line(p,70,74,84,54)}
+  else if(t==="竹子"){line(p,54,20,54,118);line(p,74,16,74,116);for(let y=36;y<110;y+=20){line(p,48,y,80,y)}path(p,()=>{p.moveTo(54,42);p.quadraticCurveTo(24,30,18,48)});path(p,()=>{p.moveTo(74,70);p.quadraticCurveTo(110,56,114,76)})}
+  else if(t==="荷花"){for(let i=0;i<7;i++){const x=34+i*10;path(p,()=>{p.moveTo(x,70);p.quadraticCurveTo(x+8,34,x+18,70)})}line(p,24,86,104,86);oval(p,82,100,28,8)}
+  else if(t==="玫瑰"){path(p,()=>{p.moveTo(52,48);p.bezierCurveTo(44,32,76,28,76,50);p.bezierCurveTo(76,68,48,64,52,48)});circle(p,64,50,22);line(p,64,72,64,118);line(p,64,90,44,80);line(p,64,96,84,84)}
+  else if(t==="幸運草"){circle(p,52,50,14);circle(p,76,50,14);circle(p,52,74,14);circle(p,76,74,14);line(p,64,82,64,116)}
+  else if(t==="紅蘿蔔"){triangle(p,54,44,86,44,68,112);line(p,68,44,52,20);line(p,68,44,70,16);line(p,68,44,88,22)}
+  else if(t==="房子"){rect(p,34,58,60,50);triangle(p,26,58,64,22,102,58);rect(p,56,78,16,30);rect(p,40,68,12,12);rect(p,78,68,12,12)}
+  else if(t==="披薩"){triangle(p,34,26,102,26,66,110);circle(p,58,54,4,true);circle(p,78,48,4,true);circle(p,66,78,4,true);line(p,42,38,94,38)}
+  else if(t==="電腦"){rect(p,30,30,68,46);line(p,64,76,64,94);rect(p,42,96,44,10);rect(p,26,108,76,10)}
+  else if(t==="汽車"){rect(p,28,58,76,26);path(p,()=>{p.moveTo(44,58);p.lineTo(56,38);p.lineTo(82,38);p.lineTo(94,58)});circle(p,44,88,10);circle(p,88,88,10)}
+  else if(t==="腳踏車"){circle(p,40,86,20);circle(p,90,86,20);line(p,40,86,60,58);line(p,60,58,90,86);line(p,40,86,70,86);line(p,60,58,72,44);line(p,72,44,88,44)}
+  else if(t==="書"){path(p,()=>{p.moveTo(24,36);p.lineTo(62,46);p.lineTo(62,108);p.lineTo(24,96);p.closePath()});path(p,()=>{p.moveTo(104,36);p.lineTo(66,46);p.lineTo(66,108);p.lineTo(104,96);p.closePath()});line(p,64,46,64,108)}
+  else if(t==="帽子"){path(p,()=>{p.moveTo(34,70);p.quadraticCurveTo(64,20,94,70)});line(p,24,78,104,78)}
+  else if(t==="咖啡杯"){rect(p,36,46,50,48);path(p,()=>{p.moveTo(86,56);p.bezierCurveTo(112,54,110,86,86,82)});line(p,44,30,38,18);line(p,60,30,64,18);line(p,76,30,72,18)}
+  else if(t==="火箭"){path(p,()=>{p.moveTo(64,14);p.quadraticCurveTo(92,44,76,92);p.lineTo(52,92);p.quadraticCurveTo(36,44,64,14)});circle(p,64,50,9);line(p,52,92,36,108);line(p,76,92,92,108);path(p,()=>{p.moveTo(56,96);p.quadraticCurveTo(64,124,72,96)})}
+  else if(t==="雨傘"){path(p,()=>{p.moveTo(22,66);p.quadraticCurveTo(64,18,106,66);p.quadraticCurveTo(92,56,78,66);p.quadraticCurveTo(64,56,50,66);p.quadraticCurveTo(36,56,22,66)});line(p,64,66,64,108);path(p,()=>{p.moveTo(64,108);p.quadraticCurveTo(80,118,82,100)})}
+  else if(t==="吉他"){oval(p,52,78,22,28);oval(p,70,92,20,24);circle(p,62,84,7);line(p,76,68,106,28);line(p,82,72,112,32)}
+  else if(t==="時鐘"){circle(p,64,64,42);line(p,64,64,64,36);line(p,64,64,86,72);circle(p,64,64,3,true)}
+  else if(t==="聖誕樹"){triangle(p,64,18,36,58,92,58);triangle(p,64,42,28,84,100,84);triangle(p,64,66,20,108,108,108);rect(p,56,108,16,12);circle(p,64,14,5,true)}
+  else if(t==="燈籠"){oval(p,64,64,28,40);line(p,44,30,84,30);line(p,44,98,84,98);line(p,64,18,64,30);line(p,64,98,64,118);line(p,54,108,74,108)}
+  else if(t==="月餅"){circle(p,64,64,38);circle(p,64,64,20);for(let a=0;a<Math.PI*2;a+=Math.PI/4)line(p,64,64,64+Math.cos(a)*35,64+Math.sin(a)*35)}
+  else if(t==="龍舟"){path(p,()=>{p.moveTo(22,78);p.quadraticCurveTo(64,104,110,78);p.lineTo(94,96);p.lineTo(34,96);p.closePath()});path(p,()=>{p.moveTo(88,70);p.quadraticCurveTo(104,36,118,62)});circle(p,104,56,3,true);line(p,36,64,50,96);line(p,62,64,76,96)}
+  else if(t==="紅包"){rect(p,42,28,44,76);line(p,42,28,64,54);line(p,86,28,64,54);line(p,52,76,76,76)}
+  else if(t==="南瓜燈"){oval(p,64,68,42,32);line(p,64,36,64,100);triangle(p,42,58,54,50,56,66);triangle(p,74,50,86,58,72,66);path(p,()=>{p.moveTo(44,80);p.quadraticCurveTo(64,96,84,80)})}
+  else if(t==="禮物"){rect(p,34,54,60,48);line(p,64,54,64,102);line(p,34,72,94,72);path(p,()=>{p.moveTo(64,54);p.bezierCurveTo(36,38,46,24,64,46);p.bezierCurveTo(82,24,94,38,64,54)})}
+  else if(t==="蛋糕"){rect(p,34,62,60,40);line(p,34,78,94,78);line(p,52,62,52,42);line(p,76,62,76,42);circle(p,52,38,4);circle(p,76,38,4)}
+  else if(t==="煙火"){for(let a=0;a<Math.PI*2;a+=Math.PI/6)line(p,64,52,64+Math.cos(a)*36,52+Math.sin(a)*36);circle(p,64,52,3,true);for(let a=0;a<Math.PI*2;a+=Math.PI/4)line(p,34,90,34+Math.cos(a)*20,90+Math.sin(a)*20)}
+  else if(t==="聖誕老人"){drawFace(p);path(p,()=>{p.moveTo(36,36);p.lineTo(64,12);p.lineTo(88,38)});circle(p,88,38,6);path(p,()=>{p.moveTo(38,70);p.quadraticCurveTo(64,102,90,70)})}
+  else if(t==="愛心氣球"){path(p,()=>{p.moveTo(64,52);p.bezierCurveTo(36,24,16,58,64,94);p.bezierCurveTo(112,58,92,24,64,52)});line(p,64,94,58,120)}
+  else if(t==="幽靈"){path(p,()=>{p.moveTo(34,102);p.lineTo(34,54);p.quadraticCurveTo(64,14,94,54);p.lineTo(94,102);p.lineTo(80,92);p.lineTo(66,104);p.lineTo(52,92);p.closePath()});circle(p,54,58,4,true);circle(p,74,58,4,true)}
+  else if(["跑步","跳舞","揮手","微笑","小丑","忍者","公主","國王","超人","嬰兒","老人","外星人","機器人","美人魚","巫師","海盜","警察","醫生","老師","廚師","太空人","消防員","農夫","法官","歌手","畫家","司機","攝影師"].includes(t)){drawSymbolicPerson(p,t)}
+  else if(t==="游泳"){drawPerson(p,58,54);path(p,()=>{p.moveTo(18,98);p.quadraticCurveTo(34,86,50,98);p.quadraticCurveTo(66,110,82,98);p.quadraticCurveTo(98,86,114,98)})}
+  else if(t==="睡覺"){rect(p,26,68,78,28);circle(p,46,56,12);line(p,20,96,112,96);line(p,84,28,100,28);line(p,100,28,84,44);line(p,84,44,100,44)}
+  else if(t==="唱歌"){drawFace(p);line(p,90,36,104,26);circle(p,104,50,5);line(p,104,26,104,50)}
+  else if(t==="看書"){drawPerson(p,64,48);rect(p,38,74,52,34);line(p,64,74,64,108)}
+  else if(t==="投籃"){drawPerson(p,48,48);circle(p,72,36,8);circle(p,98,52,18);line(p,80,52,116,52)}
+  else if(t==="煮飯"){rect(p,38,68,52,30);line(p,30,68,98,68);line(p,48,52,42,36);line(p,64,52,68,36);line(p,80,52,86,36)}
+  else if(t==="爬山"){triangle(p,16,112,58,38,92,112);triangle(p,58,112,88,58,116,112);drawPerson(p,56,72)}
+  else if(t==="拍照"){drawPerson(p,46,56);rect(p,72,56,34,24);circle(p,89,68,8);rect(p,80,48,14,8)}
+  else if(t==="畫蛇添足"){drawTemplate(p,"蛇");line(p,70,76,78,96);line(p,84,78,92,96)}
+  else if(t==="守株待兔"){drawTemplate(p,"樹");circle(p,96,82,15);line(p,92,70,86,52);line(p,100,70,108,52)}
+  else if(t==="井底之蛙"){rect(p,28,28,72,72);line(p,28,52,100,52);line(p,28,76,100,76);circle(p,64,78,16);circle(p,56,68,4,true);circle(p,72,68,4,true)}
+  else if(t==="對牛彈琴"){oval(p,48,70,26,18);circle(p,74,62,14);line(p,40,88,40,108);line(p,60,88,60,108);rect(p,84,58,24,38);line(p,90,58,90,96);line(p,102,58,102,96)}
+  else if(t==="盲人摸象"){drawPerson(p,30,54);drawTemplate(p,"大象")}
+  else if(t==="鶴立雞群"){drawTemplate(p,"鳥");for(let x of [28,92,106]){circle(p,x,92,8);line(p,x,100,x,112)}}
+  else if(t==="畫龍點睛"){path(p,()=>{p.moveTo(22,70);p.bezierCurveTo(50,20,76,110,106,48)});circle(p,100,44,10);circle(p,104,42,2,true);line(p,88,32,82,18)}
+  else if(t==="一箭雙鵰"){drawTemplate(p,"鳥");line(p,20,100,108,36);triangle(p,108,36,96,38,104,48);circle(p,100,82,12)}
+  else if(t==="雪中送炭"){for(let x of [30,56,88]){line(p,x,28,x+8,42);line(p,x+8,28,x,42)}rect(p,42,68,44,28);line(p,46,64,60,48);line(p,74,64,86,48)}
+  else if(t==="火上澆油"){path(p,()=>{p.moveTo(54,98);p.quadraticCurveTo(38,72,58,52);p.quadraticCurveTo(64,20,78,54);p.quadraticCurveTo(96,72,74,98)});rect(p,86,36,24,18);line(p,86,54,72,70)}
+  else if(t==="人山人海"){triangle(p,20,108,58,42,96,108);for(let x of [26,48,74,100])drawPerson(p,x,76)}
+  else if(t==="大海撈針"){path(p,()=>{p.moveTo(16,82);p.quadraticCurveTo(32,70,48,82);p.quadraticCurveTo(64,94,80,82);p.quadraticCurveTo(96,70,112,82)});line(p,80,42,44,108);circle(p,80,42,3)}
+  else {drawFace(p)}
+}
+function drawSymbolicPerson(p,t){
+  drawPerson(p,64,58);
+  if(["微笑","小丑"].includes(t))drawFace(p);
+  if(t==="小丑"){circle(p,64,58,6,true);path(p,()=>{p.moveTo(38,28);p.quadraticCurveTo(64,8,90,28)})}
+  if(t==="忍者"){circle(p,64,38,18);line(p,46,36,82,36);line(p,82,28,104,18)}
+  if(["公主","國王"].includes(t)){triangle(p,46,28,54,12,64,28);triangle(p,58,28,66,10,76,28);line(p,44,30,82,30)}
+  if(t==="超人"){triangle(p,64,42,36,106,92,106);line(p,52,58,76,58)}
+  if(t==="嬰兒"){circle(p,64,42,22);circle(p,64,56,5);oval(p,64,88,28,20)}
+  if(t==="老人"){circle(p,64,38,18);line(p,88,70,104,116);circle(p,56,36,5);circle(p,72,36,5)}
+  if(t==="外星人"){oval(p,64,40,24,30);circle(p,54,38,6,true);circle(p,74,38,6,true);line(p,54,16,44,2);line(p,74,16,84,2)}
+  if(t==="機器人"){rect(p,44,18,40,34);rect(p,42,58,44,40);circle(p,56,34,3,true);circle(p,72,34,3,true)}
+  if(t==="美人魚"){circle(p,64,30,12);line(p,64,42,64,66);path(p,()=>{p.moveTo(64,66);p.quadraticCurveTo(40,92,52,116);p.moveTo(64,66);p.quadraticCurveTo(88,92,76,116)})}
+  if(t==="巫師"){triangle(p,44,30,64,4,84,30);line(p,96,54,112,20);circle(p,112,20,4)}
+  if(t==="海盜"){line(p,52,36,76,36);circle(p,56,36,5,true);path(p,()=>{p.moveTo(42,24);p.quadraticCurveTo(64,8,86,24)})}
+  if(t==="警察"){path(p,()=>{p.moveTo(44,24);p.lineTo(84,24);p.lineTo(76,12);p.lineTo(52,12);p.closePath()});circle(p,64,70,4,true)}
+  if(t==="醫生"){line(p,48,70,80,70);line(p,64,54,64,86);circle(p,88,72,8)}
+  if(t==="老師"){rect(p,78,30,34,30);line(p,80,64,106,42)}
+  if(t==="廚師"){circle(p,52,18,10);circle(p,64,14,10);circle(p,76,18,10);line(p,42,28,86,28)}
+  if(t==="太空人"){circle(p,64,38,24);rect(p,42,62,44,38);circle(p,64,38,12)}
+  if(t==="消防員"){path(p,()=>{p.moveTo(46,28);p.quadraticCurveTo(64,6,82,28)});line(p,44,30,84,30);line(p,92,70,112,90)}
+  if(t==="農夫"){path(p,()=>{p.moveTo(36,24);p.quadraticCurveTo(64,8,92,24)});line(p,94,48,112,96)}
+  if(t==="法官"){rect(p,86,36,20,8);line(p,96,44,80,62)}
+  if(t==="歌手"){circle(p,96,48,8);line(p,90,56,78,76)}
+  if(t==="畫家"){rect(p,84,44,26,34);circle(p,92,54,3,true);line(p,38,92,22,112)}
+  if(t==="司機"){circle(p,92,56,16);line(p,80,56,104,56)}
+  if(t==="攝影師"){rect(p,82,46,34,24);circle(p,99,58,8)}
+}
+window.onload=init;
+</script>
+</body>
+</html>
