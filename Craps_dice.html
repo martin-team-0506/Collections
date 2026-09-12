@@ -1,0 +1,1660 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="豹子通殺！適合國中生的互動式進階雙骰對決與 Python 學習遊戲。">
+  <meta name="theme-color" content="#6555e8">
+  <title>豹子通殺！進階雙骰終極對決</title>
+  <style>
+    :root {
+      --bg-1: #5038d5;
+      --bg-2: #a43cbb;
+      --bg-3: #f36f64;
+      --panel: rgba(255, 255, 255, .91);
+      --panel-solid: #ffffff;
+      --panel-soft: rgba(255, 255, 255, .65);
+      --ink: #28203f;
+      --muted: #6d6482;
+      --primary: #6555e8;
+      --primary-deep: #4738bd;
+      --pink: #e54b9f;
+      --orange: #f4773e;
+      --gold: #ffc83d;
+      --green: #168a62;
+      --red: #d7465e;
+      --line: rgba(96, 75, 207, .17);
+      --shadow: 0 22px 65px rgba(37, 21, 91, .27);
+      --dice-color: #7657ee;
+      --pip-color: #ffffff;
+    }
+
+    html[data-theme="dark"] {
+      --bg-1: #12102f;
+      --bg-2: #321a50;
+      --bg-3: #642b4c;
+      --panel: rgba(29, 25, 53, .93);
+      --panel-solid: #25203f;
+      --panel-soft: rgba(52, 44, 79, .72);
+      --ink: #faf7ff;
+      --muted: #c8bfdd;
+      --primary: #a99dff;
+      --primary-deep: #c0b8ff;
+      --line: rgba(194, 181, 255, .22);
+      --shadow: 0 24px 68px rgba(4, 2, 19, .54);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+      color: var(--ink);
+      font: 16px/1.6 "Noto Sans TC", "Microsoft JhengHei", system-ui, -apple-system, sans-serif;
+      background:
+        radial-gradient(circle at 8% 17%, rgba(255,255,255,.3) 0 2px, transparent 3px),
+        radial-gradient(circle at 88% 12%, rgba(255,225,73,.8) 0 3px, transparent 4px),
+        radial-gradient(circle at 92% 73%, rgba(255,255,255,.25) 0 2px, transparent 3px),
+        linear-gradient(135deg, var(--bg-1), var(--bg-2) 55%, var(--bg-3));
+      background-attachment: fixed;
+      transition: color .3s ease, background .3s ease;
+    }
+    body::before,
+    body::after {
+      content: "";
+      position: fixed;
+      z-index: -1;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    body::before {
+      width: 360px;
+      height: 360px;
+      left: -150px;
+      top: 18%;
+      background: rgba(255, 204, 61, .17);
+      box-shadow: 0 0 90px rgba(255, 204, 61, .16);
+    }
+    body::after {
+      width: 450px;
+      height: 450px;
+      right: -190px;
+      bottom: -110px;
+      background: rgba(73, 213, 255, .13);
+      box-shadow: 0 0 100px rgba(73, 213, 255, .13);
+    }
+
+    button, input { font: inherit; }
+    button { -webkit-tap-highlight-color: transparent; }
+    button:focus-visible,
+    input:focus-visible,
+    summary:focus-visible {
+      outline: 4px solid rgba(255, 209, 58, .8);
+      outline-offset: 3px;
+    }
+    [hidden] { display: none !important; }
+
+    .visually-hidden {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+    .skip-link {
+      position: fixed;
+      left: 16px;
+      top: -80px;
+      z-index: 200;
+      padding: 10px 16px;
+      color: #fff;
+      border-radius: 12px;
+      background: #201840;
+      transition: top .2s;
+    }
+    .skip-link:focus { top: 16px; }
+
+    .app {
+      width: min(1160px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 18px 0 34px;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 17px;
+      padding: 11px 13px 11px 17px;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,.3);
+      border-radius: 22px;
+      background: rgba(32, 21, 77, .25);
+      box-shadow: 0 10px 34px rgba(31, 16, 75, .16);
+      backdrop-filter: blur(15px);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      min-width: 0;
+      gap: 12px;
+    }
+    .brand-icon {
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      width: 48px;
+      height: 48px;
+      font-size: 1.75rem;
+      border-radius: 15px;
+      background: linear-gradient(145deg, #fff4a1, #ffb53d);
+      box-shadow: 0 8px 20px rgba(49, 24, 82, .28);
+      transform: rotate(-6deg);
+    }
+    .brand h1 {
+      overflow: hidden;
+      margin: 0;
+      font-size: clamp(1.05rem, 3vw, 1.42rem);
+      line-height: 1.25;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .brand small {
+      display: block;
+      color: rgba(255,255,255,.82);
+      font-size: .78rem;
+      font-weight: 750;
+    }
+    .tools { display: flex; gap: 8px; }
+    .icon-btn {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      padding: 0;
+      color: #fff;
+      cursor: pointer;
+      border: 1px solid rgba(255,255,255,.36);
+      border-radius: 14px;
+      background: rgba(255,255,255,.13);
+      transition: transform .18s, background .18s;
+    }
+    .icon-btn:hover { transform: translateY(-2px); background: rgba(255,255,255,.24); }
+    .icon-btn:active { transform: scale(.94); }
+
+    .panel {
+      position: relative;
+      overflow: hidden;
+      padding: clamp(19px, 4vw, 34px);
+      border: 1px solid rgba(255,255,255,.55);
+      border-radius: 28px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+    .panel::after {
+      content: "";
+      position: absolute;
+      top: -110px;
+      right: -75px;
+      width: 205px;
+      height: 205px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(108,83,238,.18), rgba(238,74,158,.1));
+      pointer-events: none;
+    }
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 9px;
+      padding: 5px 11px;
+      color: var(--primary-deep);
+      font-size: .86rem;
+      font-weight: 900;
+      letter-spacing: .06em;
+      border-radius: 999px;
+      background: rgba(105, 85, 231, .12);
+    }
+    .section-title {
+      margin: 0 0 7px;
+      font-size: clamp(1.6rem, 4.5vw, 2.35rem);
+      line-height: 1.2;
+      letter-spacing: -.025em;
+    }
+    .lead {
+      max-width: 750px;
+      margin: 0 0 23px;
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    .setup-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.18fr) minmax(270px, .82fr);
+      gap: 24px;
+      align-items: start;
+    }
+    .field-label {
+      display: block;
+      margin-bottom: 9px;
+      font-weight: 900;
+    }
+    .name-input {
+      width: 100%;
+      min-height: 54px;
+      padding: 12px 16px;
+      color: var(--ink);
+      border: 2px solid var(--line);
+      border-radius: 15px;
+      background: var(--panel-solid);
+      box-shadow: inset 0 2px 4px rgba(49,35,103,.04);
+      transition: border .18s, box-shadow .18s;
+    }
+    .name-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(102,87,237,.13);
+      outline: none;
+    }
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+    .color-choice {
+      min-height: 94px;
+      padding: 10px 7px;
+      color: var(--ink);
+      cursor: pointer;
+      border: 2px solid transparent;
+      border-radius: 17px;
+      background: var(--panel-solid);
+      box-shadow: 0 7px 18px rgba(54,35,105,.1);
+      transition: transform .2s, border .2s, box-shadow .2s;
+    }
+    .color-choice:hover { transform: translateY(-4px) scale(1.02); }
+    .color-choice[aria-pressed="true"] {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 4px rgba(255,200,61,.18), 0 12px 25px rgba(91,51,30,.16);
+      transform: translateY(-3px) scale(1.035);
+    }
+    .color-orb {
+      display: block;
+      width: 38px;
+      height: 38px;
+      margin: 0 auto 5px;
+      border: 4px solid rgba(255,255,255,.8);
+      border-radius: 12px;
+      background: var(--choice-color);
+      box-shadow: 0 5px 14px color-mix(in srgb, var(--choice-color) 45%, transparent);
+      transform: rotate(8deg);
+    }
+    .color-choice b { display: block; font-size: .83rem; line-height: 1.3; }
+    .error {
+      min-height: 27px;
+      margin: 9px 0 0;
+      color: var(--red);
+      font-weight: 850;
+    }
+    .primary-btn,
+    .secondary-btn {
+      min-height: 52px;
+      padding: 12px 20px;
+      cursor: pointer;
+      border: 0;
+      border-radius: 16px;
+      font-weight: 950;
+      transition: transform .18s, filter .18s, box-shadow .18s;
+    }
+    .primary-btn {
+      color: #fff;
+      background: linear-gradient(135deg, var(--primary), var(--pink));
+      box-shadow: 0 12px 28px rgba(101,71,215,.32);
+    }
+    .primary-btn:hover { transform: translateY(-3px); filter: saturate(1.12); }
+    .primary-btn:active { transform: scale(.96); }
+    .primary-btn:disabled { cursor: not-allowed; opacity: .58; filter: grayscale(.3); transform: none; }
+    .secondary-btn {
+      color: var(--primary-deep);
+      border: 2px solid var(--line);
+      background: var(--panel-solid);
+    }
+    .secondary-btn:hover { transform: translateY(-2px); border-color: var(--primary); }
+    .start-btn { width: 100%; margin-top: 11px; }
+
+    .rules {
+      padding: 19px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background:
+        linear-gradient(145deg, rgba(103,83,239,.13), rgba(244,92,171,.07)),
+        var(--panel-solid);
+    }
+    .rules h3 { margin: 0 0 8px; font-size: 1.18rem; }
+    .rules-goal { margin: 0 0 13px; color: var(--primary-deep); font-weight: 950; }
+    .rule-highlight {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      margin-bottom: 12px;
+      padding: 11px;
+      border-radius: 14px;
+      background: var(--panel-soft);
+    }
+    .rule-highlight span { font-size: 1.9rem; }
+    .rule-highlight b { display: block; }
+    .rule-highlight small { color: var(--muted); font-weight: 700; }
+    .rules ul { margin: 0; padding-left: 22px; color: var(--muted); }
+    .rules li + li { margin-top: 5px; }
+
+    .welcome {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 15px;
+      padding: 12px 15px;
+      border: 1px solid var(--line);
+      border-radius: 17px;
+      background: var(--panel-soft);
+    }
+    .welcome strong { display: block; color: var(--primary-deep); }
+    .welcome span { color: var(--muted); font-size: .9rem; }
+    .round-pill {
+      flex: 0 0 auto;
+      padding: 7px 13px;
+      color: #fff;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--orange), var(--pink));
+      font-weight: 950;
+    }
+
+    .scoreboard {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 11px;
+      margin-bottom: 16px;
+    }
+    .score-card {
+      padding: 13px 15px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--panel-solid);
+    }
+    .score-card.enemy { text-align: right; }
+    .score-label { color: var(--muted); font-size: .84rem; font-weight: 850; }
+    .score-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 3px; }
+    .enemy .score-row { flex-direction: row-reverse; }
+    .score-number { font-size: 1.55rem; font-weight: 1000; line-height: 1; }
+    .badges { display: flex; gap: 5px; }
+    .badge {
+      display: grid;
+      place-items: center;
+      width: 29px;
+      height: 29px;
+      color: #aaa5b8;
+      border-radius: 50%;
+      background: var(--panel-soft);
+      filter: grayscale(1);
+      opacity: .5;
+      transition: transform .3s, filter .3s, opacity .3s, background .3s;
+    }
+    .badge.lit {
+      color: #604200;
+      background: linear-gradient(145deg, #fff59c, #ffc238);
+      filter: none;
+      opacity: 1;
+      transform: scale(1.1) rotate(8deg);
+      box-shadow: 0 5px 14px rgba(240,176,28,.27);
+    }
+    .score-vs {
+      display: grid;
+      place-items: center;
+      min-width: 52px;
+      color: var(--primary-deep);
+      font-weight: 1000;
+    }
+
+    .arena {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr minmax(105px, .34fr) 1fr;
+      align-items: stretch;
+      gap: 12px;
+      min-height: 304px;
+      padding: 18px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.38);
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at 50% 48%, rgba(255,228,93,.3), transparent 28%),
+        linear-gradient(135deg, rgba(80,65,214,.2), rgba(229,75,159,.18));
+    }
+    .arena::before {
+      content: "";
+      position: absolute;
+      inset: 11px;
+      border: 2px dashed rgba(105,80,226,.14);
+      border-radius: 19px;
+      pointer-events: none;
+    }
+    .arena.shake { animation: gentleShake .38s ease; }
+    .fighter {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-width: 0;
+      padding: 13px;
+      text-align: center;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(255,255,255,.17);
+    }
+    .fighter-name { margin-bottom: 11px; color: var(--muted); font-weight: 950; }
+    .dice-pair {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(9px, 2vw, 15px);
+      min-height: 106px;
+    }
+    .die {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      flex: 0 1 104px;
+      width: min(104px, 41%);
+      aspect-ratio: 1;
+      padding: 12px;
+      border: 4px solid rgba(255,255,255,.62);
+      border-radius: 23px;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.22), transparent 40%),
+        var(--dice-color);
+      box-shadow:
+        inset -7px -8px 15px rgba(30,18,71,.18),
+        inset 5px 5px 12px rgba(255,255,255,.23),
+        0 13px 24px rgba(38,23,91,.24);
+      transform: rotate(var(--tilt, 0deg));
+      transition: background .3s, box-shadow .3s;
+    }
+    .die:nth-child(1) { --tilt: -4deg; }
+    .die:nth-child(2) { --tilt: 5deg; }
+    .enemy-dice .die {
+      --dice-color: #34314b;
+      --pip-color: #ffdd5c;
+    }
+    .pip {
+      width: clamp(10px, 1.6vw, 16px);
+      height: clamp(10px, 1.6vw, 16px);
+      place-self: center;
+      border-radius: 50%;
+      background: var(--pip-color);
+      box-shadow: inset 0 2px 3px rgba(0,0,0,.2), 0 1px 2px rgba(255,255,255,.2);
+    }
+    .p-tl { grid-area: 1 / 1; }
+    .p-tc { grid-area: 1 / 2; }
+    .p-tr { grid-area: 1 / 3; }
+    .p-ml { grid-area: 2 / 1; }
+    .p-mc { grid-area: 2 / 2; }
+    .p-mr { grid-area: 2 / 3; }
+    .p-bl { grid-area: 3 / 1; }
+    .p-bc { grid-area: 3 / 2; }
+    .p-br { grid-area: 3 / 3; }
+    .die.rolling { animation: diceRoll .28s linear infinite; }
+    .die.reveal { animation: diceReveal .52s cubic-bezier(.18,1.45,.35,1); }
+    .dice-pair.double .die {
+      border-color: #ffe268;
+      box-shadow:
+        inset -7px -8px 15px rgba(30,18,71,.15),
+        0 0 0 5px rgba(255,212,62,.2),
+        0 0 32px rgba(255,193,49,.78);
+      animation: doublePulse .8s ease 2;
+    }
+    .fighter-stats {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 13px;
+    }
+    .total-chip, .double-chip {
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: var(--panel-solid);
+      font-size: .86rem;
+      font-weight: 900;
+    }
+    .double-chip {
+      color: #5c3e00;
+      background: linear-gradient(135deg, #fff4a5, #ffc344);
+    }
+    .battle-center {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .vs-orb {
+      display: grid;
+      place-items: center;
+      width: 76px;
+      height: 76px;
+      color: #fff;
+      border: 4px solid rgba(255,255,255,.65);
+      border-radius: 50%;
+      background: linear-gradient(145deg, var(--orange), var(--pink));
+      box-shadow: 0 12px 26px rgba(81,37,111,.28);
+      font-size: 1.35rem;
+      font-weight: 1000;
+    }
+    .battle-status {
+      min-height: 50px;
+      margin-top: 10px;
+      color: var(--primary-deep);
+      font-size: .93rem;
+      font-weight: 950;
+      line-height: 1.35;
+    }
+    .leopard-alert {
+      min-height: 32px;
+      margin: 12px 0 0;
+      text-align: center;
+      color: #704800;
+      font-weight: 1000;
+    }
+    html[data-theme="dark"] .leopard-alert { color: #ffe26d; }
+    .round-result {
+      min-height: 53px;
+      margin: 5px 0 0;
+      text-align: center;
+      font-size: clamp(1.05rem, 2.7vw, 1.2rem);
+      font-weight: 1000;
+    }
+    .round-result.player { color: var(--green); }
+    .round-result.computer { color: var(--red); }
+    .round-result.draw { color: var(--primary-deep); }
+
+    .roll-zone { margin-top: 14px; text-align: center; }
+    .roll-btn {
+      width: min(430px, 100%);
+      min-height: 62px;
+      font-size: 1.15rem;
+      letter-spacing: .03em;
+    }
+    .roll-hint { margin: 7px 0 0; color: var(--muted); font-size: .86rem; }
+
+    .lower-grid {
+      display: grid;
+      grid-template-columns: 1.22fr .78fr;
+      gap: 16px;
+      margin-top: 17px;
+    }
+    .mini-card {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 19px;
+      background: var(--panel-soft);
+    }
+    .mini-card h3 { margin: 0 0 10px; font-size: 1.05rem; }
+    .battle-log {
+      max-height: 215px;
+      margin: 0;
+      padding: 0;
+      overflow-y: auto;
+      list-style: none;
+    }
+    .battle-log li {
+      padding: 9px 10px;
+      border-left: 4px solid var(--primary);
+      border-radius: 10px;
+      background: var(--panel-solid);
+      font-size: .91rem;
+    }
+    .battle-log li + li { margin-top: 7px; }
+    .battle-log .empty-log {
+      color: var(--muted);
+      border-left-color: transparent;
+      text-align: center;
+    }
+    .quick-rules { display: grid; gap: 8px; }
+    .quick-rule {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 9px 10px;
+      border-radius: 11px;
+      background: var(--panel-solid);
+    }
+    .quick-rule span { font-size: 1.45rem; }
+    .quick-rule b { display: block; font-size: .9rem; }
+    .quick-rule small { display: block; color: var(--muted); font-size: .76rem; }
+
+    .learning {
+      margin-top: 18px;
+      border: 1px solid rgba(255,255,255,.55);
+      border-radius: 24px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+    .learning > summary {
+      padding: 18px 22px;
+      cursor: pointer;
+      font-size: 1.12rem;
+      font-weight: 1000;
+      list-style: none;
+    }
+    .learning > summary::-webkit-details-marker { display: none; }
+    .learning > summary::after { content: "＋"; float: right; color: var(--primary); font-size: 1.35rem; }
+    .learning[open] > summary::after { content: "－"; }
+    .lesson-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      padding: 0 22px 22px;
+    }
+    .lesson {
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--panel-soft);
+    }
+    .lesson h3 { margin: 0 0 4px; color: var(--primary-deep); font-size: 1rem; }
+    .lesson p { margin: 0 0 8px; color: var(--muted); font-size: .9rem; }
+    .lesson .web-link { display: block; margin-top: 8px; color: var(--green); font-size: .8rem; font-weight: 850; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .88em; }
+    pre {
+      margin: 0;
+      padding: 10px 11px;
+      overflow-x: auto;
+      color: #f9f6ff;
+      border-radius: 11px;
+      background: #28213f;
+      line-height: 1.5;
+    }
+    footer {
+      padding: 23px 10px 4px;
+      color: rgba(255,255,255,.91);
+      text-align: center;
+      font-weight: 750;
+      text-shadow: 0 2px 8px rgba(40,19,92,.3);
+    }
+
+    dialog {
+      width: min(575px, calc(100% - 28px));
+      max-height: calc(100vh - 36px);
+      padding: 0;
+      overflow-y: auto;
+      color: var(--ink);
+      border: 1px solid rgba(255,255,255,.58);
+      border-radius: 26px;
+      background: var(--panel-solid);
+      box-shadow: 0 30px 90px rgba(28,17,71,.52);
+    }
+    dialog::backdrop {
+      background: rgba(18,11,45,.69);
+      backdrop-filter: blur(8px);
+    }
+    .dialog-inner { padding: clamp(21px, 5vw, 33px); text-align: center; }
+    .dialog-icon { font-size: 4rem; line-height: 1.1; animation: crownFloat 1.8s ease-in-out infinite; }
+    .dialog-inner h2 { margin: 8px 0 7px; font-size: clamp(1.55rem, 5vw, 2.05rem); }
+    .dialog-inner > p { margin: 6px 0; color: var(--muted); }
+    .tutorial-steps { display: grid; gap: 9px; margin: 17px 0; text-align: left; }
+    .tutorial-step {
+      display: grid;
+      grid-template-columns: 46px 1fr;
+      gap: 11px;
+      align-items: center;
+      padding: 11px;
+      border-radius: 14px;
+      background: var(--panel-soft);
+    }
+    .step-icon { font-size: 1.8rem; text-align: center; }
+    .tutorial-step b { display: block; }
+    .tutorial-step span { color: var(--muted); font-size: .88rem; }
+    .result-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+      margin: 16px 0;
+    }
+    .stat { padding: 10px 5px; border-radius: 13px; background: var(--panel-soft); }
+    .stat strong { display: block; color: var(--primary-deep); font-size: 1.12rem; }
+    .stat span { color: var(--muted); font-size: .73rem; font-weight: 850; }
+    .dialog-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 17px; }
+    .dialog-actions .wide { grid-column: 1 / -1; }
+    .modal-log { max-height: 190px; margin-top: 11px; text-align: left; }
+
+    .toast {
+      position: fixed;
+      z-index: 150;
+      top: 18px;
+      right: 18px;
+      width: min(340px, calc(100% - 36px));
+      padding: 13px 15px;
+      color: #38273c;
+      border: 2px solid rgba(255,255,255,.75);
+      border-radius: 17px;
+      background: linear-gradient(135deg, #fff4a2, #ffc35e);
+      box-shadow: 0 18px 48px rgba(38,21,76,.35);
+      transform: translateX(calc(100% + 38px));
+      transition: transform .4s cubic-bezier(.2,1.25,.45,1);
+    }
+    .toast.show { transform: translateX(0); }
+    .toast strong { display: block; font-size: 1.03rem; }
+    .toast span { font-size: .87rem; font-weight: 750; }
+    .confetti {
+      position: fixed;
+      inset: 0;
+      z-index: 120;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .confetti-piece {
+      position: absolute;
+      top: -22px;
+      width: 10px;
+      height: 16px;
+      border-radius: 3px;
+      background: hsl(var(--hue), 90%, 58%);
+      animation: confettiFall var(--duration) linear forwards;
+    }
+
+    @keyframes diceRoll {
+      0% { transform: translateY(0) rotate(0) scale(1); }
+      35% { transform: translateY(-10px) rotate(95deg) scale(.93); }
+      70% { transform: translateY(2px) rotate(205deg) scale(1.04); }
+      100% { transform: translateY(0) rotate(360deg) scale(1); }
+    }
+    @keyframes diceReveal {
+      0% { transform: scale(.45) rotate(-30deg); opacity: .35; }
+      72% { transform: scale(1.12) rotate(8deg); }
+      100% { transform: scale(1) rotate(var(--tilt)); opacity: 1; }
+    }
+    @keyframes doublePulse {
+      0%,100% { transform: scale(1) rotate(var(--tilt)); }
+      50% { transform: scale(1.1) rotate(var(--tilt)); }
+    }
+    @keyframes gentleShake {
+      0%,100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+    @keyframes crownFloat {
+      0%,100% { transform: translateY(0) rotate(-4deg); }
+      50% { transform: translateY(-8px) rotate(5deg); }
+    }
+    @keyframes confettiFall {
+      to { transform: translate(var(--drift), 108vh) rotate(760deg); opacity: .82; }
+    }
+
+    @media (max-width: 820px) {
+      .setup-grid, .lower-grid { grid-template-columns: 1fr; }
+      .rules { order: -1; }
+      .arena { grid-template-columns: 1fr 88px 1fr; min-height: 275px; padding: 13px 8px; gap: 7px; }
+      .fighter { padding: 9px 6px; }
+      .lesson-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 580px) {
+      .app { width: calc(100% - 18px); padding-top: 9px; }
+      .topbar { padding: 9px; border-radius: 18px; }
+      .brand-icon { width: 40px; height: 40px; font-size: 1.5rem; border-radius: 12px; }
+      .brand small { display: none; }
+      .brand h1 { font-size: .98rem; }
+      .icon-btn { width: 39px; height: 39px; }
+      .panel { padding: 16px 12px; border-radius: 22px; }
+      .color-grid { grid-template-columns: repeat(2, 1fr); }
+      .color-choice { min-height: 78px; }
+      .color-orb { width: 31px; height: 31px; margin-bottom: 3px; }
+      .welcome { align-items: flex-start; }
+      .welcome span { display: none; }
+      .scoreboard { grid-template-columns: 1fr 32px 1fr; gap: 5px; }
+      .score-card { padding: 10px 8px; }
+      .score-vs { min-width: 32px; font-size: .78rem; }
+      .score-row, .enemy .score-row { display: block; }
+      .score-number { font-size: 1.27rem; }
+      .badges { margin-top: 7px; }
+      .enemy .badges { justify-content: flex-end; }
+      .badge { width: 24px; height: 24px; font-size: .78rem; }
+      .arena {
+        grid-template-columns: 1fr 54px 1fr;
+        min-height: 236px;
+        padding: 10px 4px;
+        gap: 3px;
+      }
+      .fighter-name { margin-bottom: 7px; font-size: .875rem; }
+      .dice-pair { min-height: 74px; gap: 4px; }
+      .die { width: min(70px, 47%); padding: 7px; border-width: 3px; border-radius: 16px; }
+      .pip { width: 9px; height: 9px; }
+      .fighter-stats { display: grid; gap: 4px; margin-top: 8px; }
+      .total-chip, .double-chip { padding: 3px 7px; font-size: .8rem; }
+      .vs-orb { width: 50px; height: 50px; border-width: 3px; font-size: .88rem; }
+      .battle-status { font-size: .875rem; min-height: 48px; }
+      .result-stats { grid-template-columns: repeat(2, 1fr); }
+      .dialog-actions { grid-template-columns: 1fr; }
+      .dialog-actions .wide { grid-column: auto; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要內容</a>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-icon" aria-hidden="true">🎲</span>
+        <div>
+          <h1>豹子通殺！進階雙骰終極對決</h1>
+          <small>擲出幸運雙骰，率先取得3勝，擊敗電腦骰子王！</small>
+        </div>
+      </div>
+      <nav class="tools" aria-label="遊戲工具">
+        <button class="icon-btn" id="tutorialBtn" type="button" aria-label="開啟遊戲教學" title="遊戲教學">❔</button>
+        <button class="icon-btn" id="soundBtn" type="button" aria-label="關閉音效" title="音效開關">🔊</button>
+        <button class="icon-btn" id="themeBtn" type="button" aria-label="切換為夜間模式" title="明亮或夜間模式">🌙</button>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="panel" id="setupScreen" aria-labelledby="setupTitle">
+        <div class="kicker">✨ 魔法競技場報到處</div>
+        <h2 class="section-title" id="setupTitle">建立骰子冒險者</h2>
+        <p class="lead">留下你的冒險者名字，選一組幸運骰子。豹子能無條件擊敗一般點數，率先集滿三顆勝利星就能封王！</p>
+        <div class="setup-grid">
+          <div>
+            <label class="field-label" for="playerName">你的冒險者名字</label>
+            <input class="name-input" id="playerName" type="text" maxlength="20" autocomplete="nickname" placeholder="例如：Martin" aria-describedby="setupError">
+
+            <div class="field-label" id="colorLabel" style="margin-top:18px">選擇幸運骰子</div>
+            <div class="color-grid" role="group" aria-labelledby="colorLabel">
+              <button class="color-choice" type="button" data-id="purple" data-name="魔法紫" data-color="#7657ee" data-pip="#ffffff" aria-pressed="false" style="--choice-color:#7657ee">
+                <span class="color-orb" aria-hidden="true"></span><b>💜 魔法紫</b>
+              </button>
+              <button class="color-choice" type="button" data-id="blue" data-name="星空藍" data-color="#2985df" data-pip="#ffffff" aria-pressed="false" style="--choice-color:#2985df">
+                <span class="color-orb" aria-hidden="true"></span><b>💙 星空藍</b>
+              </button>
+              <button class="color-choice" type="button" data-id="red" data-name="勇氣紅" data-color="#e54b57" data-pip="#ffffff" aria-pressed="false" style="--choice-color:#e54b57">
+                <span class="color-orb" aria-hidden="true"></span><b>❤️ 勇氣紅</b>
+              </button>
+              <button class="color-choice" type="button" data-id="gold" data-name="幸運金" data-color="#f5b82e" data-pip="#4a3200" aria-pressed="false" style="--choice-color:#f5b82e">
+                <span class="color-orb" aria-hidden="true"></span><b>💛 幸運金</b>
+              </button>
+            </div>
+            <p class="error" id="setupError" role="alert" aria-live="polite"></p>
+            <button class="primary-btn start-btn" id="startBtn" type="button">⚡ 開始挑戰</button>
+          </div>
+
+          <aside class="rules" aria-label="遊戲規則">
+            <h3>📜 雙骰競技場規則</h3>
+            <p class="rules-goal">先獲得3勝的一方，就是最終贏家！</p>
+            <div class="rule-highlight">
+              <span aria-hidden="true">🐆</span>
+              <div><b>豹子優先</b><small>兩顆骰子相同就是豹子，無條件擊敗一般點數。</small></div>
+            </div>
+            <ul>
+              <li>雙方都是豹子：比較總點數。</li>
+              <li>雙方都不是豹子：比較總點數。</li>
+              <li>需要比較時，總點數相同就是平手。</li>
+              <li>平手不計分，率先取得3勝就結束。</li>
+            </ul>
+          </aside>
+        </div>
+      </section>
+
+      <section class="panel" id="gameScreen" aria-labelledby="gameTitle" hidden>
+        <h2 class="visually-hidden" id="gameTitle">雙骰終極對決</h2>
+        <div class="welcome">
+          <div>
+            <strong id="welcomeTitle">歡迎勇敢的骰子冒險者！</strong>
+            <span id="welcomeText">你的幸運雙骰已準備完成，現在開始挑戰電腦骰子王！</span>
+          </div>
+          <div class="round-pill" id="roundDisplay">第 1 回合</div>
+        </div>
+
+        <div class="scoreboard" aria-label="目前戰況">
+          <div class="score-card">
+            <div class="score-label" id="playerScoreLabel">🏆 玩家</div>
+            <div class="score-row">
+              <strong class="score-number"><span id="playerScore">0</span> 勝</strong>
+              <div class="badges" id="playerBadges" aria-label="玩家勝利徽章">
+                <span class="badge">★</span><span class="badge">★</span><span class="badge">★</span>
+              </div>
+            </div>
+          </div>
+          <div class="score-vs" aria-hidden="true">VS</div>
+          <div class="score-card enemy">
+            <div class="score-label">🤖 電腦骰子王</div>
+            <div class="score-row">
+              <strong class="score-number"><span id="computerScore">0</span> 勝</strong>
+              <div class="badges" id="computerBadges" aria-label="電腦勝利徽章">
+                <span class="badge">★</span><span class="badge">★</span><span class="badge">★</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="arena" id="arena">
+          <section class="fighter" aria-labelledby="playerFighterName">
+            <div class="fighter-name" id="playerFighterName">玩家</div>
+            <div class="dice-pair" id="playerDice" aria-label="玩家骰子尚未擲出">
+              <div class="die" id="playerDie1" data-value="1"></div>
+              <div class="die" id="playerDie2" data-value="1"></div>
+            </div>
+            <div class="fighter-stats">
+              <span class="total-chip">總點數：<b id="playerTotal">—</b></span>
+              <span class="double-chip" id="playerDouble" hidden>🔥 豹子</span>
+            </div>
+          </section>
+
+          <div class="battle-center">
+            <div class="vs-orb" aria-hidden="true">VS</div>
+            <div class="battle-status" id="battleStatus" aria-live="polite">雙方準備完成</div>
+          </div>
+
+          <section class="fighter" aria-labelledby="computerFighterName">
+            <div class="fighter-name" id="computerFighterName">🤖 電腦骰子王</div>
+            <div class="dice-pair enemy-dice" id="computerDice" aria-label="電腦骰子尚未擲出">
+              <div class="die" id="computerDie1" data-value="1"></div>
+              <div class="die" id="computerDie2" data-value="1"></div>
+            </div>
+            <div class="fighter-stats">
+              <span class="total-chip">總點數：<b id="computerTotal">—</b></span>
+              <span class="double-chip" id="computerDouble" hidden>⚡ 豹子</span>
+            </div>
+          </section>
+        </div>
+
+        <div class="leopard-alert" id="leopardAlert" aria-live="polite"></div>
+        <div class="round-result" id="roundResult" role="status" aria-live="assertive">點擊按鈕，擲出你的幸運雙骰！</div>
+
+        <div class="roll-zone">
+          <button class="primary-btn roll-btn" id="rollBtn" type="button" aria-label="擲出玩家與電腦的雙骰">🎲 擲出幸運雙骰</button>
+          <p class="roll-hint">豹子優先於任何一般點數；雙方同類型時才比較總點數。</p>
+        </div>
+
+        <div class="lower-grid">
+          <section class="mini-card" aria-labelledby="logTitle">
+            <h3 id="logTitle">📋 骰子戰鬥紀錄</h3>
+            <ul class="battle-log" id="battleLog">
+              <li class="empty-log">尚無戰鬥紀錄，快來擲出你的幸運雙骰！</li>
+            </ul>
+          </section>
+          <aside class="mini-card" aria-label="快速判定規則">
+            <h3>💡 快速判定</h3>
+            <div class="quick-rules">
+              <div class="quick-rule"><span>🐆</span><div><b>一方豹子</b><small>豹子直接獲勝</small></div></div>
+              <div class="quick-rule"><span>⚖️</span><div><b>雙方同類型</b><small>比較兩顆骰子總點數</small></div></div>
+              <div class="quick-rule"><span>🤝</span><div><b>總點數相同</b><small>本回合平手、不計分</small></div></div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <details class="learning">
+        <summary>🐍 Python學習小教室</summary>
+        <div class="lesson-grid">
+          <article class="lesson">
+            <h3><code>import random</code></h3>
+            <p>載入Python的隨機工具，讓程式能模擬擲骰子。</p>
+            <pre><code>import random</code></pre>
+            <span class="web-link">網頁對應：使用JavaScript產生隨機點數。</span>
+          </article>
+          <article class="lesson">
+            <h3><code>random.randint(1, 6)</code></h3>
+            <p>從1到6中隨機產生一個整數，就像擲一顆六面骰。</p>
+            <pre><code>dice = random.randint(1, 6)</code></pre>
+            <span class="web-link">網頁對應：每回合隨機產生四顆骰子。</span>
+          </article>
+          <article class="lesson">
+            <h3>串列與索引</h3>
+            <p>把骰子圖案排成串列，再用點數找到對應位置。</p>
+            <pre><code>dice_faces = ["", "⚀", "⚁",
+              "⚂", "⚃", "⚄", "⚅"]
+print(dice_faces[3])</code></pre>
+            <span class="web-link">網頁對應：依點數排列骰面上的圓點。</span>
+          </article>
+          <article class="lesson">
+            <h3>變數</h3>
+            <p>使用變數保存骰子點數、總點數、勝場與回合。</p>
+            <pre><code>player_total = player_dice1 + player_dice2</code></pre>
+            <span class="web-link">網頁對應：即時更新總點數與計分板。</span>
+          </article>
+          <article class="lesson">
+            <h3>布林值</h3>
+            <p>比較兩顆骰子是否相同，結果只有True或False。</p>
+            <pre><code>player_is_double = (
+    player_dice1 == player_dice2
+)</code></pre>
+            <span class="web-link">網頁對應：判斷是否出現「豹子」。</span>
+          </article>
+          <article class="lesson">
+            <h3><code>while</code>迴圈</h3>
+            <p>雙方都還沒取得3勝時，比賽就持續進行。</p>
+            <pre><code>while player_wins &lt; 3 and computer_wins &lt; 3:</code></pre>
+            <span class="web-link">網頁對應：遊戲結束前可以不斷擲骰。</span>
+          </article>
+          <article class="lesson">
+            <h3><code>if / elif / else</code></h3>
+            <p>先判斷豹子，再比較點數，選出正確的回合結果。</p>
+            <pre><code>if player_is_double:
+    print("豹子！")
+elif player_total &gt; computer_total:
+    print("玩家獲勝")</code></pre>
+            <span class="web-link">網頁對應：決定勝負訊息與得分者。</span>
+          </article>
+          <article class="lesson">
+            <h3><code>+=</code>與 f-string</h3>
+            <p><code>+=</code>讓數值增加；f-string把變數放進顯示文字。</p>
+            <pre><code>player_wins += 1
+print(f"總點數是 {player_total}")</code></pre>
+            <span class="web-link">網頁對應：增加分數並產生戰鬥紀錄。</span>
+          </article>
+        </div>
+      </details>
+    </main>
+
+    <footer>用Python隨機邏輯打造的雙骰對決｜每一次擲骰，都是機率與程式思考的冒險！</footer>
+  </div>
+
+  <dialog id="tutorialDialog" aria-labelledby="tutorialTitle">
+    <div class="dialog-inner">
+      <div class="dialog-icon" aria-hidden="true">🗺️</div>
+      <h2 id="tutorialTitle">雙骰冒險指南</h2>
+      <p>看懂四個重點，馬上就能加入競技場！</p>
+      <div class="tutorial-steps">
+        <div class="tutorial-step"><div class="step-icon">🎲</div><div><b>點擊擲骰</b><span>玩家與電腦每回合各擲兩顆六面骰。</span></div></div>
+        <div class="tutorial-step"><div class="step-icon">🐆</div><div><b>兩顆相同就是豹子</b><span>只有一方是豹子時，不管總點數多少都直接獲勝。</span></div></div>
+        <div class="tutorial-step"><div class="step-icon">⚖️</div><div><b>同類型才比總點數</b><span>雙方都是豹子或都不是豹子，才比較兩顆骰子的總和。</span></div></div>
+        <div class="tutorial-step"><div class="step-icon">🏆</div><div><b>率先取得3勝</b><span>平手不計分，先點亮三顆勝利星就能封王！</span></div></div>
+      </div>
+      <button class="primary-btn" id="closeTutorialBtn" type="button">我知道了，開始冒險！</button>
+    </div>
+  </dialog>
+
+  <dialog id="resultDialog" aria-labelledby="finalTitle">
+    <div class="dialog-inner">
+      <div class="dialog-icon" id="finalIcon" aria-hidden="true">🏆</div>
+      <h2 id="finalTitle">對決結束</h2>
+      <p id="finalMessage"></p>
+      <div class="result-stats">
+        <div class="stat"><strong id="finalScore">3：0</strong><span>最終比分</span></div>
+        <div class="stat"><strong id="finalRounds">3</strong><span>總回合數</span></div>
+        <div class="stat"><strong id="finalDoubles">0</strong><span>玩家豹子</span></div>
+        <div class="stat"><strong id="finalColor">💜</strong><span>幸運骰子</span></div>
+      </div>
+      <div id="modalLogWrap" hidden>
+        <ul class="battle-log modal-log" id="modalLog"></ul>
+      </div>
+      <div class="dialog-actions">
+        <button class="primary-btn" id="playAgainBtn" type="button">🔄 再玩一次</button>
+        <button class="secondary-btn" id="changePlayerBtn" type="button">🧙 更換玩家</button>
+        <button class="secondary-btn wide" id="viewLogBtn" type="button" aria-expanded="false">📋 查看完整紀錄</button>
+      </div>
+    </div>
+  </dialog>
+
+  <aside class="toast" id="achievementToast" role="status" aria-live="polite">
+    <strong id="achievementTitle">🏅 解鎖新成就</strong>
+    <span id="achievementText">初次挑戰</span>
+  </aside>
+  <div class="confetti" id="confetti" aria-hidden="true"></div>
+
+  <script>
+    "use strict";
+
+    // ===== 骰面圓點位置：依照點數決定需要顯示的圓點 =====
+    const PIP_LAYOUTS = {
+      1: ["mc"],
+      2: ["tl", "br"],
+      3: ["tl", "mc", "br"],
+      4: ["tl", "tr", "bl", "br"],
+      5: ["tl", "tr", "mc", "bl", "br"],
+      6: ["tl", "ml", "bl", "tr", "mr", "br"]
+    };
+    const COLOR_ICONS = { purple: "💜", blue: "💙", red: "❤️", gold: "💛" };
+
+    const state = {
+      name: "",
+      colorId: "",
+      colorName: "",
+      color: "#7657ee",
+      pip: "#ffffff",
+      playerWins: 0,
+      computerWins: 0,
+      round: 1,
+      playerDoubles: 0,
+      winStreak: 0,
+      log: [],
+      rolling: false,
+      gameOver: false,
+      soundOn: true,
+      achievements: new Set()
+    };
+
+    const $ = (selector) => document.querySelector(selector);
+    const $$ = (selector) => [...document.querySelectorAll(selector)];
+    const dieElements = [
+      $("#playerDie1"), $("#playerDie2"), $("#computerDie1"), $("#computerDie2")
+    ];
+    const prefersReducedMotion = () =>
+      window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // ===== 繪製骰面：所有圓點都由 CSS 與 HTML 產生，不需外部圖片 =====
+    function renderDie(element, value) {
+      const safeValue = Math.min(6, Math.max(1, Number(value) || 1));
+      element.dataset.value = String(safeValue);
+      element.innerHTML = "";
+      PIP_LAYOUTS[safeValue].forEach((position) => {
+        const pip = document.createElement("span");
+        pip.className = "pip p-" + position;
+        pip.setAttribute("aria-hidden", "true");
+        element.appendChild(pip);
+      });
+      element.setAttribute("aria-label", safeValue + "點");
+    }
+    dieElements.forEach((die) => renderDie(die, 1));
+
+    // ===== 深色模式：保留使用者上次選擇 =====
+    const savedTheme = localStorage.getItem("double-dice-theme");
+    const systemDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+    applyTheme(savedTheme || (systemDark ? "dark" : "light"));
+
+    function applyTheme(theme) {
+      document.documentElement.dataset.theme = theme;
+      $("#themeBtn").textContent = theme === "dark" ? "☀️" : "🌙";
+      $("#themeBtn").setAttribute("aria-label", theme === "dark" ? "切換為明亮模式" : "切換為夜間模式");
+    }
+    $("#themeBtn").addEventListener("click", () => {
+      const nextTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+      applyTheme(nextTheme);
+      localStorage.setItem("double-dice-theme", nextTheme);
+      playSound("click");
+    });
+
+    // ===== 使用 Web Audio API 產生簡單音效 =====
+    let audioContext;
+    function playSound(type) {
+      if (!state.soundOn) return;
+      try {
+        audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
+        if (audioContext.state === "suspended") audioContext.resume();
+        const now = audioContext.currentTime;
+        const soundMap = {
+          click: [420],
+          roll: [190, 240, 300],
+          double: [620, 790, 980],
+          win: [523, 659, 784],
+          lose: [270, 215],
+          draw: [390, 390],
+          achievement: [659, 784, 988]
+        };
+        (soundMap[type] || [420]).forEach((frequency, index) => {
+          const oscillator = audioContext.createOscillator();
+          const gain = audioContext.createGain();
+          oscillator.type = type === "lose" ? "triangle" : "sine";
+          oscillator.frequency.value = frequency;
+          gain.gain.setValueAtTime(.0001, now + index * .1);
+          gain.gain.exponentialRampToValueAtTime(.1, now + index * .1 + .015);
+          gain.gain.exponentialRampToValueAtTime(.0001, now + index * .1 + .14);
+          oscillator.connect(gain);
+          gain.connect(audioContext.destination);
+          oscillator.start(now + index * .1);
+          oscillator.stop(now + index * .1 + .16);
+        });
+      } catch (error) {
+        // 瀏覽器不支援音效時，遊戲仍能正常進行。
+      }
+    }
+    $("#soundBtn").addEventListener("click", () => {
+      state.soundOn = !state.soundOn;
+      $("#soundBtn").textContent = state.soundOn ? "🔊" : "🔇";
+      $("#soundBtn").setAttribute("aria-label", state.soundOn ? "關閉音效" : "開啟音效");
+      if (state.soundOn) playSound("click");
+    });
+
+    // ===== 遊戲教學視窗 =====
+    const tutorialDialog = $("#tutorialDialog");
+    function openTutorial() {
+      if (!tutorialDialog.open) tutorialDialog.showModal();
+    }
+    $("#tutorialBtn").addEventListener("click", openTutorial);
+    $("#closeTutorialBtn").addEventListener("click", () => {
+      localStorage.setItem("double-dice-tutorial-seen", "yes");
+      tutorialDialog.close();
+      playSound("click");
+      if (!$("#setupScreen").hidden) $("#playerName").focus();
+    });
+    if (!localStorage.getItem("double-dice-tutorial-seen")) {
+      window.addEventListener("load", () => window.setTimeout(openTutorial, 180));
+    }
+
+    // ===== 玩家設定 =====
+    $$(".color-choice").forEach((button) => {
+      button.addEventListener("click", () => {
+        $$(".color-choice").forEach((item) => item.setAttribute("aria-pressed", "false"));
+        button.setAttribute("aria-pressed", "true");
+        state.colorId = button.dataset.id;
+        state.colorName = button.dataset.name;
+        state.color = button.dataset.color;
+        state.pip = button.dataset.pip;
+        $("#setupError").textContent = "";
+        playSound("click");
+      });
+    });
+    $("#playerName").addEventListener("input", () => {
+      if ($("#playerName").value.trim()) $("#setupError").textContent = "";
+    });
+    $("#playerName").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") startGame();
+    });
+    $("#startBtn").addEventListener("click", startGame);
+
+    function startGame() {
+      const name = $("#playerName").value.trim().replace(/\s+/g, " ");
+      if (!name && !state.colorId) {
+        showSetupError("⚠️ 請先輸入名字，並選擇一組幸運骰子！", "name");
+        return;
+      }
+      if (!name) {
+        showSetupError("⚠️ 請輸入冒險者名字，讓我們知道如何稱呼你！", "name");
+        return;
+      }
+      if (!state.colorId) {
+        showSetupError("⚠️ 出發前，別忘了選擇一組幸運骰子！", "color");
+        return;
+      }
+
+      state.name = name;
+      document.documentElement.style.setProperty("--dice-color", state.color);
+      document.documentElement.style.setProperty("--pip-color", state.pip);
+      resetBattle();
+      $("#welcomeTitle").textContent = "歡迎勇敢的骰子冒險者【" + state.name + "】！";
+      $("#welcomeText").textContent = "你的【" + state.colorName + "】幸運雙骰已準備完成，現在開始挑戰電腦骰子王！";
+      $("#playerScoreLabel").textContent = "🏆 " + state.name;
+      $("#playerFighterName").textContent = state.name;
+      $("#setupScreen").hidden = true;
+      $("#gameScreen").hidden = false;
+      $("#gameScreen").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#rollBtn").focus({ preventScroll: true });
+      playSound("click");
+    }
+    function showSetupError(message, target) {
+      $("#setupError").textContent = message;
+      if (target === "name") $("#playerName").focus();
+      else $$(".color-choice")[0].focus();
+    }
+
+    // ===== 擲骰：每顆骰子產生 1 到 6 的隨機整數 =====
+    const randomDie = () => Math.floor(Math.random() * 6) + 1;
+    $("#rollBtn").addEventListener("click", rollRound);
+
+    async function rollRound() {
+      if (state.rolling || state.gameOver) return;
+      state.rolling = true;
+      $("#rollBtn").disabled = true;
+      $("#rollBtn").textContent = "🎲 骰子滾動中……";
+      $("#battleStatus").textContent = "骰子滾動中……";
+      $("#roundResult").textContent = "魔法能量正在決定這一回合的命運！";
+      $("#roundResult").className = "round-result";
+      $("#leopardAlert").textContent = "";
+      clearDoubleEffects();
+      dieElements.forEach((die) => {
+        die.classList.remove("reveal");
+        die.classList.add("rolling");
+      });
+      playSound("roll");
+
+      const shuffle = window.setInterval(() => {
+        dieElements.forEach((die) => renderDie(die, randomDie()));
+      }, 85);
+      await wait(prefersReducedMotion() ? 220 : 1200);
+      window.clearInterval(shuffle);
+
+      const values = {
+        player1: randomDie(),
+        player2: randomDie(),
+        computer1: randomDie(),
+        computer2: randomDie()
+      };
+      renderDie($("#playerDie1"), values.player1);
+      renderDie($("#playerDie2"), values.player2);
+      renderDie($("#computerDie1"), values.computer1);
+      renderDie($("#computerDie2"), values.computer2);
+      dieElements.forEach((die) => {
+        die.classList.remove("rolling");
+        die.classList.add("reveal");
+      });
+
+      const result = decideWinner(values);
+      showDiceStats(values, result);
+      applyRoundResult(values, result);
+      state.round += 1;
+
+      if (state.playerWins >= 3 || state.computerWins >= 3) {
+        state.gameOver = true;
+        $("#roundDisplay").textContent = "對決結束";
+        $("#rollBtn").textContent = "🏁 本場對決已結束";
+        await wait(prefersReducedMotion() ? 100 : 650);
+        showFinalResult();
+      } else {
+        $("#roundDisplay").textContent = "第 " + state.round + " 回合";
+        state.rolling = false;
+        $("#rollBtn").disabled = false;
+        $("#rollBtn").textContent = "🎲 擲出幸運雙骰";
+      }
+    }
+
+    // 集中處理勝負邏輯，確保「豹子優先」規則正確。
+    function decideWinner(values) {
+      const playerTotal = values.player1 + values.player2;
+      const computerTotal = values.computer1 + values.computer2;
+      const playerDouble = values.player1 === values.player2;
+      const computerDouble = values.computer1 === values.computer2;
+
+      if (playerDouble && !computerDouble) {
+        return { winner: "player", reason: "player-double", playerTotal, computerTotal, playerDouble, computerDouble };
+      }
+      if (computerDouble && !playerDouble) {
+        return { winner: "computer", reason: "computer-double", playerTotal, computerTotal, playerDouble, computerDouble };
+      }
+      if (playerTotal > computerTotal) {
+        return { winner: "player", reason: "higher-total", playerTotal, computerTotal, playerDouble, computerDouble };
+      }
+      if (playerTotal < computerTotal) {
+        return { winner: "computer", reason: "higher-total", playerTotal, computerTotal, playerDouble, computerDouble };
+      }
+      return { winner: "draw", reason: "equal-total", playerTotal, computerTotal, playerDouble, computerDouble };
+    }
+
+    function showDiceStats(values, result) {
+      $("#playerTotal").textContent = result.playerTotal;
+      $("#computerTotal").textContent = result.computerTotal;
+      $("#playerDouble").hidden = !result.playerDouble;
+      $("#computerDouble").hidden = !result.computerDouble;
+      $("#playerDice").classList.toggle("double", result.playerDouble);
+      $("#computerDice").classList.toggle("double", result.computerDouble);
+      $("#playerDice").setAttribute("aria-label",
+        "玩家擲出" + values.player1 + "點與" + values.player2 + "點，總計" + result.playerTotal + "點" + (result.playerDouble ? "，是豹子" : ""));
+      $("#computerDice").setAttribute("aria-label",
+        "電腦擲出" + values.computer1 + "點與" + values.computer2 + "點，總計" + result.computerTotal + "點" + (result.computerDouble ? "，是豹子" : ""));
+
+      if (result.playerDouble) {
+        state.playerDoubles += 1;
+        unlockAchievement("first-double", "🔥 豹子現身", "第一次擲出豹子！");
+        if (state.playerDoubles >= 2) unlockAchievement("double-hunter", "🐆 豹子獵人", "一場遊戲擲出2次豹子！");
+      }
+      if (result.playerDouble && result.computerDouble) {
+        $("#leopardAlert").textContent = "🔥 雙豹子對決！現在比較雙方總點數！";
+        playSound("double");
+      } else if (result.playerDouble) {
+        $("#leopardAlert").textContent = "🔥 豹子出現！你擲出了【" + values.player1 + "點】豹子！";
+        playSound("double");
+      } else if (result.computerDouble) {
+        $("#leopardAlert").textContent = "⚡ 電腦骰子王擲出了【" + values.computer1 + "點】豹子！";
+        playSound("double");
+      }
+    }
+
+    function applyRoundResult(values, result) {
+      const messages = {
+        "player-double": "🎉 豹子通殺！這回合你贏了！",
+        "computer-double": "💥 遭到豹子通殺！這回合由電腦獲勝！"
+      };
+      let message;
+      if (result.winner === "draw") {
+        message = "🤝 勢均力敵，這回合平手！";
+        state.winStreak = 0;
+      } else if (result.winner === "player") {
+        message = messages[result.reason] || "🎉 你的總點數較大，贏得這一回合！";
+        state.playerWins += 1;
+        state.winStreak += 1;
+      } else {
+        message = messages[result.reason] || "💥 電腦總點數較大，贏得這一回合！";
+        state.computerWins += 1;
+        state.winStreak = 0;
+      }
+
+      $("#roundResult").textContent = message;
+      $("#roundResult").className = "round-result " + result.winner;
+      $("#battleStatus").textContent =
+        result.playerDouble && result.computerDouble ? "雙豹子・比較總點數" :
+        result.playerDouble || result.computerDouble ? "豹子通殺判定" :
+        "一般對決・比較總點數";
+
+      if (result.winner === "player") {
+        launchConfetti(20);
+        playSound("win");
+      } else if (result.winner === "computer") {
+        $("#arena").classList.remove("shake");
+        void $("#arena").offsetWidth;
+        $("#arena").classList.add("shake");
+        playSound("lose");
+      } else {
+        playSound("draw");
+      }
+
+      if (state.winStreak >= 2) {
+        unlockAchievement("streak", "🍀 幸運冒險者", "連續贏得2回合！");
+      }
+      addBattleLog(values, result);
+      updateScoreboard();
+    }
+
+    function addBattleLog(values, result) {
+      const playerType = result.playerDouble ? "（豹子）" : "";
+      const computerType = result.computerDouble ? "（豹子）" : "";
+      const ending =
+        result.reason === "player-double" ? "豹子通殺，你獲勝！" :
+        result.reason === "computer-double" ? "電腦以豹子獲勝！" :
+        result.winner === "player" ? "比較總點數，你獲勝！" :
+        result.winner === "computer" ? "比較總點數，電腦獲勝！" :
+        "雙方總點數相同，平手！";
+      const text = "第" + state.round + "回合：你擲出" +
+        values.player1 + "＋" + values.player2 + "＝" + result.playerTotal + playerType +
+        "，電腦擲出" + values.computer1 + "＋" + values.computer2 + "＝" +
+        result.computerTotal + computerType + "，" + ending;
+      state.log.unshift(text);
+      const list = $("#battleLog");
+      list.innerHTML = "";
+      state.log.forEach((entry) => {
+        const item = document.createElement("li");
+        item.textContent = entry;
+        list.appendChild(item);
+      });
+    }
+
+    function updateScoreboard() {
+      $("#playerScore").textContent = state.playerWins;
+      $("#computerScore").textContent = state.computerWins;
+      updateBadges("#playerBadges", state.playerWins);
+      updateBadges("#computerBadges", state.computerWins);
+    }
+    function updateBadges(selector, score) {
+      document.querySelectorAll(selector + " .badge").forEach((badge, index) => {
+        badge.classList.toggle("lit", index < score);
+      });
+    }
+    function clearDoubleEffects() {
+      $("#playerDice").classList.remove("double");
+      $("#computerDice").classList.remove("double");
+      $("#playerDouble").hidden = true;
+      $("#computerDouble").hidden = true;
+    }
+
+    // ===== 最終結算 =====
+    const resultDialog = $("#resultDialog");
+    function showFinalResult() {
+      const playerWon = state.playerWins === 3;
+      $("#finalIcon").textContent = playerWon ? "🏆" : "🤖";
+      $("#finalTitle").textContent = playerWon ? "恭喜【" + state.name + "】！" : "電腦骰子王獲勝！";
+      $("#finalMessage").textContent = playerWon
+        ? "你以3：" + state.computerWins + "擊敗電腦骰子王，成為傳說中的雙骰大師！"
+        : "電腦骰子王以3：" + state.playerWins + "獲勝。別灰心，幸運可能就在下一次擲骰！";
+      $("#finalScore").textContent = playerWon
+        ? state.playerWins + "：" + state.computerWins
+        : state.computerWins + "：" + state.playerWins;
+      $("#finalRounds").textContent = state.log.length;
+      $("#finalDoubles").textContent = state.playerDoubles;
+      $("#finalColor").textContent = COLOR_ICONS[state.colorId] || "🎲";
+      $("#finalColor").title = state.colorName;
+
+      const modalLog = $("#modalLog");
+      modalLog.innerHTML = "";
+      state.log.forEach((entry) => {
+        const item = document.createElement("li");
+        item.textContent = entry;
+        modalLog.appendChild(item);
+      });
+      $("#modalLogWrap").hidden = true;
+      $("#viewLogBtn").textContent = "📋 查看完整紀錄";
+      $("#viewLogBtn").setAttribute("aria-expanded", "false");
+
+      unlockAchievement("first-game", "🎯 初次挑戰", "完成第一場雙骰冒險！");
+      if (playerWon) {
+        unlockAchievement("master", "🎲 雙骰大師", "率先取得3勝！");
+        if (state.computerWins === 0) unlockAchievement("perfect", "👑 完美勝利", "以3：0擊敗電腦！");
+        launchConfetti(75);
+        playSound("win");
+      }
+      if (!resultDialog.open) resultDialog.showModal();
+    }
+
+    $("#playAgainBtn").addEventListener("click", () => {
+      resultDialog.close();
+      resetBattle();
+      $("#rollBtn").focus();
+      playSound("click");
+    });
+    $("#changePlayerBtn").addEventListener("click", () => {
+      resultDialog.close();
+      resetBattle();
+      state.name = "";
+      state.colorId = "";
+      state.colorName = "";
+      $("#playerName").value = "";
+      $$(".color-choice").forEach((button) => button.setAttribute("aria-pressed", "false"));
+      $("#gameScreen").hidden = true;
+      $("#setupScreen").hidden = false;
+      $("#setupError").textContent = "";
+      $("#setupScreen").scrollIntoView({ behavior: "smooth", block: "start" });
+      $("#playerName").focus({ preventScroll: true });
+      playSound("click");
+    });
+    $("#viewLogBtn").addEventListener("click", () => {
+      const wrap = $("#modalLogWrap");
+      wrap.hidden = !wrap.hidden;
+      $("#viewLogBtn").setAttribute("aria-expanded", String(!wrap.hidden));
+      $("#viewLogBtn").textContent = wrap.hidden ? "📋 查看完整紀錄" : "📋 收合完整紀錄";
+    });
+
+    function resetBattle() {
+      state.playerWins = 0;
+      state.computerWins = 0;
+      state.round = 1;
+      state.playerDoubles = 0;
+      state.winStreak = 0;
+      state.log = [];
+      state.rolling = false;
+      state.gameOver = false;
+      state.achievements = new Set();
+      clearAchievementNotifications();
+      $("#roundDisplay").textContent = "第 1 回合";
+      $("#playerTotal").textContent = "—";
+      $("#computerTotal").textContent = "—";
+      $("#battleStatus").textContent = "雙方準備完成";
+      $("#leopardAlert").textContent = "";
+      $("#roundResult").textContent = "點擊按鈕，擲出你的幸運雙骰！";
+      $("#roundResult").className = "round-result";
+      $("#battleLog").innerHTML = '<li class="empty-log">尚無戰鬥紀錄，快來擲出你的幸運雙骰！</li>';
+      $("#rollBtn").disabled = false;
+      $("#rollBtn").textContent = "🎲 擲出幸運雙骰";
+      clearDoubleEffects();
+      dieElements.forEach((die) => {
+        die.classList.remove("rolling", "reveal");
+        renderDie(die, 1);
+      });
+      $("#playerDice").setAttribute("aria-label", "玩家骰子尚未擲出");
+      $("#computerDice").setAttribute("aria-label", "電腦骰子尚未擲出");
+      updateScoreboard();
+    }
+
+    // ===== 成就通知佇列：多個成就會依序顯示，不會互相覆蓋 =====
+    const achievementQueue = [];
+    let toastBusy = false;
+    let toastTimer;
+    let toastGapTimer;
+    function unlockAchievement(id, title, description) {
+      if (state.achievements.has(id)) return;
+      state.achievements.add(id);
+      achievementQueue.push({ title, description });
+      showNextAchievement();
+    }
+    function showNextAchievement() {
+      if (toastBusy || achievementQueue.length === 0) return;
+      toastBusy = true;
+      const achievement = achievementQueue.shift();
+      $("#achievementTitle").textContent = achievement.title;
+      $("#achievementText").textContent = achievement.description;
+      $("#achievementToast").classList.add("show");
+      playSound("achievement");
+      toastTimer = window.setTimeout(() => {
+        $("#achievementToast").classList.remove("show");
+        toastGapTimer = window.setTimeout(() => {
+          toastBusy = false;
+          showNextAchievement();
+        }, 350);
+      }, 2350);
+    }
+    function clearAchievementNotifications() {
+      window.clearTimeout(toastTimer);
+      window.clearTimeout(toastGapTimer);
+      achievementQueue.length = 0;
+      toastBusy = false;
+      $("#achievementToast").classList.remove("show");
+    }
+
+    // ===== 彩紙特效 =====
+    function launchConfetti(amount) {
+      if (prefersReducedMotion()) return;
+      const container = $("#confetti");
+      for (let index = 0; index < amount; index += 1) {
+        const piece = document.createElement("i");
+        piece.className = "confetti-piece";
+        piece.style.left = Math.random() * 100 + "%";
+        piece.style.setProperty("--hue", Math.floor(Math.random() * 360));
+        piece.style.setProperty("--duration", 1.8 + Math.random() * 1.8 + "s");
+        piece.style.setProperty("--drift", -80 + Math.random() * 160 + "px");
+        piece.style.animationDelay = Math.random() * .35 + "s";
+        container.appendChild(piece);
+        window.setTimeout(() => piece.remove(), 4000);
+      }
+    }
+    function wait(milliseconds) {
+      return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
+    }
+
+    // 讓測試工具可以直接驗證勝負判斷函式，不影響一般遊戲。
+    window.doubleDiceGame = { decideWinner, randomDie };
+  </script>
+</body>
+</html>
