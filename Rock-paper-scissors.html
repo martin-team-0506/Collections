@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="適合國中生操作的剪刀石頭布冒險遊戲，率先取得三勝，成為猜拳大師！">
+  <meta name="description" content="猜拳V2：五勝對決，幸運手套、洞察眼鏡與狂暴之錘三種技能裝備，適合國中生的互動遊戲。">
   <meta name="theme-color" content="#6d5dfc">
-  <title>剪刀石頭布：冒險者終極大對決</title>
+  <title>剪刀石頭布：冒險者終極大對決 V2</title>
   <style>
     :root {
       --bg-a: #6657ed;
@@ -282,7 +282,15 @@
       background: linear-gradient(145deg, #ffe990, #ffbd52);
     }
     .equipment .emoji { display: block; font-size: 2.1rem; line-height: 1.2; }
-    .equipment .equip-name { display: block; margin-top: 7px; font-size: .87rem; font-weight: 900; }
+    .equipment .equip-name { display: block; margin-top: 7px; font-size: 1rem; font-weight: 900; }
+    .equip-description { display: block; margin-top: 8px; font-size: .875rem; line-height: 1.65; color: var(--muted); }
+    .equipment { overflow-wrap: anywhere; }
+    .skill-panel { margin: 16px 0; padding: 16px; border: 1px solid var(--line); border-radius: 18px; background: var(--surface-soft); }
+    .skill-panel p { margin: 8px 0 0; font-size: .95rem; line-height: 1.7; }
+    .skill-panel.active { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(255,200,61,.15); }
+    .score-row, .computer .score-row { flex-wrap: wrap; }
+    .badges { flex-shrink: 0; }
+    @media(max-width: 560px) { .equipment-grid { grid-template-columns: 1fr; } .equipment { text-align: left; } .equipment .emoji { float: left; margin: 8px 16px 10px 0; } .badge-star { width: 20px; height: 20px; } .badges { gap: 3px; } }
 
     .helper-error {
       min-height: 26px;
@@ -391,7 +399,8 @@
     .score-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 4px; }
     .computer .score-row { flex-direction: row-reverse; }
     .score-number { font-size: 1.6rem; line-height: 1; font-weight: 1000; }
-    .badges { display: flex; gap: 5px; }
+    .badges { display: flex; gap: 4px; max-width: 165px; flex-wrap: wrap; }
+    .score-card { min-width: 0; overflow-wrap: anywhere; }
     .badge-star {
       display: grid;
       place-items: center;
@@ -721,14 +730,15 @@
       .brand small { display: none; }
       .icon-btn { width: 40px; height: 40px; }
       .panel { padding: 17px 13px; border-radius: 22px; }
-      .equipment-grid { grid-template-columns: repeat(2, 1fr); }
+      .equipment-grid { grid-template-columns: 1fr; }
       .equipment { min-height: 94px; }
-      .welcome-strip { align-items: flex-start; }
+      .welcome-strip { align-items: flex-start; flex-wrap: wrap; }
       .welcome-copy span { display: none; }
       .scoreboard { grid-template-columns: 1fr 35px 1fr; }
       .versus { min-width: 35px; font-size: .8rem; }
       .score-row, .computer .score-row { display: block; }
-      .badges { margin-top: 7px; }
+      .badges { margin-top: 7px; flex-wrap: nowrap; gap: 2px; }
+      .badge-star { flex: 1 1 0; min-width: 0; width: auto; height: auto; max-width: 22px; aspect-ratio: 1; font-size: .8rem; }
       .computer .badges { justify-content: flex-end; }
       .arena { min-height: 190px; grid-template-columns: 1fr 64px 1fr; gap: 3px; }
       .hand-display { width: 92px; font-size: 3.75rem; border-radius: 30%; }
@@ -760,8 +770,8 @@
       <div class="brand">
         <span class="brand-mark" aria-hidden="true">✊</span>
         <div>
-          <h1>剪刀石頭布：冒險者終極大對決</h1>
-          <small>率先集滿三顆勝利星，打敗電腦魔王！</small>
+          <h1>剪刀石頭布：冒險者終極大對決 V2</h1>
+          <small>三種技能裝備 × 五勝對決，打敗電腦魔王！</small>
         </div>
       </div>
       <nav class="top-actions" aria-label="網站工具">
@@ -784,23 +794,14 @@
 
             <div class="field-label" style="margin-top:18px" id="equipmentLabel">選擇一件裝備</div>
             <div class="equipment-grid" role="group" aria-labelledby="equipmentLabel">
-              <button class="equipment" type="button" data-equipment="黃金鍵盤" data-emoji="⌨️" aria-pressed="false">
-                <span class="emoji" aria-hidden="true">⌨️</span><span class="equip-name">黃金鍵盤</span>
+              <button class="equipment" type="button" data-equipment="幸運手套" data-emoji="🧤" aria-pressed="false">
+                <span class="emoji" aria-hidden="true">🧤</span><span class="equip-name">幸運手套</span><span class="equip-description">第1回合若輸了，電腦不加分。仍記錄回合與連敗。</span>
               </button>
-              <button class="equipment" type="button" data-equipment="魔法魔杖" data-emoji="🪄" aria-pressed="false">
-                <span class="emoji" aria-hidden="true">🪄</span><span class="equip-name">魔法魔杖</span>
+              <button class="equipment" type="button" data-equipment="洞察眼鏡" data-emoji="👓" aria-pressed="false">
+                <span class="emoji" aria-hidden="true">👓</span><span class="equip-name">洞察眼鏡</span><span class="equip-description">前3回合，每回合30%機率在出拳前看透電腦！</span>
               </button>
-              <button class="equipment" type="button" data-equipment="勇者盾牌" data-emoji="🛡️" aria-pressed="false">
-                <span class="emoji" aria-hidden="true">🛡️</span><span class="equip-name">勇者盾牌</span>
-              </button>
-              <button class="equipment" type="button" data-equipment="傳說寶劍" data-emoji="⚔️" aria-pressed="false">
-                <span class="emoji" aria-hidden="true">⚔️</span><span class="equip-name">傳說寶劍</span>
-              </button>
-              <button class="equipment" type="button" data-equipment="智慧魔法書" data-emoji="📘" aria-pressed="false">
-                <span class="emoji" aria-hidden="true">📘</span><span class="equip-name">智慧魔法書</span>
-              </button>
-              <button class="equipment" type="button" data-equipment="精靈弓箭" data-emoji="🏹" aria-pressed="false">
-                <span class="emoji" aria-hidden="true">🏹</span><span class="equip-name">精靈弓箭</span>
+              <button class="equipment" type="button" data-equipment="狂暴之錘" data-emoji="🔨" aria-pressed="false">
+                <span class="emoji" aria-hidden="true">🔨</span><span class="equip-name">狂暴之錘</span><span class="equip-description">連敗至少2次後，下一回合平手也算你贏！</span>
               </button>
             </div>
             <p class="helper-error" id="setupError" role="alert" aria-live="polite"></p>
@@ -809,7 +810,7 @@
 
           <aside class="rules-card" aria-label="遊戲規則">
             <h3>📜 魔法競技場規則</h3>
-            <p class="rules-win">先獲得3勝的一方，就是最終贏家！</p>
+            <p class="rules-win">先獲得5勝的一方，就是最終贏家！</p>
             <div class="rule-triangle" aria-label="猜拳勝負關係">
               <div class="rule-chip">✌️ 剪刀<br>勝過布</div>
               <div class="rule-chip">✊ 石頭<br>勝過剪刀</div>
@@ -817,8 +818,9 @@
             </div>
             <ul class="rule-list">
               <li>雙方出拳相同就是平手。</li>
-              <li>平手時，雙方都不會得分。</li>
-              <li>任一方取得3勝，對決立即結束。</li>
+              <li>一般平手雙方不加分，且連敗歸零。</li>
+              <li>裝備技能優先結算；幸運手套不會跳過第1回合。</li>
+              <li>任一方取得5勝，對決立即結束。</li>
             </ul>
           </aside>
         </div>
@@ -840,7 +842,7 @@
             <div class="score-row">
               <strong class="score-number"><span id="playerScore">0</span> 勝</strong>
               <div class="badges" id="playerBadges" aria-label="玩家勝利徽章">
-                <span class="badge-star">★</span><span class="badge-star">★</span><span class="badge-star">★</span>
+                <span class="badge-star">★</span><span class="badge-star">★</span><span class="badge-star">★</span><span class="badge-star">★</span><span class="badge-star">★</span>
               </div>
             </div>
           </div>
@@ -850,12 +852,17 @@
             <div class="score-row">
               <strong class="score-number"><span id="computerScore">0</span> 勝</strong>
               <div class="badges" id="computerBadges" aria-label="電腦勝利徽章">
-                <span class="badge-star">★</span><span class="badge-star">★</span><span class="badge-star">★</span>
+                <span class="badge-star">★</span><span class="badge-star">★</span><span class="badge-star">★</span><span class="badge-star">★</span><span class="badge-star">★</span>
               </div>
             </div>
           </div>
         </div>
 
+        <div class="skill-panel" id="skillPanel">
+          <strong>⚔️ 裝備狀態 · 連敗 <span id="lossCount">0</span> 次</strong>
+          <p id="equipmentStatus"></p>
+          <p id="skillNotice" role="status" aria-live="polite">等待開始挑戰。</p>
+        </div>
         <div class="arena" id="arena">
           <div class="fighter">
             <div class="fighter-name" id="fighterName">你的出拳</div>
@@ -871,7 +878,7 @@
           </div>
         </div>
 
-        <div class="result-message" id="resultMessage" role="status" aria-live="assertive">先獲得3勝的一方就是最終贏家！</div>
+        <div class="result-message" id="resultMessage" role="status" aria-live="assertive">先獲得5勝的一方就是最終贏家！</div>
 
         <div class="choice-area">
           <p class="choice-title">👇 選擇你要出的拳</p>
@@ -918,7 +925,7 @@
             <h3>變數：程式的收納盒</h3>
             <p>幫名字、裝備、分數貼上標籤，之後就能拿來使用。</p>
             <pre><code>player_wins = 0
-equipment = "魔法魔杖"</code></pre>
+equipment = "洞察眼鏡"</code></pre>
           </article>
           <article class="lesson">
             <h3><code>random.choice()</code>：隨機選擇</h3>
@@ -927,8 +934,8 @@ equipment = "魔法魔杖"</code></pre>
           </article>
           <article class="lesson">
             <h3><code>while</code>：重複挑戰</h3>
-            <p>只要雙方都還沒拿到3勝，比賽就會繼續進行。</p>
-            <pre><code>while player_wins &lt; 3:
+            <p>只要雙方都還沒拿到5勝，比賽就會繼續進行。</p>
+            <pre><code>while player_wins &lt; 5 and computer_wins &lt; 5:
     print("繼續挑戰！")</code></pre>
           </article>
           <article class="lesson">
@@ -946,6 +953,29 @@ elif player == "石頭":
     continue</code></pre>
           </article>
           <article class="lesson">
+            <h3><code>random.random()</code>：30%技能機率</h3>
+            <p>產生0到小於1的隨機數；小於0.3代表本次洞察成功。每回合只抽一次。</p>
+            <pre><code>if equipment == "洞察眼鏡" and round_num &lt;= 3:
+    if random.random() &lt; 0.3:
+        print(computer_choice)</code></pre>
+          </article>
+          <article class="lesson">
+            <h3>連敗變數與技能條件</h3>
+            <p>敗場讓連敗加1；一般平手或勝利歸零。手套抵銷的首回合敗場仍增加連敗。</p>
+            <pre><code>if equipment == "狂暴之錘" and consecutive_losses &gt;= 2:
+    player_wins += 1
+    consecutive_losses = 0</code></pre>
+          </article>
+          <article class="lesson">
+            <h3><code>while True</code>與<code>break</code>：再玩一次</h3>
+            <p>外層迴圈啟動新比賽；重新開始時要清空比分、回合與連敗。break可離開遊戲。</p>
+            <pre><code>while True:
+    # 建立角色，重新計分並進行比賽
+    play_again = input("再玩一次？y / n：")
+    if play_again.lower() != "y":
+        break</code></pre>
+          </article>
+          <article class="lesson">
             <h3><code>f-string</code>：把變數放進文字</h3>
             <p>在引號前加上f，再用大括號放入變數，訊息就能跟著變化。</p>
             <pre><code>print(f"歡迎冒險者 {name}！")</code></pre>
@@ -961,11 +991,12 @@ elif player == "石頭":
     <div class="dialog-inner">
       <div class="dialog-icon" aria-hidden="true">🗺️</div>
       <h2 id="tutorialTitle">冒險者上手指南</h2>
-      <p>三個步驟，就能展開你的猜拳冒險！</p>
+      <p>V2新增技能裝備，先獲得5勝就是贏家！</p>
       <div class="tutorial-steps">
         <div class="tutorial-step"><div class="step-icon">🧙</div><div><b>建立角色</b><span>輸入名字，並選擇一件喜歡的裝備。</span></div></div>
-        <div class="tutorial-step"><div class="step-icon">✊</div><div><b>點擊出拳</b><span>從剪刀、石頭、布中選擇一種招式。</span></div></div>
-        <div class="tutorial-step"><div class="step-icon">🏆</div><div><b>集滿三勝</b><span>率先點亮三顆勝利星，就能贏得對決！</span></div></div>
+        <div class="tutorial-step"><div class="step-icon">✊</div><div><b>點擊出拳</b><span>從剪刀、石頭、布中選擇招式；若眼鏡觸發，可先看提示再出拳。</span></div></div>
+        <div class="tutorial-step"><div class="step-icon">⚔️</div><div><b>善用三種技能</b><span>手套只保護首回合敗場；眼鏡前3回合各有30%機率看透；錘子連敗至少2次後把平手變勝利。一般平手清除連敗。</span></div></div>
+        <div class="tutorial-step"><div class="step-icon">🏆</div><div><b>集滿五勝</b><span>率先點亮五顆勝利星，就能贏得對決！</span></div></div>
       </div>
       <button class="primary-btn" id="closeTutorial" type="button">我知道了，開始冒險！</button>
     </div>
@@ -977,7 +1008,7 @@ elif player == "石頭":
       <h2 id="finalTitle">恭喜你！</h2>
       <p id="finalMessage"></p>
       <div class="result-stats">
-        <div class="stat"><strong id="finalScore">3：0</strong><span>最終比分</span></div>
+        <div class="stat"><strong id="finalScore">5：0</strong><span>最終比分</span></div>
         <div class="stat"><strong id="finalRounds">3</strong><span>總回合數</span></div>
         <div class="stat"><strong id="finalEquipment">🪄</strong><span>冒險裝備</span></div>
       </div>
@@ -1014,6 +1045,9 @@ elif player == "石頭":
       computerWins: 0,
       round: 1,
       winStreak: 0,
+      consecutiveLosses: 0,
+      pendingComputerChoice: null,
+      insightTriggered: false,
       log: [],
       locked: false,
       gameOver: false,
@@ -1098,7 +1132,8 @@ elif player == "石頭":
       localStorage.setItem("rps-tutorial-seen", "yes");
       tutorialDialog.close();
       playSound("click");
-      playerNameInput.focus();
+      if (gameScreen.hidden) playerNameInput.focus();
+      else choiceButtons[0].focus();
     });
     if (!localStorage.getItem("rps-tutorial-seen")) {
       window.addEventListener("load", () => setTimeout(openTutorial, 180));
@@ -1156,12 +1191,51 @@ elif player == "石頭":
     }
 
     // ===== 出拳與勝負判斷 =====
+    // 每回合只準備一次電腦拳；眼鏡僅限前3回合，各自獨立以30%機率觸發。
+    function prepareRound() {
+      state.pendingComputerChoice = OPTIONS[Math.floor(Math.random() * OPTIONS.length)];
+      state.insightTriggered = state.equipment === "洞察眼鏡" && state.round <= 3 && Math.random() < .3;
+      const descriptions = {
+        "幸運手套": "🧤 幸運手套：僅第1回合敗場可抵銷，電腦不加分；回合照常增加。",
+        "洞察眼鏡": "👓 洞察眼鏡：前3回合，各有30%機率在你出拳前看透電腦。",
+        "狂暴之錘": "🔨 狂暴之錘：連敗至少2次後，下一回合若平手，改算你獲勝！"
+      };
+      $("#equipmentStatus").textContent = descriptions[state.equipment] || "";
+      let notice;
+      let active = false;
+      if (state.insightTriggered) {
+        notice = `👓 洞察眼鏡發動！第${state.round}回合電腦將出：${EMOJI[state.pendingComputerChoice]} ${state.pendingComputerChoice}！請選擇你的招式。`;
+        active = true;
+      } else if (state.equipment === "洞察眼鏡") {
+        notice = state.round <= 3 ? `第${state.round}回合未觸發洞察，電腦的拳保持隱藏。` : "眼鏡的前3回合時效已結束，本回合無法預知出拳。";
+      } else if (state.equipment === "幸運手套") {
+        notice = state.round === 1 ? "🧤 首回合保護就緒！若電腦贏，本回合電腦不加分。" : "首回合已結束，手套不再抵銷敗場。";
+        active = state.round === 1;
+      } else {
+        active = state.consecutiveLosses >= 2;
+        notice = active ? "🔨 狂暴之錘已蓄力！本回合若平手，將轉為你的勝利。" : "尚未連敗2次，狂暴之錘正在等待蓄力。一般平手會清除連敗。";
+      }
+      $("#skillNotice").textContent = notice;
+      $("#skillPanel").classList.toggle("active", active);
+    }
+
+    function resolveRound(playerChoice, computerChoice, equipment, round, losses) {
+      if (playerChoice === computerChoice) {
+        return equipment === "狂暴之錘" && losses >= 2
+          ? { outcome: "win", losses: 0, skill: "hammer" }
+          : { outcome: "draw", losses: 0, skill: null };
+      }
+      if (WIN_MAP[playerChoice] === computerChoice) return { outcome: "win", losses: 0, skill: null };
+      if (equipment === "幸運手套" && round === 1) return { outcome: "blocked", losses: losses + 1, skill: "glove" };
+      return { outcome: "lose", losses: losses + 1, skill: null };
+    }
+
     choiceButtons.forEach((button) => {
       button.addEventListener("click", () => playRound(button.dataset.choice, button));
     });
 
     async function playRound(playerChoice, clickedButton) {
-      if (state.locked || state.gameOver || !OPTIONS.includes(playerChoice)) return;
+      if (gameScreen.hidden || state.locked || state.gameOver || !OPTIONS.includes(playerChoice)) return;
 
       state.locked = true;
       setChoiceButtonsDisabled(true);
@@ -1173,42 +1247,46 @@ elif player == "石頭":
       $("#computerHand").textContent = "✊";
       playSound("click");
 
-      await wait(800);
-      const computerChoice = OPTIONS[Math.floor(Math.random() * OPTIONS.length)];
+      await wait(window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 100 : 800);
+      // 電腦的出拳已在本回合開始前決定，洞察眼鏡提示的拳不會被重抽。
+      const computerChoice = state.pendingComputerChoice;
       $("#playerHand").textContent = EMOJI[playerChoice];
       $("#computerHand").textContent = EMOJI[computerChoice];
       $("#playerHand").setAttribute("aria-label", `玩家出了${playerChoice}`);
       $("#computerHand").setAttribute("aria-label", `電腦出了${computerChoice}`);
       animateReveal();
 
-      let outcome;
-      if (playerChoice === computerChoice) {
-        outcome = "draw";
-        state.winStreak = 0;
-      } else if (WIN_MAP[playerChoice] === computerChoice) {
-        outcome = "win";
+      // 純判斷函式忠實對照Python V2的三種裝備技能。
+      const resolved = resolveRound(playerChoice, computerChoice, state.equipment, state.round, state.consecutiveLosses);
+      const outcome = resolved.outcome;
+      state.consecutiveLosses = resolved.losses;
+      if (outcome === "win") {
         state.playerWins += 1;
         state.winStreak += 1;
-      } else {
-        outcome = "lose";
+      } else if (outcome === "lose") {
         state.computerWins += 1;
+        state.winStreak = 0;
+      } else {
         state.winStreak = 0;
       }
 
       const messages = {
         win: "🎉 太厲害了！這回合你贏了！",
         lose: "💥 電腦贏得這一回合，別放棄！",
-        draw: "🤝 平手！雙方都沒有得分。"
+        draw: "🤝 平手！雙方都沒有得分，連敗歸零。",
+        blocked: "🧤 幸運手套發動！抵銷電腦第1回合的勝利，雙方不加分；回合與連敗仍記錄。"
       };
-      const logResults = { win: "你獲勝！", lose: "電腦獲勝！", draw: "平手！" };
+      const logResults = { win: "你獲勝！", lose: "電腦獲勝！", draw: "平手！雙方不加分。", blocked: "幸運手套抵銷敗場，雙方不加分；連敗仍增加1次。" };
 
       $("#countdown").textContent = `${EMOJI[playerChoice]} 對上 ${EMOJI[computerChoice]}`;
-      $("#resultMessage").textContent = messages[outcome];
+      $("#resultMessage").textContent = resolved.skill === "hammer"
+        ? "🔨 狂暴之錘發動！連敗後的平手扭轉為你的勝利！" : messages[outcome];
       $("#resultMessage").className = `result-message ${outcome}`;
-      state.log.unshift(`第${state.round}回合：你出${playerChoice}，電腦出${computerChoice}，${logResults[outcome]}`);
+      const equipmentLog = resolved.skill === "hammer" ? "狂暴之錘將平手轉為勝利！" : logResults[outcome];
+      state.log.unshift(`第${state.round}回合：你出${playerChoice}，電腦出${computerChoice}，${equipmentLog}${state.insightTriggered ? "（洞察眼鏡已於出拳前看透電腦）" : ""}｜比分 ${state.playerWins}：${state.computerWins}｜連敗 ${state.consecutiveLosses} 次`);
       renderLog();
       updateScore();
-      playSound(outcome);
+      playSound(resolved.skill ? "achievement" : outcome);
 
       if (outcome === "win") launchConfetti(18);
       if (outcome === "lose") {
@@ -1219,24 +1297,29 @@ elif player == "石頭":
       if (state.winStreak >= 2) unlockAchievement("lucky", "🍀 幸運冒險者", "連續贏得2回合！");
 
       state.round += 1;
-      const hasWinner = state.playerWins >= 3 || state.computerWins >= 3;
+      const hasWinner = state.playerWins >= 5 || state.computerWins >= 5;
       if (hasWinner) {
         state.gameOver = true;
+        state.pendingComputerChoice = null;
+        $("#skillNotice").textContent = "本場對決已結束，裝備技能停止。";
+        $("#skillPanel").classList.remove("active");
         $("#roundDisplay").textContent = "對決結束";
         await wait(700);
         showFinalResult();
       } else {
         $("#roundDisplay").textContent = `第 ${state.round} 回合`;
+        prepareRound();
         state.locked = false;
         setChoiceButtonsDisabled(false);
       }
 
-      window.setTimeout(() => clickedButton.classList.remove("chosen"), 500);
+      clickedButton.classList.remove("chosen");
     }
 
     function updateScore() {
       $("#playerScore").textContent = state.playerWins;
       $("#computerScore").textContent = state.computerWins;
+      $("#lossCount").textContent = state.consecutiveLosses;
       updateBadges("#playerBadges", state.playerWins);
       updateBadges("#computerBadges", state.computerWins);
     }
@@ -1272,7 +1355,7 @@ elif player == "石頭":
 
     // ===== 最終結算與重新開始 =====
     function showFinalResult() {
-      const playerWon = state.playerWins === 3;
+      const playerWon = state.playerWins === 5;
       $("#finalIcon").textContent = playerWon ? "🏆" : "🤖";
       $("#finalTitle").textContent = playerWon ? `恭喜【${state.name}】！` : "這次由電腦魔王獲勝！";
       $("#finalMessage").textContent = playerWon
@@ -1298,8 +1381,8 @@ elif player == "石頭":
 
       unlockAchievement("first", "🎯 初次挑戰", "完成第一場猜拳冒險！");
       if (playerWon) {
-        unlockAchievement("master", "🏆 猜拳大師", "率先取得3勝！");
-        if (state.computerWins === 0) unlockAchievement("perfect", "👑 完美勝利", "以3：0擊敗電腦！");
+        unlockAchievement("master", "🏆 猜拳大師", "率先取得5勝！");
+        if (state.computerWins === 0) unlockAchievement("perfect", "👑 完美勝利", "以5：0擊敗電腦！");
         launchConfetti(72);
         playSound("win");
       }
@@ -1315,7 +1398,7 @@ elif player == "石頭":
 
     $("#changePlayerBtn").addEventListener("click", () => {
       resultDialog.close();
-      resetBattle();
+      resetBattle(false);
       state.name = "";
       state.equipment = "";
       state.equipmentEmoji = "";
@@ -1336,11 +1419,15 @@ elif player == "石頭":
       $("#viewLogBtn").textContent = wrap.hidden ? "📋 查看戰鬥紀錄" : "📋 收合戰鬥紀錄";
     });
 
-    function resetBattle() {
+    function resetBattle(prepare = true) {
       state.playerWins = 0;
       state.computerWins = 0;
       state.round = 1;
       state.winStreak = 0;
+      state.consecutiveLosses = 0;
+      state.pendingComputerChoice = null;
+      state.insightTriggered = false;
+      clearAchievementNotifications();
       state.log = [];
       state.locked = false;
       state.gameOver = false;
@@ -1351,24 +1438,44 @@ elif player == "石頭":
       $("#playerHand").setAttribute("aria-label", "玩家尚未出拳");
       $("#computerHand").setAttribute("aria-label", "電腦尚未出拳");
       $("#countdown").textContent = "選擇你的招式！";
-      $("#resultMessage").textContent = "先獲得3勝的一方就是最終贏家！";
+      $("#resultMessage").textContent = "先獲得5勝的一方就是最終贏家！";
       $("#resultMessage").className = "result-message";
       $("#battleLog").innerHTML = '<li class="empty-log">尚無紀錄，勇敢出拳吧！</li>';
       updateScore();
       setChoiceButtonsDisabled(false);
+      $("#skillPanel").classList.remove("active");
+      $("#skillNotice").textContent = "等待開始挑戰。";
+      if (prepare) prepareRound();
     }
 
-    // ===== 成就通知 =====
+    // ===== 成就通知：佇列讓同時獲得的成就依序出現 =====
     let toastTimer;
+    const achievementQueue = [];
+    let toastBusy = false;
+    function clearAchievementNotifications() {
+      window.clearTimeout(toastTimer);
+      achievementQueue.length = 0;
+      toastBusy = false;
+      $("#achievementToast").classList.remove("show");
+    }
     function unlockAchievement(id, title, description) {
       if (state.achievements.has(id)) return;
       state.achievements.add(id);
-      window.clearTimeout(toastTimer);
+      achievementQueue.push({ title, description });
+      showNextAchievement();
+    }
+    function showNextAchievement() {
+      if (toastBusy || achievementQueue.length === 0) return;
+      const { title, description } = achievementQueue.shift();
+      toastBusy = true;
       $("#achievementTitle").textContent = title;
       $("#achievementText").textContent = description;
       $("#achievementToast").classList.add("show");
       playSound("achievement");
-      toastTimer = window.setTimeout(() => $("#achievementToast").classList.remove("show"), 2700);
+      toastTimer = window.setTimeout(() => {
+        $("#achievementToast").classList.remove("show");
+        toastTimer = window.setTimeout(() => { toastBusy = false; showNextAchievement(); }, 300);
+      }, 2400);
     }
 
     // ===== 彩紙特效 =====
