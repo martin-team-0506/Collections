@@ -6,7 +6,7 @@
   <meta name="description" content="終極三骰對決：使用教學用魔法金幣，辨認牌型、策略下注，挑戰電腦骰子王！">
   <meta name="theme-color" content="#5b49d6">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='5' y='5' width='54' height='54' rx='14' fill='%236e55ea'/%3E%3Cg fill='%23ffd351'%3E%3Ccircle cx='20' cy='20' r='5'/%3E%3Ccircle cx='44' cy='20' r='5'/%3E%3Ccircle cx='32' cy='32' r='5'/%3E%3Ccircle cx='20' cy='44' r='5'/%3E%3Ccircle cx='44' cy='44' r='5'/%3E%3C/g%3E%3C/svg%3E">
-  <title>終極三骰對決：魔法金幣挑戰賽</title>
+  <title>v2.1｜終極三骰對決：魔法金幣挑戰賽</title>
   <style>
     :root {
       --bg-a: #3527a4;
@@ -959,6 +959,30 @@
         transition-duration: .001ms !important;
       }
     }
+  /* v2：技能卡、十格徽章與可在手機內部捲動的排行榜。 */
+    .color-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .color-choice { height:auto; padding:14px 10px; }
+    .color-choice b { font-size:1rem; }
+    .color-choice small { display:block; margin-top:8px; font-size:.875rem; line-height:1.6; color:var(--text); }
+    .score-row { flex-wrap:wrap; gap:8px; }
+    .hud-card { min-width:0; overflow-wrap:anywhere; }
+    .badges { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:4px; width:150px; max-width:100%; }
+    .badges .badge { width:100%; height:auto; aspect-ratio:1; font-size:1rem; }
+    .enemy .badges { margin-left:auto; }
+    .skill-card { margin:18px 0; padding:16px; border:1px solid var(--line); border-radius:18px; background:var(--panel-soft); line-height:1.7; }
+    .skill-card p { margin:6px 0 0; }
+    #skillEffects { font-weight:700; }
+    #leaderboardSection { margin-top:24px; }
+    .ranking-note { font-size:.9rem; }
+    .ranking-scroll { max-width:100%; overflow-x:auto; border-radius:16px; border:1px solid var(--line); margin:16px 0; }
+    .ranking-table { width:100%; min-width:650px; border-collapse:collapse; font-size:.95rem; }
+    .ranking-table caption { text-align:left; padding:14px; font-weight:700; }
+    .ranking-table th,.ranking-table td { padding:12px 10px; text-align:left; border-bottom:1px solid var(--line); }
+    .ranking-table th { background:var(--panel-soft); white-space:nowrap; }
+    .ranking-table td:nth-child(2) { max-width:150px; overflow-wrap:anywhere; }
+    .ranking-table tbody tr:first-child { font-weight:700; }
+    #rankingResult { font-weight:700; line-height:1.7; }
+    @media(max-width:660px) { .badges { width:125px; } .color-choice { min-height:145px; } }
   </style>
 </head>
 <body>
@@ -969,7 +993,7 @@
         <span class="brand-icon" aria-hidden="true">🎲</span>
         <div>
           <h1>終極三骰對決：魔法金幣挑戰賽</h1>
-          <small>辨認牌型、策略下注，率先取得3勝，擊敗電腦骰子王！</small>
+          <small>辨認牌型、策略下注，率先取得10勝，擊敗電腦骰子王！</small>
         </div>
       </div>
       <nav class="tools" aria-label="遊戲工具">
@@ -983,7 +1007,7 @@
       <section class="panel" id="setupScreen" aria-labelledby="setupTitle">
         <div class="kicker">✨ 魔法競技場報到處</div>
         <h2 class="section-title" id="setupTitle">建立三骰冒險者</h2>
-        <p class="lead">選一組幸運骰子，帶著100枚練習金幣挑戰電腦骰子王。先看牌型、再比總點數，率先拿下3勝就能凱旋！</p>
+        <p class="lead">選一組幸運骰子，帶著100枚練習金幣挑戰電腦骰子王。先看牌型，雙方都有對子時先比對子點數，率先拿下10勝就能凱旋！雙方以10勝為終點；金幣歸零則立即結束。</p>
         <div class="safety-note"><span aria-hidden="true">🛡️</span><div>本遊戲使用教學用虛擬金幣，不涉及真實金錢、儲值或任何形式的賭博。</div></div>
 
         <div class="setup-grid">
@@ -991,19 +1015,19 @@
             <label class="field-label" for="playerName">你的冒險者名字</label>
             <input class="name-input" id="playerName" type="text" maxlength="20" autocomplete="nickname" placeholder="例如：Martin" aria-describedby="setupError">
 
-            <div class="field-label" id="colorLabel" style="margin-top:18px">選擇幸運骰子</div>
+            <div class="field-label" id="colorLabel" style="margin-top:18px">選擇幸運骰子・每場技能重新補滿</div>
             <div class="color-grid" role="group" aria-labelledby="colorLabel">
               <button class="color-choice" type="button" data-id="purple" data-name="魔法紫" data-color="#7456eb" data-pip="#ffffff" aria-pressed="false" style="--choice-color:#7456eb">
-                <span class="color-orb" aria-hidden="true"></span><b>💜 魔法紫</b>
+                <span class="color-orb" aria-hidden="true"></span><b>💜 魔法紫</b><small>前5回合：一顆玩家骰子保證6點。</small>
               </button>
               <button class="color-choice" type="button" data-id="blue" data-name="星空藍" data-color="#2985df" data-pip="#ffffff" aria-pressed="false" style="--choice-color:#2985df">
-                <span class="color-orb" aria-hidden="true"></span><b>💙 星空藍</b>
+                <span class="color-orb" aria-hidden="true"></span><b>💙 星空藍</b><small>前3回合：玩家保證擲出三顆連號。</small>
               </button>
               <button class="color-choice" type="button" data-id="red" data-name="勇氣紅" data-color="#e54b57" data-pip="#ffffff" aria-pressed="false" style="--choice-color:#e54b57">
-                <span class="color-orb" aria-hidden="true"></span><b>❤️ 勇氣紅</b>
+                <span class="color-orb" aria-hidden="true"></span><b>❤️ 勇氣紅</b><small>第1回合：輸了不計敗場、不扣金幣；贏了金幣獎勵加倍。</small>
               </button>
               <button class="color-choice" type="button" data-id="gold" data-name="幸運金" data-color="#f5b82e" data-pip="#4a3200" aria-pressed="false" style="--choice-color:#f5b82e">
-                <span class="color-orb" aria-hidden="true"></span><b>💛 幸運金</b>
+                <span class="color-orb" aria-hidden="true"></span><b>💛 幸運金</b><small>前3回合：電腦有兩顆以上相同就重擲，直到三顆不同。</small>
               </button>
             </div>
             <p class="error" id="setupError" role="alert" aria-live="polite"></p>
@@ -1018,7 +1042,7 @@
               <div class="rank-item"><span class="rank-number">2</span><b>🌊 三顆連號</b><small>例：4、5、6</small></div>
               <div class="rank-item"><span class="rank-number">1</span><b>💨 普通牌型</b><small>例：1、3、6</small></div>
             </div>
-            <p class="rank-tip">先比較牌型等級；只有牌型相同時，才比較三顆骰子的總點數。</p>
+            <p class="rank-tip">先比較牌型等級。雙方都是「兩顆相同」時，先比對子的點數，對子相同才比剩下的一顆。其他相同牌型比較總點數；比較結果相同才平手。<br>例：6、6、2 的對子6點，大於5、5、6的對子5點，因此6、6、2獲勝。</p>
           </aside>
         </div>
       </section>
@@ -1039,7 +1063,7 @@
             <div class="score-row">
               <strong class="score-number"><span id="playerScore">0</span> 勝</strong>
               <div class="badges" id="playerBadges" aria-label="玩家勝利徽章">
-                <span class="badge">★</span><span class="badge">★</span><span class="badge">★</span>
+                <span class="badge">★</span><span class="badge">★</span><span class="badge">★</span><span class="badge">★</span><span class="badge">★</span><span class="badge">★</span><span class="badge">★</span><span class="badge">★</span><span class="badge">★</span><span class="badge">★</span>
               </div>
             </div>
           </div>
@@ -1049,7 +1073,7 @@
             <div class="score-row">
               <strong class="score-number"><span id="computerScore">0</span> 勝</strong>
               <div class="badges" id="computerBadges" aria-label="電腦勝利徽章">
-                <span class="badge">★</span><span class="badge">★</span><span class="badge">★</span>
+                <span class="badge">★</span><span class="badge">★</span><span class="badge">★</span><span class="badge">★</span><span class="badge">★</span><span class="badge">★</span><span class="badge">★</span><span class="badge">★</span><span class="badge">★</span><span class="badge">★</span>
               </div>
             </div>
           </div>
@@ -1059,6 +1083,7 @@
           </div>
         </div>
 
+        <aside class="skill-card" aria-label="幸運骰子技能"><strong id="skillTitle">幸運骰子技能</strong><p id="skillStatus"></p><p id="skillEffects" role="status" aria-live="polite"></p></aside>
         <section class="bet-panel" aria-labelledby="betTitle">
           <div class="bet-field">
             <label id="betTitle" for="betInput">本回合下注</label>
@@ -1094,6 +1119,7 @@
                 <span class="meta-chip">總點數：<b id="playerTotal">—</b></span>
               </div>
               <div class="sorted-line">排序後：<span id="playerSorted">—</span></div>
+              <div class="sorted-line" id="playerPairDetail"></div>
             </div>
           </section>
 
@@ -1116,6 +1142,7 @@
                 <span class="meta-chip">總點數：<b id="computerTotal">—</b></span>
               </div>
               <div class="sorted-line">排序後：<span id="computerSorted">—</span></div>
+              <div class="sorted-line" id="computerPairDetail"></div>
             </div>
           </section>
         </div>
@@ -1134,13 +1161,14 @@
             <h3>🧭 策略提醒</h3>
             <div class="strategy-list">
               <div class="strategy-item"><span>🏆</span><div><b>牌型優先</b><small>高等級牌型無視較低牌型的總點數。</small></div></div>
-              <div class="strategy-item"><span>⚖️</span><div><b>同級比總和</b><small>牌型相同時，三顆骰子總點數較大者勝。</small></div></div>
+              <div class="strategy-item"><span>⚖️</span><div><b>對子先比相同點數</b><small>雙方有對子時，先比對子、再比單骰；其他相同牌型比總點數。</small></div></div>
               <div class="strategy-item"><span>🛡️</span><div><b>量力選擇</b><small>金幣是教學分數；下注前先想想風險。</small></div></div>
             </div>
           </aside>
         </div>
       </section>
 
+      <section class="panel" id="leaderboardSection" aria-labelledby="leaderboardTitle"><div class="kicker">🏆 v2・10勝榮耀榜</div><h2 id="leaderboardTitle" class="section-title">優勝排行榜｜前30名</h2><p>每場取得10勝的挑戰各收錄一筆。勝率＝勝場 ÷（勝場＋敗場）；平手與勇氣紅保護的敗場不列入。</p><p class="ranking-note">紀錄僅保存在目前瀏覽器，不會與其他裝置或玩家共享。</p><p id="rankingStorageStatus" role="status" aria-live="polite"></p><div class="ranking-scroll" role="region" tabindex="0" aria-label="優勝排行榜，可左右捲動"><table class="ranking-table"><caption>先比金幣，再比勝率；僅收錄取得10勝的場次</caption><thead><tr><th scope="col">名次</th><th scope="col">名字</th><th scope="col">金幣</th><th scope="col">幾勝幾敗</th><th scope="col">勝率</th><th scope="col">平手</th><th scope="col">回合</th><th scope="col">幸運骰子</th></tr></thead><tbody id="leaderboardBody"></tbody></table></div></section>
       <details class="learning">
         <summary>🐍 Python學習小教室</summary>
         <div class="lesson-grid">
@@ -1154,8 +1182,17 @@
           <article class="lesson"><h3>多個回傳值</h3><p>函式一次帶回骰子、總點數、等級與名稱。</p><pre><code>return d1, d2, d3, total, rank, name</code></pre><span class="web-link">網頁對應：一次更新完整牌型資料。</span></article>
           <article class="lesson"><h3>多變數接收</h3><p>用多個變數接住函式回傳的不同資料。</p><pre><code>p1, p2, p3, p_total,
 p_rank, p_name = get_dice_result()</code></pre><span class="web-link">網頁對應：玩家與電腦各自保存結果。</span></article>
-          <article class="lesson"><h3><code>if / elif / else</code></h3><p>依骰子組合判斷牌型，再依等級與總點數判斷勝負。</p><pre><code>if rank_player &gt; rank_computer:
+          <article class="lesson"><h3><code>if / elif / else</code></h3><p>先比較牌型等級。雙方都有對子時，先比對子、再比單骰；其他相同牌型比總點數。</p><pre><code>if rank_player &gt; rank_computer:
     print("玩家獲勝")</code></pre><span class="web-link">網頁對應：產生回合結果與金幣結算。</span></article>
+          <article class="lesson"><h3>v2.1：對子的比較順序</h3><p>當雙方都是兩顆相同時，先比較相同兩骰的點數，相同才比剩下的一顆。Python可以用一組兩個值依序比較。</p><pre><code>def pair_key(dice):
+    a, b, c = sorted(dice)
+    single = c if a == b else a
+    return b, single
+
+# 只在雙方都是對子時使用
+player = pair_key([6, 2, 6])  # (6, 2)
+computer = pair_key([5, 5, 6])  # (5, 6)
+print(player &gt; computer)  # True</code></pre><span class="web-link">網頁對應：6點對子勝過5點對子，總點數仍會顯示，這時不作為決勝依據。</span></article>
           <article class="lesson"><h3><code>while True</code></h3><p>下注錯誤時持續要求重新輸入。</p><pre><code>while True:
     bet_str = input("下注金額：")</code></pre><span class="web-link">網頁對應：驗證通過前不能擲骰。</span></article>
           <article class="lesson"><h3><code>isdigit()</code></h3><p>檢查文字內容是否全部都是數字，先擋下英文字、小數與負號。</p><pre><code>if not bet_str.isdigit():
@@ -1164,8 +1201,8 @@ p_rank, p_name = get_dice_result()</code></pre><span class="web-link">網頁對�
           <article class="lesson"><h3><code>break</code>與<code>continue</code></h3><p><code>continue</code>重新檢查；<code>break</code>離開防呆迴圈。</p><pre><code>if not bet_str.isdigit():
     continue
 break</code></pre><span class="web-link">網頁對應：錯誤時提示，正確時開始回合。</span></article>
-          <article class="lesson"><h3><code>and</code>與<code>or</code></h3><p>組合多個遊戲條件。</p><pre><code>while player_wins &lt; 3 and
-      computer_wins &lt; 3 and coins &gt; 0:</code></pre><span class="web-link">網頁對應：任一結束條件達成就停止。</span></article>
+          <article class="lesson"><h3><code>and</code>與<code>or</code></h3><p>組合多個遊戲條件。v2將目標調整為10勝。</p><pre><code>while player_wins &lt; 10 and
+      computer_wins &lt; 10 and coins &gt; 0:</code></pre><span class="web-link">網頁對應：任一結束條件達成就停止。</span></article>
           <article class="lesson"><h3><code>+=</code>與<code>-=</code></h3><p>用簡短寫法增加或減少勝場與金幣。</p><pre><code>coins += bet
 coins -= bet</code></pre><span class="web-link">網頁對應：依照勝負完成金幣結算。</span></article>
           <article class="lesson"><h3>f-string</h3><p>把變數內容直接放進顯示文字中。</p><pre><code>print(f"你目前擁有 {coins} 枚金幣")</code></pre><span class="web-link">網頁對應：產生即時比分與戰鬥紀錄。</span></article>
@@ -1183,12 +1220,14 @@ coins -= bet</code></pre><span class="web-link">網頁對應：依照勝負完�
     <div class="dialog-inner">
       <div class="dialog-icon" aria-hidden="true">🗺️</div>
       <h2 id="tutorialTitle">三骰冒險指南</h2>
-      <p>五個重點，帶你安全進入魔法競技場！</p>
+      <p>v2冒險指南，帶你進入魔法競技場！</p>
       <div class="tutorial-steps">
         <div class="tutorial-step"><div class="step-icon">💰</div><div><b>先選擇練習金幣</b><span>輸入1到目前持有金幣之間的整數，再開始擲骰。</span></div></div>
         <div class="tutorial-step"><div class="step-icon">🏆</div><div><b>牌型等級優先</b><span>三顆相同 ＞ 兩顆相同 ＞ 三顆連號 ＞ 普通牌型。</span></div></div>
-        <div class="tutorial-step"><div class="step-icon">⚖️</div><div><b>同級才比總點數</b><span>牌型相同時，三顆骰子總點數較大者獲勝。</span></div></div>
-        <div class="tutorial-step"><div class="step-icon">🎲</div><div><b>率先取得3勝</b><span>獲勝增加下注金額，落敗減少，平手則不變。</span></div></div>
+        <div class="tutorial-step"><div class="step-icon">⚖️</div><div><b>同級對子，先比對子點數</b><span>雙方都是兩顆相同時，先比對子的點數，對子相同才比剩下的一顆。其他相同牌型比較總點數。6、6、2勝過5、5、6。</span></div></div>
+        <div class="tutorial-step"><div class="step-icon">🎲</div><div><b>率先取得10勝</b><span>獲勝增加下注金額，落敗減少，平手則不變。</span></div></div>
+        <div class="tutorial-step"><div class="step-icon">✨</div><div><b>幸運骰子帶有專屬技能</b><span>魔法紫前5回合保證一顆6點；星空藍前3回合保證連號；勇氣紅首回合保護敗場、獲利加倍；幸運金前3回合讓電腦的相同點數牌組重擲。</span></div></div>
+        <div class="tutorial-step"><div class="step-icon">👑</div><div><b>取得10勝，挑戰前30名</b><span>優勝場次先比金幣、再比勝率。排行榜保存在目前瀏覽器。</span></div></div>
         <div class="tutorial-step"><div class="step-icon">🛡️</div><div><b>這是程式學習遊戲</b><span>金幣只是教學分數，不是真實貨幣，也不能購買或兌換。</span></div></div>
       </div>
       <button class="primary-btn" id="closeTutorialBtn" type="button">我知道了，開始冒險！</button>
@@ -1212,13 +1251,16 @@ coins -= bet</code></pre><span class="web-link">網頁對應：依照勝負完�
         <div class="stat"><strong id="finalStraights">0</strong><span>🌊 三顆連號</span></div>
         <div class="stat"><strong id="finalMaxProfit">0</strong><span>最大單回合獲利</span></div>
       </div>
+      <p id="rankingResult" role="status"></p><div id="finalLeaderboardWrap" hidden><div class="ranking-scroll" role="region" tabindex="0" aria-label="優勝排行榜，可左右捲動"><table class="ranking-table"><caption>先比金幣，再比勝率；僅收錄取得10勝的場次</caption><thead><tr><th scope="col">名次</th><th scope="col">名字</th><th scope="col">金幣</th><th scope="col">幾勝幾敗</th><th scope="col">勝率</th><th scope="col">平手</th><th scope="col">回合</th><th scope="col">幸運骰子</th></tr></thead><tbody id="finalLeaderboardBody"></tbody></table></div></div>
       <div id="modalLogWrap" hidden>
         <ul class="battle-log modal-log" id="modalLog"></ul>
       </div>
       <div class="dialog-actions">
         <button class="primary-btn" id="playAgainBtn" type="button">🔄 重新挑戰</button>
         <button class="secondary-btn" id="changePlayerBtn" type="button">🧙 更換玩家</button>
+        <button class="secondary-btn wide" id="viewLeaderboardBtn" type="button" aria-expanded="false" aria-controls="finalLeaderboardWrap">🏆 查看優勝排行榜</button>
         <button class="secondary-btn wide" id="viewLogBtn" type="button" aria-expanded="false">📋 查看完整紀錄</button>
+        <button class="secondary-btn wide" id="exitGameBtn" type="button" aria-label="離開目前遊戲">🚪 離開遊戲</button>
       </div>
     </div>
   </dialog>
@@ -1268,7 +1310,8 @@ coins -= bet</code></pre><span class="web-link">網頁對應：依照勝負完�
       gameOver: false,
       soundOn: true,
       achievements: new Set(),
-      lastRound: null
+      lastRound: null,
+      draws: 0, protectedLosses: 0, lastSkillEffects: [], rankingRecorded: false
     };
 
     const $ = (selector) => document.querySelector(selector);
@@ -1295,7 +1338,10 @@ coins -= bet</code></pre><span class="web-link">網頁對應：依照勝負完�
     allDiceElements.forEach((die) => renderDie(die, 1));
 
     // ===== 深色模式 =====
-    const savedTheme = localStorage.getItem("triple-dice-theme");
+    // 部分瀏覽器禁止本機儲存；模式與教學仍可在當次開啟中使用。
+    function readPreference(key) { try { return localStorage.getItem(key); } catch(error) { return null; } }
+    function savePreference(key,value) { try { localStorage.setItem(key,value); } catch(error) { /* 無法儲存時保留當次設定。 */ } }
+    const savedTheme = readPreference("triple-dice-theme");
     const systemDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
     applyTheme(savedTheme || (systemDark ? "dark" : "light"));
 
@@ -1307,7 +1353,7 @@ coins -= bet</code></pre><span class="web-link">網頁對應：依照勝負完�
     $("#themeBtn").addEventListener("click", () => {
       const nextTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
       applyTheme(nextTheme);
-      localStorage.setItem("triple-dice-theme", nextTheme);
+      savePreference("triple-dice-theme", nextTheme);
       playSound("click");
     });
 
@@ -1361,12 +1407,12 @@ coins -= bet</code></pre><span class="web-link">網頁對應：依照勝負完�
     }
     $("#tutorialBtn").addEventListener("click", openTutorial);
     $("#closeTutorialBtn").addEventListener("click", () => {
-      localStorage.setItem("triple-dice-tutorial-seen", "yes");
+      savePreference("triple-dice-tutorial-seen", "yes");
       tutorialDialog.close();
       playSound("click");
       if (!$("#setupScreen").hidden) $("#playerName").focus();
     });
-    if (!localStorage.getItem("triple-dice-tutorial-seen")) {
+    if (!readPreference("triple-dice-tutorial-seen")) {
       window.addEventListener("load", () => window.setTimeout(openTutorial, 180));
     }
 
@@ -1392,6 +1438,7 @@ coins -= bet</code></pre><span class="web-link">網頁對應：依照勝負完�
     $("#startBtn").addEventListener("click", startGame);
 
     function startGame(config) {
+      if (state.rolling) return { ok:false,error:"請等待本回合結算完成" };
       const requestedName = config && typeof config.name === "string" ? config.name : $("#playerName").value;
       const requestedColor = config && typeof config.colorId === "string" ? config.colorId : state.colorId;
       const name = requestedName.trim().replace(/\s+/g, " ");
@@ -1502,7 +1549,8 @@ coins -= bet</code></pre><span class="web-link">網頁對應：依照勝負完�
         return { dice: [...dice], sorted, total, rank: 4, key: "triple", name: "🔥 三顆相同" };
       }
       if (sorted[0] === sorted[1] || sorted[1] === sorted[2]) {
-        return { dice: [...dice], sorted, total, rank: 3, key: "pair", name: "⚡ 兩顆相同" };
+        return { dice: [...dice], sorted, total, rank: 3, key: "pair", name: "⚡ 兩顆相同",
+          pairValue: sorted[1], singleValue: sorted[0] === sorted[1] ? sorted[2] : sorted[0] };
       }
       if (sorted[0] + 1 === sorted[1] && sorted[1] + 1 === sorted[2]) {
         return { dice: [...dice], sorted, total, rank: 2, key: "straight", name: "🌊 三顆連號" };
@@ -1513,12 +1561,52 @@ coins -= bet</code></pre><span class="web-link">網頁對應：依照勝負完�
     function compareHands(player, computer) {
       if (player.rank > computer.rank) return { winner: "player", reason: "higher-rank" };
       if (player.rank < computer.rank) return { winner: "computer", reason: "higher-rank" };
+      // v2.1：兩顆相同時先比較對子，避免較大的單骰反過來蓋過對子大小。
+      if (player.rank === 3) {
+        if (player.pairValue > computer.pairValue) return { winner: "player", reason: "higher-pair" };
+        if (player.pairValue < computer.pairValue) return { winner: "computer", reason: "higher-pair" };
+        if (player.singleValue > computer.singleValue) return { winner: "player", reason: "higher-single" };
+        if (player.singleValue < computer.singleValue) return { winner: "computer", reason: "higher-single" };
+        return { winner: "draw", reason: "same-pair-single" };
+      }
       if (player.total > computer.total) return { winner: "player", reason: "higher-total" };
       if (player.total < computer.total) return { winner: "computer", reason: "higher-total" };
       return { winner: "draw", reason: "same-rank-total" };
     }
 
+    // 技能只套用在本回合的正式骰子；動畫中的骰面不參與計分。
+    const SKILL_TEXT = {"魔法紫": "前5回合：一顆玩家骰子保證6點。", "星空藍": "前3回合：玩家保證擲出三顆連號。", "勇氣紅": "第1回合：輸了不計敗場、不扣金幣；贏了金幣獎勵加倍。", "幸運金": "前3回合：電腦有兩顆以上相同就重擲，直到三顆不同。"};
+    const SKILL_LIMIT = { purple:5, blue:3, red:1, gold:3 };
+    function updateSkillUI() {
+      const remaining = Math.max(0,(SKILL_LIMIT[state.colorId] || 0)-state.round+1);
+      $("#skillTitle").textContent = (COLOR_ICONS[state.colorId] || "🎲")+" "+state.colorName+"・幸運技能";
+      $("#skillStatus").textContent = (SKILL_TEXT[state.colorName] || "")+ (remaining ? " 尚可使用"+remaining+"回合。" : " 技能已用完，接下來正常擲骰。");
+    }
+    function applyDiceSkills(raw,colorId,round,draw=randomDie,rng=Math.random) {
+      analyzeDice(raw.player); analyzeDice(raw.computer);
+      const player=[...raw.player], computer=[...raw.computer], effects=[], rerolls=[];
+      if(colorId==="purple" && round<=5) { player[0]=6; effects.push("💜 魔法紫生效：玩家第一顆骰子保證6點"); }
+      if(colorId==="blue" && round<=3) {
+        const start=Math.floor(rng()*4)+1;
+        player.splice(0,3,start,start+1,start+2);
+        for(let i=2;i>0;i--) { const j=Math.floor(rng()*(i+1)); [player[i],player[j]]=[player[j],player[i]]; }
+        effects.push("💙 星空藍生效：保證三顆連號");
+      }
+      if(colorId==="gold" && round<=3) {
+        while(new Set(computer).size<3) { rerolls.push([...computer]); computer.splice(0,3,draw(),draw(),draw()); }
+        effects.push(rerolls.length ? "💛 幸運金生效：電腦重擲"+rerolls.length+"次，直到三顆不同" : "💛 幸運金守護：電腦三顆不同，無須重擲");
+      }
+      return {player,computer,effects,rerolls};
+    }
+    // 下注前不扣款；回合結束後只結算一次，紅骰保護優先處理。
+    function calculateRoundSettlement(result,bet,colorId,round) {
+      const protectedLoss=colorId==="red" && round===1 && result.winner==="computer";
+      const doubled=colorId==="red" && round===1 && result.winner==="player";
+      return {protectedLoss,doubled,delta:result.winner==="player" ? bet*(doubled?2:1) : result.winner==="computer" && !protectedLoss ? -bet : 0};
+    }
+
     async function playRound(bet, fixedDice) {
+      if ($("#gameScreen").hidden) return {ok:false,error:"請先建立冒險者"};
       if (state.rolling) return { ok: false, error: "骰子正在滾動中" };
       if (state.gameOver) return { ok: false, error: "本場遊戲已結束" };
       const check = validateBet(bet);
@@ -1553,8 +1641,14 @@ coins -= bet</code></pre><span class="web-link">網頁對應：依照勝負完�
         player: [randomDie(), randomDie(), randomDie()],
         computer: [randomDie(), randomDie(), randomDie()]
       };
-      const playerDice = generated.player.map(Number);
-      const computerDice = generated.computer.map(Number);
+      const skilled=applyDiceSkills(generated,state.colorId,state.round);
+      state.lastSkillEffects=skilled.effects;
+      if(skilled.rerolls.length) {
+        setBattleStatus("幸運金生效！電腦重擲"+skilled.rerolls.length+"次");
+        await wait(prefersReducedMotion()?30:450);
+      }
+      const playerDice = skilled.player;
+      const computerDice = skilled.computer;
       playerDice.forEach((value, index) => renderDie(playerDiceElements[index], value));
       computerDice.forEach((value, index) => renderDie(computerDiceElements[index], value));
       allDiceElements.forEach((die) => {
@@ -1578,16 +1672,21 @@ coins -= bet</code></pre><span class="web-link">網頁對應：依照勝負完�
       setBattleStatus("正在比較牌型等級……");
       await wait(prefersReducedMotion() ? 30 : 220);
       if (player.rank === computer.rank) {
-        setBattleStatus("牌型相同，改比總點數！");
+        setBattleStatus(player.rank === 3 ? "雙方都是兩顆相同！<br>先比對子的點數" : "牌型相同，改比總點數！");
         await wait(prefersReducedMotion() ? 30 : 240);
+        if (player.rank === 3 && player.pairValue === computer.pairValue) {
+          setBattleStatus("對子點數相同！<br>比較剩下的一顆骰子");
+          await wait(prefersReducedMotion() ? 30 : 240);
+        }
       }
 
       const result = compareHands(player, computer);
       settleRound({ bet: acceptedBet, coinsBefore, player, computer, result });
       state.lastRound = { round: state.round, bet: acceptedBet, player, computer, result, coins: state.coins };
       state.round += 1;
+      updateSkillUI();
 
-      const ended = state.coins <= 0 || state.playerWins >= 3 || state.computerWins >= 3;
+      const ended = state.coins <= 0 || state.playerWins >= 10 || state.computerWins >= 10;
       if (ended) {
         state.gameOver = true;
         state.rolling = false;
@@ -1625,10 +1724,13 @@ coins -= bet</code></pre><span class="web-link">網頁對應：依照勝負完�
       $("#" + side + "Rank").textContent = hand.rank;
       $("#" + side + "Total").textContent = hand.total;
       $("#" + side + "Sorted").textContent = hand.sorted.join("、");
+      $("#" + side + "PairDetail").textContent = hand.rank === 3
+        ? "判定依據：對子" + hand.pairValue + "點・單骰" + hand.singleValue + "點" : "";
       $("#" + side + "Dice").setAttribute("aria-label",
         (side === "player" ? "玩家" : "電腦") + "擲出" + hand.dice.join("、") +
         "，排序後" + hand.sorted.join("、") + "，" + hand.name.replace(/^\S+\s/, "") +
-        "，等級" + hand.rank + "，總點數" + hand.total);
+        "，等級" + hand.rank + "，總點數" + hand.total +
+        (hand.rank === 3 ? "，對子" + hand.pairValue + "點，剩下單骰" + hand.singleValue + "點" : ""));
     }
 
     function applyPatternEffects(side, hand) {
@@ -1643,30 +1745,51 @@ coins -= bet</code></pre><span class="web-link">網頁對應：依照勝負完�
       }
     }
 
+    // 所有畫面與紀錄共用同一套原因文字，讓對子決勝不再誤標為總點數決勝。
+    function describeDecision(result,player,computer) {
+      if (result.winner === "draw") return result.reason === "same-pair-single"
+        ? "雙方對子與剩下的單骰都相同" : "雙方牌型與總點數相同";
+      const winner=result.winner === "player" ? player : computer;
+      const loser=result.winner === "player" ? computer : player;
+      const label=result.winner === "player" ? "玩家" : "電腦";
+      if (result.reason === "higher-pair") return label+"對子"+winner.pairValue+"點較高（另一方對子"+loser.pairValue+"點）";
+      if (result.reason === "higher-single") return "雙方對子都是"+winner.pairValue+"點，"+label+"剩下的單骰"+winner.singleValue+"點較高（另一方"+loser.singleValue+"點）";
+      return result.reason === "higher-rank" ? label+"牌型等級較高" : "牌型相同，"+label+"總點數較高";
+    }
     function settleRound(roundData) {
       const { bet, coinsBefore, player, computer, result } = roundData;
+      const settlement=calculateRoundSettlement(result,bet,state.colorId,state.round);
+      const {delta,protectedLoss,doubled}=settlement;
+      if(protectedLoss) state.lastSkillEffects.push("❤️ 勇氣紅生效：電腦勝場不列計，金幣不扣除");
+      if(doubled) state.lastSkillEffects.push("❤️ 勇氣紅生效：獲得金幣加倍");
+      $("#skillEffects").textContent=state.lastSkillEffects.join("；");
       let message;
       let coinMessage;
-      let logReason;
+      let logReason = describeDecision(result,player,computer);
 
       if (result.winner === "player") {
         state.playerWins += 1;
-        state.coins += bet;
+        state.coins += delta;
         state.winStreak += 1;
-        state.maxProfit = Math.max(state.maxProfit, bet);
+        state.maxProfit = Math.max(state.maxProfit, delta);
         message = "🎉 這回合你贏了！";
-        coinMessage = "🤑 贏得" + bet + "枚魔法金幣！";
-        logReason = result.reason === "higher-rank" ? "玩家牌型等級較高" : "牌型相同，玩家總點數較高";
+        coinMessage = "🤑 贏得" + delta + "枚魔法金幣！"+(doubled?"（勇氣紅加倍）":"");
         animateCoins("gain");
         launchConfetti(18);
         playSound("gain");
+      } else if (protectedLoss) {
+        state.protectedLosses += 1;
+        state.winStreak=0;
+        message="❤️ 勇氣紅守護！電腦本回合獲勝，但勝場不列計。";
+        coinMessage="金幣不扣除，勇敢繼續挑戰！";
+        logReason += "，勇氣紅保護：不計敗場、不扣金幣";
+        playSound("draw");
       } else if (result.winner === "computer") {
         state.computerWins += 1;
-        state.coins -= bet;
+        state.coins += delta;
         state.winStreak = 0;
         message = "💥 這回合由電腦骰子王獲勝！";
         coinMessage = "💸 失去" + bet + "枚魔法金幣……";
-        logReason = result.reason === "higher-rank" ? "電腦牌型等級較高" : "牌型相同，電腦總點數較高";
         animateCoins("loss");
         $("#arena").classList.remove("shake");
         void $("#arena").offsetWidth;
@@ -1674,9 +1797,9 @@ coins -= bet</code></pre><span class="web-link">網頁對應：依照勝負完�
         playSound("loss");
       } else {
         state.winStreak = 0;
-        message = "🤝 牌型與總點數都相同，這回合平手！";
+        state.draws += 1;
+        message = result.reason === "same-pair-single" ? "🤝 對子與剩下的單骰都相同，這回合平手！" : "🤝 牌型與總點數都相同，這回合平手！";
         coinMessage = "押注金退還，金幣沒有變化。";
-        logReason = "雙方牌型與總點數相同";
         playSound("draw");
       }
 
@@ -1686,14 +1809,17 @@ coins -= bet</code></pre><span class="web-link">網頁對應：依照勝負完�
       $("#roundResult").className = "round-result " + result.winner;
       $("#coinChange").textContent = coinMessage;
       $("#coinChange").className = "coin-change " +
-        (result.winner === "player" ? "gain" : result.winner === "computer" ? "loss" : "draw");
+        (delta>0 ? "gain" : delta<0 ? "loss" : "draw");
       setBattleStatus(
-        result.winner === "draw" ? "同牌型・同總點數<br>本回合平手" :
+        protectedLoss ? "勇氣紅保護生效！<br>不計敗場・金幣不變" :
+        result.winner === "draw" ? (result.reason === "same-pair-single" ? "同對子・同單骰<br>本回合平手" : "同牌型・同總點數<br>本回合平手") :
+        result.reason === "higher-pair" ? "對子點數決勝！<br>" + (result.winner === "player" ? "玩家" : "電腦") + "獲勝" :
+        result.reason === "higher-single" ? "相同對子，比剩下的單骰！<br>" + (result.winner === "player" ? "玩家" : "電腦") + "獲勝" :
         result.reason === "higher-rank" ? "牌型等級決勝！<br>" + (result.winner === "player" ? "玩家" : "電腦") + "獲勝" :
         "同牌型比總點數！<br>" + (result.winner === "player" ? "玩家" : "電腦") + "獲勝"
       );
 
-      addBattleLog({ bet, player, computer, result, logReason });
+      addBattleLog({ bet, player, computer, result, logReason, delta });
       updateScoreboard();
       unlockAchievement("first-bet", "🎯 初次下注", "完成第一回合！");
       if (player.key === "pair") unlockAchievement("pair", "⚡ 雙骰共鳴", "第一次擲出兩顆相同！");
@@ -1705,13 +1831,12 @@ coins -= bet</code></pre><span class="web-link">網頁對應：依照勝負完�
     }
 
     function addBattleLog(data) {
-      const { bet, player, computer, result, logReason } = data;
-      const change = result.winner === "player" ? "獲得" + bet + "枚"
-        : result.winner === "computer" ? "失去" + bet + "枚" : "金幣不變";
+      const { bet, player, computer, result, logReason, delta } = data;
+      const change = delta>0 ? "獲得"+delta+"枚" : delta<0 ? "失去"+(-delta)+"枚" : "金幣不變";
       const text = "第" + state.round + "回合｜下注" + bet + "枚｜玩家：" +
         player.dice.join("、") + "，" + player.name + "，總計" + player.total +
         "點｜電腦：" + computer.dice.join("、") + "，" + computer.name + "，總計" +
-        computer.total + "點｜" + logReason + "｜" + change + "｜目前" + state.coins + "枚。";
+        computer.total + "點｜" + logReason + (state.lastSkillEffects.length?"｜"+state.lastSkillEffects.join("；"):"") + "｜" + change + "｜目前" + state.coins + "枚。";
       state.log.unshift(text);
       renderLog($("#battleLog"));
     }
@@ -1772,19 +1897,64 @@ coins -= bet</code></pre><span class="web-link">網頁對應：依照勝負完�
       card.classList.add(type);
     }
 
+    // ===== 優勝排行榜：本機儲存、驗證舊資料、金幣優先，再比未四捨五入的勝率 =====
+    const RANKING_KEY="triple-dice-v2-winners";
+    let leaderboard=[];
+    function compareRanking(a,b) {
+      return b.coins-a.coins || (b.wins/(b.wins+b.losses)-a.wins/(a.wins+a.losses)) || a.time-b.time;
+    }
+    function validRanking(row) {
+      return row && typeof row.name==="string" && row.name.trim().length>0 && row.name.length<=20 &&
+        row.wins===10 && Number.isSafeInteger(row.losses) && row.losses>=0 && row.losses<10 &&
+        Number.isSafeInteger(row.coins) && row.coins>0 && Number.isSafeInteger(row.draws) && row.draws>=0 &&
+        Number.isSafeInteger(row.rounds) && row.rounds>=row.wins+row.losses+row.draws &&
+        Object.hasOwn(COLOR_DATA,row.colorId) && Number.isFinite(row.time) && row.time>=0;
+    }
+    function renderLeaderboard(body) {
+      body.innerHTML="";
+      if(!leaderboard.length) {
+        const row=document.createElement("tr"), cell=document.createElement("td"); cell.colSpan=8;
+        cell.textContent="尚無優勝紀錄，取得10勝就有機會上榜！"; row.appendChild(cell); body.appendChild(row); return;
+      }
+      leaderboard.forEach((entry,index)=>{
+        const row=document.createElement("tr");
+        [index+1,entry.name,entry.coins,entry.wins+"勝"+entry.losses+"敗",(entry.wins/(entry.wins+entry.losses)*100).toFixed(1)+"%",entry.draws,entry.rounds,COLOR_DATA[entry.colorId].name].forEach(value=>{
+          const cell=document.createElement("td"); cell.textContent=String(value); row.appendChild(cell);
+        }); body.appendChild(row);
+      });
+    }
+    function loadLeaderboard() {
+      try {
+        const raw=JSON.parse(localStorage.getItem(RANKING_KEY)||"[]");
+        leaderboard=(Array.isArray(raw)?raw:[]).filter(validRanking).sort(compareRanking).slice(0,30);
+      } catch(error) { $("#rankingStorageStatus").textContent="目前無法讀取本機紀錄，仍可正常遊玩；新紀錄會暫存在本頁。"; }
+      renderLeaderboard($("#leaderboardBody"));
+    }
+    function recordWinner() {
+      const entry={name:state.name,coins:state.coins,wins:state.playerWins,losses:state.computerWins,draws:state.draws,rounds:state.log.length,colorId:state.colorId,time:Date.now()};
+      leaderboard.push(entry); leaderboard.sort(compareRanking); const rank=leaderboard.indexOf(entry)+1; leaderboard=leaderboard.slice(0,30);
+      $("#rankingResult").textContent=rank<=30 ? "🏆 本場優勝已列入第"+rank+"名！" : "🏆 本場取得10勝！目前未進入前30名，繼續挑戰你的最佳紀錄吧！";
+      try { localStorage.setItem(RANKING_KEY,JSON.stringify(leaderboard)); $("#rankingStorageStatus").textContent=""; }
+      catch(error) { $("#rankingStorageStatus").textContent="瀏覽器無法保存紀錄，目前僅暫存在本頁；關閉或重新整理後可能消失。"; $("#rankingResult").textContent+=" 紀錄僅暫存本頁，瀏覽器無法保存。"; }
+      renderLeaderboard($("#leaderboardBody"));
+    }
+    loadLeaderboard();
+
     // ===== 最終結算：金幣歸零優先 =====
     const resultDialog = $("#resultDialog");
+    // 保留結算操作：避免按Escape關閉後無法重新挑戰。
+    resultDialog.addEventListener("cancel", (event) => event.preventDefault());
     function showFinalResult() {
       const bankrupt = state.coins <= 0;
-      const playerWon = !bankrupt && state.playerWins >= 3;
+      const playerWon = !bankrupt && state.playerWins >= 10;
       $("#finalIcon").textContent = bankrupt ? "🪙" : playerWon ? "🏆" : "🤖";
       $("#finalTitle").textContent = bankrupt ? "魔法金幣用完了！"
         : playerWon ? "恭喜【" + state.name + "】！" : "電腦骰子王獲勝！";
       $("#finalMessage").textContent = bankrupt
         ? "這次的冒險暫時結束，重新挑戰就能再次獲得100枚練習金幣。"
         : playerWon
-          ? "你以3：" + state.computerWins + "擊敗電腦骰子王，帶著" + state.coins + "枚魔法金幣凱旋而歸！"
-          : "電腦骰子王以3：" + state.playerWins + "獲勝。你還剩下" + state.coins + "枚魔法金幣，下次再來挑戰吧！";
+          ? "你以10：" + state.computerWins + "擊敗電腦骰子王，帶著" + state.coins + "枚魔法金幣凱旋而歸！"
+          : "電腦骰子王以10：" + state.playerWins + "獲勝。你還剩下" + state.coins + "枚魔法金幣，下次再來挑戰吧！";
       $("#finalScore").textContent = state.playerWins + "：" + state.computerWins;
       $("#finalCoins").textContent = state.coins;
       $("#finalRounds").textContent = state.log.length;
@@ -1798,15 +1968,42 @@ coins -= bet</code></pre><span class="web-link">網頁對應：依照勝負完�
       $("#viewLogBtn").textContent = "📋 查看完整紀錄";
       $("#viewLogBtn").setAttribute("aria-expanded", "false");
 
+      $("#finalLeaderboardWrap").hidden=true;
+      $("#viewLeaderboardBtn").setAttribute("aria-expanded","false");
+      $("#viewLeaderboardBtn").textContent="🏆 查看優勝排行榜";
+      if(playerWon && !state.rankingRecorded) { recordWinner(); state.rankingRecorded=true; }
+      if(!playerWon) $("#rankingResult").textContent="本場未取得10勝，未列入優勝排行榜。每次挑戰都是新的練習！";
+      renderLeaderboard($("#finalLeaderboardBody"));
       if (playerWon) {
-        unlockAchievement("master", "🎲 三骰大師", "率先取得3勝！");
-        if (state.computerWins === 0) unlockAchievement("perfect", "👑 完美勝利", "以3：0擊敗電腦！");
+        unlockAchievement("master", "🎲 三骰大師", "率先取得10勝！");
+        if (state.computerWins === 0) unlockAchievement("perfect", "👑 完美勝利", "以10：0擊敗電腦！");
         launchConfetti(80);
         playSound("gain");
       }
       if (!resultDialog.open) resultDialog.showModal();
     }
 
+    $("#viewLeaderboardBtn").addEventListener("click",()=>{
+      const wrap=$("#finalLeaderboardWrap"); wrap.hidden=!wrap.hidden;
+      $("#viewLeaderboardBtn").setAttribute("aria-expanded",String(!wrap.hidden));
+      $("#viewLeaderboardBtn").textContent=wrap.hidden?"🏆 查看優勝排行榜":"🏆 收合優勝排行榜";
+    });
+    // 離開已結束的遊戲；線上返回作品集，單檔離線開啟時返回開始畫面。
+    // 排行榜已在結算時保存，離開不會清除任何優勝紀錄。
+    $("#exitGameBtn").addEventListener("click", () => {
+      resultDialog.close();
+      playSound("click");
+      if (window.location.protocol === "http:" || window.location.protocol === "https:") {
+        window.location.assign("https://martin-team-0506.github.io/Collections/index.html");
+        return;
+      }
+      resetBattle();
+      $("#gameScreen").hidden = true;
+      $("#setupScreen").hidden = false;
+      $("#setupError").textContent = "";
+      $("#setupScreen").scrollIntoView({ behavior: prefersReducedMotion() ? "auto" : "smooth", block: "start" });
+      $("#playerName").focus({ preventScroll: true });
+    });
     $("#playAgainBtn").addEventListener("click", () => {
       resultDialog.close();
       resetBattle();
@@ -1848,6 +2045,9 @@ coins -= bet</code></pre><span class="web-link">網頁對應：依照勝負完�
       state.rolling = false;
       state.gameOver = false;
       state.lastRound = null;
+      state.draws=0; state.protectedLosses=0; state.lastSkillEffects=[]; state.rankingRecorded=false;
+      $("#skillEffects").textContent="";
+      updateSkillUI();
       state.achievements = new Set();
       clearAchievementNotifications();
       $("#roundDisplay").textContent = "第 1 回合";
@@ -1859,6 +2059,8 @@ coins -= bet</code></pre><span class="web-link">網頁對應：依照勝負完�
       ["playerRank","playerTotal","computerRank","computerTotal"].forEach((id) => $("#" + id).textContent = "—");
       $("#playerSorted").textContent = "—";
       $("#computerSorted").textContent = "—";
+      $("#playerPairDetail").textContent = "";
+      $("#computerPairDetail").textContent = "";
       setBattleStatus("輸入下注金額<br>開始第一回合");
       $("#roundResult").textContent = "看懂牌型、控制風險，準備迎接挑戰！";
       $("#roundResult").className = "round-result";
@@ -2006,7 +2208,7 @@ coins -= bet</code></pre><span class="web-link">網頁對應：依照勝負完�
     registerWebMCPTools();
 
     // 供自動化測試直接驗證牌型、勝負與下注，不影響一般操作。
-    window.tripleDiceGame = { analyzeDice, compareHands, validateBet, randomDie };
+    window.tripleDiceGame = { analyzeDice, compareHands, validateBet, randomDie, applyDiceSkills, calculateRoundSettlement, compareRanking, validRanking };
   </script>
 </body>
 </html>
