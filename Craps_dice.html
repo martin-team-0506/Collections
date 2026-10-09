@@ -294,7 +294,16 @@
       box-shadow: 0 5px 14px color-mix(in srgb, var(--choice-color) 45%, transparent);
       transform: rotate(8deg);
     }
-    .color-choice b { display: block; font-size: .83rem; line-height: 1.3; }
+    .color-choice b { display: block; font-size: 1rem; line-height: 1.3; }
+    .color-choice small { display: block; margin-top: 8px; font-size: .875rem; line-height: 1.6; color: var(--muted); }
+    .color-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .skill-card { margin-bottom: 16px; padding: 15px 18px; border: 1px solid var(--line); border-radius: 18px; background: var(--panel-soft); }
+    .skill-card strong { color: var(--primary-deep); }
+    .skill-card p { margin: 7px 0 0; line-height: 1.7; }
+    .skill-card.active { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(255,200,61,.15); }
+    .score-card { min-width: 0; overflow-wrap: anywhere; }
+    .score-row, .enemy .score-row { flex-wrap: wrap; }
+    .badges { flex-wrap: wrap; }
     .error {
       min-height: 27px;
       margin: 9px 0 0;
@@ -819,16 +828,16 @@
       .color-grid { grid-template-columns: repeat(2, 1fr); }
       .color-choice { min-height: 78px; }
       .color-orb { width: 31px; height: 31px; margin-bottom: 3px; }
-      .welcome { align-items: flex-start; }
+      .welcome { align-items: flex-start; flex-wrap: wrap; }
       .welcome span { display: none; }
       .scoreboard { grid-template-columns: 1fr 32px 1fr; gap: 5px; }
       .score-card { padding: 10px 8px; }
       .score-vs { min-width: 32px; font-size: .78rem; }
       .score-row, .enemy .score-row { display: block; }
       .score-number { font-size: 1.27rem; }
-      .badges { margin-top: 7px; }
+      .badges { margin-top: 7px; gap: 2px; flex-wrap: nowrap; }
       .enemy .badges { justify-content: flex-end; }
-      .badge { width: 24px; height: 24px; font-size: .78rem; }
+      .badge { flex: 1 1 0; min-width: 0; max-width: 24px; width: auto; height: auto; aspect-ratio: 1; font-size: .78rem; }
       .arena {
         grid-template-columns: 1fr 54px 1fr;
         min-height: 236px;
@@ -865,7 +874,7 @@
         <span class="brand-icon" aria-hidden="true">🎲</span>
         <div>
           <h1>豹子通殺！進階雙骰終極對決</h1>
-          <small>擲出幸運雙骰，率先取得3勝，擊敗電腦骰子王！</small>
+          <small>擲出幸運雙骰，率先取得5勝，擊敗電腦骰子王！</small>
         </div>
       </div>
       <nav class="tools" aria-label="遊戲工具">
@@ -879,7 +888,7 @@
       <section class="panel" id="setupScreen" aria-labelledby="setupTitle">
         <div class="kicker">✨ 魔法競技場報到處</div>
         <h2 class="section-title" id="setupTitle">建立骰子冒險者</h2>
-        <p class="lead">留下你的冒險者名字，選一組幸運骰子。豹子能無條件擊敗一般點數，率先集滿三顆勝利星就能封王！</p>
+        <p class="lead">留下你的冒險者名字，選一組幸運骰子。豹子能無條件擊敗一般點數，率先集滿五顆勝利星就能封王！</p>
         <div class="setup-grid">
           <div>
             <label class="field-label" for="playerName">你的冒險者名字</label>
@@ -888,16 +897,16 @@
             <div class="field-label" id="colorLabel" style="margin-top:18px">選擇幸運骰子</div>
             <div class="color-grid" role="group" aria-labelledby="colorLabel">
               <button class="color-choice" type="button" data-id="purple" data-name="魔法紫" data-color="#7657ee" data-pip="#ffffff" aria-pressed="false" style="--choice-color:#7657ee">
-                <span class="color-orb" aria-hidden="true"></span><b>💜 魔法紫</b>
+                <span class="color-orb" aria-hidden="true"></span><b>💜 魔法紫</b><small>前3回合，玩家其中一顆骰子保證6點，另一顆隨機。</small>
               </button>
               <button class="color-choice" type="button" data-id="blue" data-name="星空藍" data-color="#2985df" data-pip="#ffffff" aria-pressed="false" style="--choice-color:#2985df">
-                <span class="color-orb" aria-hidden="true"></span><b>💙 星空藍</b>
+                <span class="color-orb" aria-hidden="true"></span><b>💙 星空藍</b><small>第1回合，玩家必定擲出豹子，點數仍隨機。</small>
               </button>
               <button class="color-choice" type="button" data-id="red" data-name="勇氣紅" data-color="#e54b57" data-pip="#ffffff" aria-pressed="false" style="--choice-color:#e54b57">
-                <span class="color-orb" aria-hidden="true"></span><b>❤️ 勇氣紅</b>
+                <span class="color-orb" aria-hidden="true"></span><b>❤️ 勇氣紅</b><small>第1回合若電腦獲勝，抵銷該勝場；回合仍記錄。</small>
               </button>
               <button class="color-choice" type="button" data-id="gold" data-name="幸運金" data-color="#f5b82e" data-pip="#4a3200" aria-pressed="false" style="--choice-color:#f5b82e">
-                <span class="color-orb" aria-hidden="true"></span><b>💛 幸運金</b>
+                <span class="color-orb" aria-hidden="true"></span><b>💛 幸運金</b><small>前3回合，電腦若擲出豹子，重擲兩顆直到不是豹子。</small>
               </button>
             </div>
             <p class="error" id="setupError" role="alert" aria-live="polite"></p>
@@ -906,7 +915,7 @@
 
           <aside class="rules" aria-label="遊戲規則">
             <h3>📜 雙骰競技場規則</h3>
-            <p class="rules-goal">先獲得3勝的一方，就是最終贏家！</p>
+            <p class="rules-goal">先獲得5勝的一方，就是最終贏家！</p>
             <div class="rule-highlight">
               <span aria-hidden="true">🐆</span>
               <div><b>豹子優先</b><small>兩顆骰子相同就是豹子，無條件擊敗一般點數。</small></div>
@@ -915,7 +924,9 @@
               <li>雙方都是豹子：比較總點數。</li>
               <li>雙方都不是豹子：比較總點數。</li>
               <li>需要比較時，總點數相同就是平手。</li>
-              <li>平手不計分，率先取得3勝就結束。</li>
+              <li>平手不計分，率先取得5勝就結束。</li>
+              <li>幸運骰子技能先處理，再依豹子優先與總點數規則判定。</li>
+              <li>勇氣紅首回合抵銷電腦勝場時，雙方不加分，回合仍計入紀錄。</li>
             </ul>
           </aside>
         </div>
@@ -937,7 +948,7 @@
             <div class="score-row">
               <strong class="score-number"><span id="playerScore">0</span> 勝</strong>
               <div class="badges" id="playerBadges" aria-label="玩家勝利徽章">
-                <span class="badge">★</span><span class="badge">★</span><span class="badge">★</span>
+                <span class="badge">★</span><span class="badge">★</span><span class="badge">★</span> <span class="badge">★</span><span class="badge">★</span>
               </div>
             </div>
           </div>
@@ -947,12 +958,18 @@
             <div class="score-row">
               <strong class="score-number"><span id="computerScore">0</span> 勝</strong>
               <div class="badges" id="computerBadges" aria-label="電腦勝利徽章">
-                <span class="badge">★</span><span class="badge">★</span><span class="badge">★</span>
+                <span class="badge">★</span><span class="badge">★</span><span class="badge">★</span> <span class="badge">★</span><span class="badge">★</span>
               </div>
             </div>
           </div>
         </div>
 
+        <div class="skill-card" id="skillCard">
+          <strong id="skillTitle">✨ 幸運骰子技能</strong>
+          <p id="skillDescription"></p>
+          <p id="skillStatus" role="status" aria-live="polite"></p>
+          <p id="skillEffects" role="status" aria-live="polite"></p>
+        </div>
         <div class="arena" id="arena">
           <section class="fighter" aria-labelledby="playerFighterName">
             <div class="fighter-name" id="playerFighterName">玩家</div>
@@ -1049,8 +1066,8 @@ print(dice_faces[3])</code></pre>
           </article>
           <article class="lesson">
             <h3><code>while</code>迴圈</h3>
-            <p>雙方都還沒取得3勝時，比賽就持續進行。</p>
-            <pre><code>while player_wins &lt; 3 and computer_wins &lt; 3:</code></pre>
+            <p>雙方都還沒取得5勝時，比賽就持續進行。</p>
+            <pre><code>while player_wins &lt; 5 and computer_wins &lt; 5:</code></pre>
             <span class="web-link">網頁對應：遊戲結束前可以不斷擲骰。</span>
           </article>
           <article class="lesson">
@@ -1061,6 +1078,22 @@ print(dice_faces[3])</code></pre>
 elif player_total &gt; computer_total:
     print("玩家獲勝")</code></pre>
             <span class="web-link">網頁對應：決定勝負訊息與得分者。</span>
+          </article>
+          <article class="lesson">
+            <h3>技能條件與回合範圍</h3>
+            <p>先檢查骰子顏色與回合數。魔法紫在前3回合把一顆骰子設為6點。</p>
+            <pre><code>if color == "魔法紫" and round_num &lt;= 3:
+    player_dice1 = 6</code></pre>
+            <span class="web-link">網頁對應：技能處理完成後，才繪製正式骰面、判斷勝負。</span>
+          </article>
+          <article class="lesson">
+            <h3><code>while</code>：重擲電腦豹子</h3>
+            <p>幸運金在前3回合重擲電腦兩顆骰子；如果仍是豹子，就繼續重擲。</p>
+            <pre><code>if color == "幸運金" and round_num &lt;= 3:
+    while computer_dice1 == computer_dice2:
+        computer_dice1 = random.randint(1, 6)
+        computer_dice2 = random.randint(1, 6)</code></pre>
+            <span class="web-link">網頁對應：只使用最後的非豹子結果結算，不增加回合或重複計分。</span>
           </article>
           <article class="lesson">
             <h3><code>+=</code>與 f-string</h3>
@@ -1080,12 +1113,13 @@ print(f"總點數是 {player_total}")</code></pre>
     <div class="dialog-inner">
       <div class="dialog-icon" aria-hidden="true">🗺️</div>
       <h2 id="tutorialTitle">雙骰冒險指南</h2>
-      <p>看懂四個重點，馬上就能加入競技場！</p>
+      <p>選擇技能骰子，看懂豹子規則，率先取得5勝！</p>
       <div class="tutorial-steps">
         <div class="tutorial-step"><div class="step-icon">🎲</div><div><b>點擊擲骰</b><span>玩家與電腦每回合各擲兩顆六面骰。</span></div></div>
         <div class="tutorial-step"><div class="step-icon">🐆</div><div><b>兩顆相同就是豹子</b><span>只有一方是豹子時，不管總點數多少都直接獲勝。</span></div></div>
         <div class="tutorial-step"><div class="step-icon">⚖️</div><div><b>同類型才比總點數</b><span>雙方都是豹子或都不是豹子，才比較兩顆骰子的總和。</span></div></div>
-        <div class="tutorial-step"><div class="step-icon">🏆</div><div><b>率先取得3勝</b><span>平手不計分，先點亮三顆勝利星就能封王！</span></div></div>
+        <div class="tutorial-step"><div class="step-icon">🏆</div><div><b>率先取得5勝</b><span>平手不計分，先點亮五顆勝利星就能封王！</span></div></div>
+        <div class="tutorial-step"><div class="step-icon">✨</div><div><b>四種幸運骰子</b><span>魔法紫前3回合保證一顆6點；星空藍首回合保證豹子；勇氣紅抵銷首回合電腦勝場；幸運金前3回合重擲電腦豹子直到不是豹子。</span></div></div>
       </div>
       <button class="primary-btn" id="closeTutorialBtn" type="button">我知道了，開始冒險！</button>
     </div>
@@ -1097,7 +1131,7 @@ print(f"總點數是 {player_total}")</code></pre>
       <h2 id="finalTitle">對決結束</h2>
       <p id="finalMessage"></p>
       <div class="result-stats">
-        <div class="stat"><strong id="finalScore">3：0</strong><span>最終比分</span></div>
+        <div class="stat"><strong id="finalScore">5：0</strong><span>最終比分</span></div>
         <div class="stat"><strong id="finalRounds">3</strong><span>總回合數</span></div>
         <div class="stat"><strong id="finalDoubles">0</strong><span>玩家豹子</span></div>
         <div class="stat"><strong id="finalColor">💜</strong><span>幸運骰子</span></div>
@@ -1148,7 +1182,8 @@ print(f"總點數是 {player_total}")</code></pre>
       rolling: false,
       gameOver: false,
       soundOn: true,
-      achievements: new Set()
+      achievements: new Set(),
+      lastSkillEffects: []
     };
 
     const $ = (selector) => document.querySelector(selector);
@@ -1306,10 +1341,60 @@ print(f"總點數是 {player_total}")</code></pre>
 
     // ===== 擲骰：每顆骰子產生 1 到 6 的隨機整數 =====
     const randomDie = () => Math.floor(Math.random() * 6) + 1;
+    const SKILL_DESCRIPTIONS = {
+      purple: "💜 魔法紫：前3回合，玩家其中一顆骰子保證6點，另一顆保持隨機。",
+      blue: "💙 星空藍：第1回合玩家必定擲出豹子，豹子點數隨機，仍按原規則比勝負。",
+      red: "❤️ 勇氣紅：第1回合若電腦獲勝，該勝場不列計；回合與結果仍保留。",
+      gold: "💛 幸運金：前3回合，電腦的豹子必須重擲兩顆，直到不是豹子；不增加回合。"
+    };
+
+    function updateSkillStatus() {
+      const limit = state.colorId === "purple" || state.colorId === "gold" ? 3 : 1;
+      const active = !state.gameOver && state.round <= limit;
+      $("#skillTitle").textContent = "✨ " + state.colorName + " · 幸運骰子技能";
+      $("#skillDescription").textContent = SKILL_DESCRIPTIONS[state.colorId] || "";
+      $("#skillStatus").textContent = state.gameOver ? "本場對決已結束，技能停止。"
+        : active ? "第" + state.round + "回合技能可用（限前" + limit + "回合）。"
+        : "技能時效已結束；後續回合使用一般隨機雙骰。";
+      $("#skillCard").classList.toggle("active", active);
+    }
+
+    // 技能只改變正式揭曉的骰子；滾動動畫的骰面不參與勝負判斷。
+    function generateSkillDice(colorId, round, draw = randomDie) {
+      const values = { player1: draw(), player2: draw(), computer1: draw(), computer2: draw() };
+      const effects = [];
+      const rerolls = [];
+      if (colorId === "purple" && round <= 3) {
+        values.player1 = 6;
+        effects.push("💜 魔法紫發動：玩家第1顆骰子保證6點！");
+      }
+      if (colorId === "blue" && round === 1) {
+        values.player2 = values.player1;
+        effects.push("💙 星空藍發動：玩家必定擲出" + values.player1 + "＋" + values.player2 + "豹子！");
+      }
+      if (colorId === "gold" && round <= 3) {
+        // 每次電腦擲出豹子都重擲兩顆，只有最後的非豹子結果拿來結算。
+        while (values.computer1 === values.computer2) {
+          rerolls.push([values.computer1, values.computer2]);
+          values.computer1 = draw();
+          values.computer2 = draw();
+        }
+        if (rerolls.length) effects.push("💛 幸運金發動：電腦豹子" +
+          rerolls.map(pair => pair.join("＋")).join(" → ") +
+          "，共重擲" + rerolls.length + "次；最終為" + values.computer1 + "＋" + values.computer2 + "。");
+      }
+      return { values, effects, rerolls };
+    }
+
+    function resolveSkillResult(values, colorId, round) {
+      const result = decideWinner(values);
+      return { ...result, protectedLoss: colorId === "red" && round === 1 && result.winner === "computer" };
+    }
+
     $("#rollBtn").addEventListener("click", rollRound);
 
     async function rollRound() {
-      if (state.rolling || state.gameOver) return;
+      if ($("#gameScreen").hidden || state.rolling || state.gameOver) return;
       state.rolling = true;
       $("#rollBtn").disabled = true;
       $("#rollBtn").textContent = "🎲 骰子滾動中……";
@@ -1330,12 +1415,19 @@ print(f"總點數是 {player_total}")</code></pre>
       await wait(prefersReducedMotion() ? 220 : 1200);
       window.clearInterval(shuffle);
 
-      const values = {
-        player1: randomDie(),
-        player2: randomDie(),
-        computer1: randomDie(),
-        computer2: randomDie()
-      };
+      const generated = generateSkillDice(state.colorId, state.round);
+      const values = generated.values;
+      state.lastSkillEffects = generated.effects;
+      if (generated.rerolls.length) {
+        // 先呈現電腦遭重擲的第一組豹子，再一起揭曉正式結果。
+        const original = generated.rerolls[0];
+        renderDie($("#computerDie1"), original[0]);
+        renderDie($("#computerDie2"), original[1]);
+        $("#battleStatus").textContent = "幸運金發動！電腦豹子重擲中……";
+        $("#skillEffects").textContent = generated.effects.join(" ");
+        playSound("double");
+        await wait(prefersReducedMotion() ? 80 : 450);
+      }
       renderDie($("#playerDie1"), values.player1);
       renderDie($("#playerDie2"), values.player2);
       renderDie($("#computerDie1"), values.computer1);
@@ -1345,13 +1437,18 @@ print(f"總點數是 {player_total}")</code></pre>
         die.classList.add("reveal");
       });
 
-      const result = decideWinner(values);
+      const result = resolveSkillResult(values, state.colorId, state.round);
+      if (result.protectedLoss) state.lastSkillEffects.push("❤️ 勇氣紅發動：抵銷電腦首回合勝場，雙方不加分！");
+      $("#skillEffects").textContent = state.lastSkillEffects.length
+        ? state.lastSkillEffects.join(" ") : "本回合沒有技能發動。";
       showDiceStats(values, result);
       applyRoundResult(values, result);
       state.round += 1;
 
-      if (state.playerWins >= 3 || state.computerWins >= 3) {
+      if (state.playerWins >= 5 || state.computerWins >= 5) {
         state.gameOver = true;
+        state.rolling = false;
+        updateSkillStatus();
         $("#roundDisplay").textContent = "對決結束";
         $("#rollBtn").textContent = "🏁 本場對決已結束";
         await wait(prefersReducedMotion() ? 100 : 650);
@@ -1361,6 +1458,7 @@ print(f"總點數是 {player_total}")</code></pre>
         state.rolling = false;
         $("#rollBtn").disabled = false;
         $("#rollBtn").textContent = "🎲 擲出幸運雙骰";
+        updateSkillStatus();
       }
     }
 
@@ -1421,7 +1519,10 @@ print(f"總點數是 {player_total}")</code></pre>
         "computer-double": "💥 遭到豹子通殺！這回合由電腦獲勝！"
       };
       let message;
-      if (result.winner === "draw") {
+      if (result.protectedLoss) {
+        message = "❤️ 勇氣紅發動！電腦贏得首回合，但該勝場不列計，雙方不加分。";
+        state.winStreak = 0;
+      } else if (result.winner === "draw") {
         message = "🤝 勢均力敵，這回合平手！";
         state.winStreak = 0;
       } else if (result.winner === "player") {
@@ -1435,13 +1536,16 @@ print(f"總點數是 {player_total}")</code></pre>
       }
 
       $("#roundResult").textContent = message;
-      $("#roundResult").className = "round-result " + result.winner;
+      $("#roundResult").className = "round-result " + (result.protectedLoss ? "draw" : result.winner);
       $("#battleStatus").textContent =
         result.playerDouble && result.computerDouble ? "雙豹子・比較總點數" :
         result.playerDouble || result.computerDouble ? "豹子通殺判定" :
         "一般對決・比較總點數";
 
-      if (result.winner === "player") {
+      if (result.protectedLoss) {
+        $("#battleStatus").textContent = "勇氣紅抵銷敗場・不計分";
+        playSound("achievement");
+      } else if (result.winner === "player") {
         launchConfetti(20);
         playSound("win");
       } else if (result.winner === "computer") {
@@ -1464,6 +1568,7 @@ print(f"總點數是 {player_total}")</code></pre>
       const playerType = result.playerDouble ? "（豹子）" : "";
       const computerType = result.computerDouble ? "（豹子）" : "";
       const ending =
+        result.protectedLoss ? "電腦原本獲勝，勇氣紅抵銷該勝場，雙方不加分！" :
         result.reason === "player-double" ? "豹子通殺，你獲勝！" :
         result.reason === "computer-double" ? "電腦以豹子獲勝！" :
         result.winner === "player" ? "比較總點數，你獲勝！" :
@@ -1472,7 +1577,8 @@ print(f"總點數是 {player_total}")</code></pre>
       const text = "第" + state.round + "回合：你擲出" +
         values.player1 + "＋" + values.player2 + "＝" + result.playerTotal + playerType +
         "，電腦擲出" + values.computer1 + "＋" + values.computer2 + "＝" +
-        result.computerTotal + computerType + "，" + ending;
+        result.computerTotal + computerType + "，" + ending +
+        (state.lastSkillEffects.length ? "｜技能紀錄：" + state.lastSkillEffects.join(" ") : "");
       state.log.unshift(text);
       const list = $("#battleLog");
       list.innerHTML = "";
@@ -1504,12 +1610,12 @@ print(f"總點數是 {player_total}")</code></pre>
     // ===== 最終結算 =====
     const resultDialog = $("#resultDialog");
     function showFinalResult() {
-      const playerWon = state.playerWins === 3;
+      const playerWon = state.playerWins === 5;
       $("#finalIcon").textContent = playerWon ? "🏆" : "🤖";
       $("#finalTitle").textContent = playerWon ? "恭喜【" + state.name + "】！" : "電腦骰子王獲勝！";
       $("#finalMessage").textContent = playerWon
-        ? "你以3：" + state.computerWins + "擊敗電腦骰子王，成為傳說中的雙骰大師！"
-        : "電腦骰子王以3：" + state.playerWins + "獲勝。別灰心，幸運可能就在下一次擲骰！";
+        ? "你以5：" + state.computerWins + "擊敗電腦骰子王，成為傳說中的雙骰大師！"
+        : "電腦骰子王以5：" + state.playerWins + "獲勝。別灰心，幸運可能就在下一次擲骰！";
       $("#finalScore").textContent = playerWon
         ? state.playerWins + "：" + state.computerWins
         : state.computerWins + "：" + state.playerWins;
@@ -1531,8 +1637,8 @@ print(f"總點數是 {player_total}")</code></pre>
 
       unlockAchievement("first-game", "🎯 初次挑戰", "完成第一場雙骰冒險！");
       if (playerWon) {
-        unlockAchievement("master", "🎲 雙骰大師", "率先取得3勝！");
-        if (state.computerWins === 0) unlockAchievement("perfect", "👑 完美勝利", "以3：0擊敗電腦！");
+        unlockAchievement("master", "🎲 雙骰大師", "率先取得5勝！");
+        if (state.computerWins === 0) unlockAchievement("perfect", "👑 完美勝利", "以5：0擊敗電腦！");
         launchConfetti(75);
         playSound("win");
       }
@@ -1574,6 +1680,7 @@ print(f"總點數是 {player_total}")</code></pre>
       state.playerDoubles = 0;
       state.winStreak = 0;
       state.log = [];
+      state.lastSkillEffects = [];
       state.rolling = false;
       state.gameOver = false;
       state.achievements = new Set();
@@ -1585,6 +1692,8 @@ print(f"總點數是 {player_total}")</code></pre>
       $("#leopardAlert").textContent = "";
       $("#roundResult").textContent = "點擊按鈕，擲出你的幸運雙骰！";
       $("#roundResult").className = "round-result";
+      $("#skillEffects").textContent = "";
+      updateSkillStatus();
       $("#battleLog").innerHTML = '<li class="empty-log">尚無戰鬥紀錄，快來擲出你的幸運雙骰！</li>';
       $("#rollBtn").disabled = false;
       $("#rollBtn").textContent = "🎲 擲出幸運雙骰";
@@ -1654,7 +1763,7 @@ print(f"總點數是 {player_total}")</code></pre>
     }
 
     // 讓測試工具可以直接驗證勝負判斷函式，不影響一般遊戲。
-    window.doubleDiceGame = { decideWinner, randomDie };
+    window.doubleDiceGame = { decideWinner, randomDie, generateSkillDice, resolveSkillResult };
   </script>
 </body>
 </html>
