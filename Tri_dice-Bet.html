@@ -6,7 +6,7 @@
   <meta name="description" content="終極三骰對決：使用教學用魔法金幣，辨認牌型、策略下注，挑戰電腦骰子王！">
   <meta name="theme-color" content="#5b49d6">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='5' y='5' width='54' height='54' rx='14' fill='%236e55ea'/%3E%3Cg fill='%23ffd351'%3E%3Ccircle cx='20' cy='20' r='5'/%3E%3Ccircle cx='44' cy='20' r='5'/%3E%3Ccircle cx='32' cy='32' r='5'/%3E%3Ccircle cx='20' cy='44' r='5'/%3E%3Ccircle cx='44' cy='44' r='5'/%3E%3C/g%3E%3C/svg%3E">
-  <title>v2.1｜終極三骰對決：魔法金幣挑戰賽</title>
+  <title>v2.2｜終極三骰對決：魔法金幣挑戰賽</title>
   <style>
     :root {
       --bg-a: #3527a4;
@@ -1168,7 +1168,7 @@
         </div>
       </section>
 
-      <section class="panel" id="leaderboardSection" aria-labelledby="leaderboardTitle"><div class="kicker">🏆 v2・10勝榮耀榜</div><h2 id="leaderboardTitle" class="section-title">優勝排行榜｜前30名</h2><p>每場取得10勝的挑戰各收錄一筆。勝率＝勝場 ÷（勝場＋敗場）；平手與勇氣紅保護的敗場不列入。</p><p class="ranking-note">紀錄僅保存在目前瀏覽器，不會與其他裝置或玩家共享。</p><p id="rankingStorageStatus" role="status" aria-live="polite"></p><div class="ranking-scroll" role="region" tabindex="0" aria-label="優勝排行榜，可左右捲動"><table class="ranking-table"><caption>先比金幣，再比勝率；僅收錄取得10勝的場次</caption><thead><tr><th scope="col">名次</th><th scope="col">名字</th><th scope="col">金幣</th><th scope="col">幾勝幾敗</th><th scope="col">勝率</th><th scope="col">平手</th><th scope="col">回合</th><th scope="col">幸運骰子</th></tr></thead><tbody id="leaderboardBody"></tbody></table></div></section>
+      <section class="panel" id="leaderboardSection" aria-labelledby="leaderboardTitle"><div class="kicker">🏆 v2・10勝榮耀榜</div><h2 id="leaderboardTitle" class="section-title">優勝排行榜｜前30名</h2><p>每場取得10勝的挑戰各收錄一筆。勝率＝勝場 ÷（勝場＋敗場）；平手與勇氣紅保護的敗場不列入。</p><p class="ranking-note">共用服務啟用後，所有裝置共用同一份排行榜。離線時顯示快取，未同步的優勝成績會等待補傳。</p><p id="rankingMode" class="ranking-note"></p><button class="secondary-btn" id="refreshLeaderboardBtn" type="button" aria-label="更新各裝置共用排行榜">☁️ 更新排行榜</button><p id="rankingStorageStatus" role="status" aria-live="polite"></p><div class="ranking-scroll" role="region" tabindex="0" aria-label="優勝排行榜，可左右捲動"><table class="ranking-table"><caption>先比金幣，再比勝率；僅收錄取得10勝的場次</caption><thead><tr><th scope="col">名次</th><th scope="col">名字</th><th scope="col">金幣</th><th scope="col">幾勝幾敗</th><th scope="col">勝率</th><th scope="col">平手</th><th scope="col">回合</th><th scope="col">幸運骰子</th></tr></thead><tbody id="leaderboardBody"></tbody></table></div></section>
       <details class="learning">
         <summary>🐍 Python學習小教室</summary>
         <div class="lesson-grid">
@@ -1227,7 +1227,7 @@ coins -= bet</code></pre><span class="web-link">網頁對應：依照勝負完�
         <div class="tutorial-step"><div class="step-icon">⚖️</div><div><b>同級對子，先比對子點數</b><span>雙方都是兩顆相同時，先比對子的點數，對子相同才比剩下的一顆。其他相同牌型比較總點數。6、6、2勝過5、5、6。</span></div></div>
         <div class="tutorial-step"><div class="step-icon">🎲</div><div><b>率先取得10勝</b><span>獲勝增加下注金額，落敗減少，平手則不變。</span></div></div>
         <div class="tutorial-step"><div class="step-icon">✨</div><div><b>幸運骰子帶有專屬技能</b><span>魔法紫前5回合保證一顆6點；星空藍前3回合保證連號；勇氣紅首回合保護敗場、獲利加倍；幸運金前3回合讓電腦的相同點數牌組重擲。</span></div></div>
-        <div class="tutorial-step"><div class="step-icon">👑</div><div><b>取得10勝，挑戰前30名</b><span>優勝場次先比金幣、再比勝率。排行榜保存在目前瀏覽器。</span></div></div>
+        <div class="tutorial-step"><div class="step-icon">👑</div><div><b>取得10勝，挑戰前30名</b><span>優勝場次先比金幣、再比勝率。共用服務啟用後，排行榜會保存在雲端，所有裝置都能查看。</span></div></div>
         <div class="tutorial-step"><div class="step-icon">🛡️</div><div><b>這是程式學習遊戲</b><span>金幣只是教學分數，不是真實貨幣，也不能購買或兌換。</span></div></div>
       </div>
       <button class="primary-btn" id="closeTutorialBtn" type="button">我知道了，開始冒險！</button>
@@ -1251,7 +1251,7 @@ coins -= bet</code></pre><span class="web-link">網頁對應：依照勝負完�
         <div class="stat"><strong id="finalStraights">0</strong><span>🌊 三顆連號</span></div>
         <div class="stat"><strong id="finalMaxProfit">0</strong><span>最大單回合獲利</span></div>
       </div>
-      <p id="rankingResult" role="status"></p><div id="finalLeaderboardWrap" hidden><div class="ranking-scroll" role="region" tabindex="0" aria-label="優勝排行榜，可左右捲動"><table class="ranking-table"><caption>先比金幣，再比勝率；僅收錄取得10勝的場次</caption><thead><tr><th scope="col">名次</th><th scope="col">名字</th><th scope="col">金幣</th><th scope="col">幾勝幾敗</th><th scope="col">勝率</th><th scope="col">平手</th><th scope="col">回合</th><th scope="col">幸運骰子</th></tr></thead><tbody id="finalLeaderboardBody"></tbody></table></div></div>
+      <p id="rankingResult" role="status"></p><div id="finalLeaderboardWrap" hidden><button class="secondary-btn" id="refreshFinalLeaderboardBtn" type="button">☁️ 更新排行榜</button><div class="ranking-scroll" role="region" tabindex="0" aria-label="優勝排行榜，可左右捲動"><table class="ranking-table"><caption>先比金幣，再比勝率；僅收錄取得10勝的場次</caption><thead><tr><th scope="col">名次</th><th scope="col">名字</th><th scope="col">金幣</th><th scope="col">幾勝幾敗</th><th scope="col">勝率</th><th scope="col">平手</th><th scope="col">回合</th><th scope="col">幸運骰子</th></tr></thead><tbody id="finalLeaderboardBody"></tbody></table></div></div>
       <div id="modalLogWrap" hidden>
         <ul class="battle-log modal-log" id="modalLog"></ul>
       </div>
@@ -1311,7 +1311,7 @@ coins -= bet</code></pre><span class="web-link">網頁對應：依照勝負完�
       soundOn: true,
       achievements: new Set(),
       lastRound: null,
-      draws: 0, protectedLosses: 0, lastSkillEffects: [], rankingRecorded: false
+      draws: 0, protectedLosses: 0, lastSkillEffects: [], rankingRecorded: false, winnerRecordId: null
     };
 
     const $ = (selector) => document.querySelector(selector);
@@ -1897,24 +1897,46 @@ coins -= bet</code></pre><span class="web-link">網頁對應：依照勝負完�
       card.classList.add(type);
     }
 
-    // ===== 優勝排行榜：本機儲存、驗證舊資料、金幣優先，再比未四捨五入的勝率 =====
-    const RANKING_KEY="triple-dice-v2-winners";
-    let leaderboard=[];
+    // ===== v2.2共用排行榜：雲端保存，本機只保留快取與等待補傳的成績 =====
+    // 教師部署Apps Script後設定同一個網址，再上傳此HTML；所有裝置即可共用。
+    const SHARED_LEADERBOARD_URL = "https://script.google.com/macros/s/AKfycby9OCJfRnCBMnn6rmiS2qGWA8zpjHvdUJjRY9s_P907MfVqaNRUuyINR4XQVlXAVGA0/exec";
+    const RANKING_KEY = "triple-dice-v2-winners";
+    const PENDING_KEY = "triple-dice-v22-pending";
+    const SHARED_CACHE_KEY = "triple-dice-v22-shared-cache";
+    let leaderboard = [], localWinners = [], pendingWinners = [];
+    let cloudBusy = false;
+    const cloudConfigured = /^https:\/\/script\.google\.com\/macros\/s\/[A-Za-z0-9_-]+\/exec$/.test(SHARED_LEADERBOARD_URL);
+    function newRecordId() {
+      if (window.crypto && typeof window.crypto.randomUUID === "function") return window.crypto.randomUUID();
+      return "tri-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2) + "-" + Math.random().toString(36).slice(2);
+    }
     function compareRanking(a,b) {
-      return b.coins-a.coins || (b.wins/(b.wins+b.losses)-a.wins/(a.wins+a.losses)) || a.time-b.time;
+      return b.coins-a.coins || b.wins/(b.wins+b.losses)-a.wins/(a.wins+a.losses) || a.time-b.time || String(a.id||"").localeCompare(String(b.id||""));
     }
     function validRanking(row) {
-      return row && typeof row.name==="string" && row.name.trim().length>0 && row.name.length<=20 &&
-        row.wins===10 && Number.isSafeInteger(row.losses) && row.losses>=0 && row.losses<10 &&
-        Number.isSafeInteger(row.coins) && row.coins>0 && Number.isSafeInteger(row.draws) && row.draws>=0 &&
-        Number.isSafeInteger(row.rounds) && row.rounds>=row.wins+row.losses+row.draws &&
-        Object.hasOwn(COLOR_DATA,row.colorId) && Number.isFinite(row.time) && row.time>=0;
+      return row && typeof row.name === "string" && row.name.trim().length > 0 && row.name.length <= 20 &&
+        row.wins === 10 && Number.isSafeInteger(row.losses) && row.losses >= 0 && row.losses < 10 &&
+        Number.isSafeInteger(row.coins) && row.coins > 0 && Number.isSafeInteger(row.draws) && row.draws >= 0 &&
+        Number.isSafeInteger(row.rounds) && row.rounds >= row.wins+row.losses+row.draws &&
+        Object.hasOwn(COLOR_DATA,row.colorId) && Number.isFinite(row.time) && row.time >= 0;
+    }
+    function readArray(key) {
+      try { const raw=JSON.parse(localStorage.getItem(key)||"[]"); return Array.isArray(raw)?raw:[]; }
+      catch(error) { return []; }
+    }
+    function persistLocal() {
+      try {
+        localStorage.setItem(RANKING_KEY,JSON.stringify(localWinners));
+        localStorage.setItem(PENDING_KEY,JSON.stringify(pendingWinners));
+        return true;
+      } catch(error) { return false; }
     }
     function renderLeaderboard(body) {
-      body.innerHTML="";
-      if(!leaderboard.length) {
+      body.innerHTML = "";
+      if (!leaderboard.length) {
         const row=document.createElement("tr"), cell=document.createElement("td"); cell.colSpan=8;
-        cell.textContent="尚無優勝紀錄，取得10勝就有機會上榜！"; row.appendChild(cell); body.appendChild(row); return;
+        cell.textContent=cloudConfigured?"尚無共用優勝紀錄，取得10勝就有機會上榜！":"尚無暫存優勝紀錄，取得10勝就有機會上榜！";
+        row.appendChild(cell); body.appendChild(row); return;
       }
       leaderboard.forEach((entry,index)=>{
         const row=document.createElement("tr");
@@ -1923,21 +1945,115 @@ coins -= bet</code></pre><span class="web-link">網頁對應：依照勝負完�
         }); body.appendChild(row);
       });
     }
+    function renderAllLeaderboards() {
+      renderLeaderboard($("#leaderboardBody")); renderLeaderboard($("#finalLeaderboardBody"));
+    }
+    function setCloudStatus(message) {
+      $("#rankingStorageStatus").textContent=message;
+      $("#rankingMode").textContent=cloudConfigured?"☁️ 各裝置共用排行榜":"📱 本機暫存・共用服務尚未連線";
+      [$("#refreshLeaderboardBtn"),$("#refreshFinalLeaderboardBtn")].forEach(button=>{
+        button.disabled=!cloudConfigured || cloudBusy;
+        button.textContent=cloudBusy?"☁️ 正在同步……":"☁️ 更新排行榜";
+      });
+    }
     function loadLeaderboard() {
+      localWinners=readArray(RANKING_KEY).filter(validRanking).map(row=>({...row,id:typeof row.id==="string"?row.id:newRecordId()})).sort(compareRanking).slice(0,30);
+      pendingWinners=readArray(PENDING_KEY).filter(row=>validRanking(row)&&typeof row.id==="string");
+      // 舊版本優勝紀錄保留原分數，首次連線時一併補傳；同一ID由伺服器防止重複寫入。
+      localWinners.forEach(row=>{if(!row.cloudSynced && !pendingWinners.some(p=>p.id===row.id))pendingWinners.push({...row});});
+      persistLocal();
+      if(cloudConfigured) {
+        try {const cache=JSON.parse(localStorage.getItem(SHARED_CACHE_KEY)||"{}");leaderboard=cache.endpoint===SHARED_LEADERBOARD_URL && Array.isArray(cache.entries)?cache.entries.filter(validRanking).sort(compareRanking).slice(0,30):[];}
+        catch(error) {leaderboard=[];}
+        setCloudStatus("正在讀取共用排行榜；離線時顯示最後一次成功同步的紀錄。");
+        void synchronizeLeaderboard();
+      } else {
+        leaderboard=[...localWinners];
+        setCloudStatus("共用排行榜尚未啟用。請老師完成雲端設定；目前"+pendingWinners.length+"筆優勝成績僅保存在此裝置，等待補傳。");
+      }
+      renderAllLeaderboards();
+    }
+    // 公開排行榜以只讀JSONP取得；只接受指定的Google Apps Script網址。
+    function readSharedRanking() {
+      return new Promise((resolve,reject)=>{
+        const callback="triDiceCloud_"+newRecordId().replace(/[^A-Za-z0-9_]/g,"_");
+        const script=document.createElement("script"); let timer;
+        const cleanup=()=>{window.clearTimeout(timer);script.remove();delete window[callback];};
+        window[callback]=data=>{cleanup();data&&data.ok===true?resolve(data):reject(new Error(data&&data.error||"無法讀取共用排行榜"));};
+        script.onerror=()=>{cleanup();reject(new Error("無法連接共用排行榜，請檢查網路及部署權限"));};
+        timer=window.setTimeout(()=>{cleanup();reject(new Error("讀取共用排行榜逾時"));},20000);
+        script.src=SHARED_LEADERBOARD_URL+"?callback="+encodeURIComponent(callback)+"&t="+Date.now();
+        document.body.appendChild(script);
+      });
+    }
+    // 以POST表單傳送成績，再由iframe回覆確認；不使用無法確認寫入的no-cors請求。
+    function submitSharedWinner(entry) {
+      return new Promise((resolve,reject)=>{
+        const requestId=newRecordId(), frame=document.createElement("iframe"), form=document.createElement("form");
+        frame.name="triWinner_"+requestId;frame.hidden=true;frame.title="優勝成績同步";
+        form.method="POST";form.action=SHARED_LEADERBOARD_URL;form.target=frame.name;form.hidden=true;
+        let timer;
+        const cleanup=()=>{window.clearTimeout(timer);window.removeEventListener("message",receive);frame.remove();form.remove();};
+        function receive(event) {
+          let trusted=false;
+          try {const host=new URL(event.origin).hostname;trusted=event.origin.startsWith("https://")&&(host==="script.google.com"||host==="script.googleusercontent.com"||host.endsWith(".script.googleusercontent.com")||/^[a-z0-9-]+-script\.googleusercontent\.com$/.test(host));}catch(error){}
+          const data=event.data;
+          if(!trusted||!data||data.type!=="triple-dice-ranking"||data.requestId!==requestId)return;
+          cleanup();data.ok===true&&data.id===entry.id?resolve(data):reject(new Error(data.error||"伺服器未確認此筆優勝成績"));
+        }
+        window.addEventListener("message",receive);
+        Object.entries({record:JSON.stringify(entry),requestId,clientOrigin:window.location.origin}).forEach(([name,value])=>{
+          const input=document.createElement("input");input.type="hidden";input.name=name;input.value=value;form.appendChild(input);
+        });
+        document.body.appendChild(frame);document.body.appendChild(form);
+        timer=window.setTimeout(()=>{cleanup();reject(new Error("成績同步逾時，已保留待補傳；重試不會重複計分"));},25000);
+        try {form.submit();}catch(error){cleanup();reject(error);}
+      });
+    }
+    function acceptSharedRanking(data) {
+      if(!data || !Array.isArray(data.entries) || data.entries.some(row=>!validRanking(row)))throw new Error("共用排行榜回傳資料格式不正確");
+      leaderboard=data.entries.sort(compareRanking).slice(0,30);
+      try {localStorage.setItem(SHARED_CACHE_KEY,JSON.stringify({endpoint:SHARED_LEADERBOARD_URL,entries:leaderboard}));}catch(error){}
+      renderAllLeaderboards();
+    }
+    async function synchronizeLeaderboard() {
+      if(!cloudConfigured || cloudBusy)return;
+      cloudBusy=true;setCloudStatus("正在同步共用排行榜……");
       try {
-        const raw=JSON.parse(localStorage.getItem(RANKING_KEY)||"[]");
-        leaderboard=(Array.isArray(raw)?raw:[]).filter(validRanking).sort(compareRanking).slice(0,30);
-      } catch(error) { $("#rankingStorageStatus").textContent="目前無法讀取本機紀錄，仍可正常遊玩；新紀錄會暫存在本頁。"; }
-      renderLeaderboard($("#leaderboardBody"));
+        while(pendingWinners.length) {
+          const entry=pendingWinners[0], response=await submitSharedWinner(entry);
+          acceptSharedRanking(response);
+          pendingWinners=pendingWinners.filter(row=>row.id!==entry.id);
+          localWinners.forEach(row=>{if(row.id===entry.id)row.cloudSynced=true;});
+          persistLocal();
+          if(state.winnerRecordId===entry.id) {
+            const rank=leaderboard.findIndex(row=>row.id===entry.id)+1;
+            $("#rankingResult").textContent=rank?"🏆 優勝成績已保存至共用排行榜，目前第"+rank+"名！":"🏆 優勝成績已保存至共用服務，目前未進入前30名。";
+          }
+        }
+        acceptSharedRanking(await readSharedRanking());
+        setCloudStatus("共用排行榜已更新。手機、平板、電腦使用相同網頁即可查看同一份紀錄。");
+      } catch(error) {
+        setCloudStatus(error.message+"。顯示最後成功讀取的共用紀錄；待補傳："+pendingWinners.length+"筆。");
+        if(state.winnerRecordId && pendingWinners.some(row=>row.id===state.winnerRecordId))$("#rankingResult").textContent="🏆 本場取得10勝！成績尚未同步，已保留在此裝置等待補傳。";
+      } finally {cloudBusy=false;setCloudStatus($("#rankingStorageStatus").textContent);}
     }
     function recordWinner() {
-      const entry={name:state.name,coins:state.coins,wins:state.playerWins,losses:state.computerWins,draws:state.draws,rounds:state.log.length,colorId:state.colorId,time:Date.now()};
-      leaderboard.push(entry); leaderboard.sort(compareRanking); const rank=leaderboard.indexOf(entry)+1; leaderboard=leaderboard.slice(0,30);
-      $("#rankingResult").textContent=rank<=30 ? "🏆 本場優勝已列入第"+rank+"名！" : "🏆 本場取得10勝！目前未進入前30名，繼續挑戰你的最佳紀錄吧！";
-      try { localStorage.setItem(RANKING_KEY,JSON.stringify(leaderboard)); $("#rankingStorageStatus").textContent=""; }
-      catch(error) { $("#rankingStorageStatus").textContent="瀏覽器無法保存紀錄，目前僅暫存在本頁；關閉或重新整理後可能消失。"; $("#rankingResult").textContent+=" 紀錄僅暫存本頁，瀏覽器無法保存。"; }
-      renderLeaderboard($("#leaderboardBody"));
+      const entry={id:newRecordId(),name:state.name,coins:state.coins,wins:state.playerWins,losses:state.computerWins,draws:state.draws,rounds:state.log.length,colorId:state.colorId,time:Date.now()};
+      state.winnerRecordId=entry.id;
+      localWinners.push(entry);localWinners.sort(compareRanking);localWinners=localWinners.slice(0,30);
+      pendingWinners.push(entry);
+      const saved=persistLocal();
+      if(!cloudConfigured) {leaderboard=[...localWinners];renderAllLeaderboards();}
+      $("#rankingResult").textContent=cloudConfigured?"🏆 本場取得10勝！正在將成績保存至共用排行榜……":"🏆 本場取得10勝！共用服務尚未啟用，成績暫存在此裝置等待補傳。";
+      if(!saved)$("#rankingResult").textContent+=" 瀏覽器無法保存待補傳成績，請保持此頁開啟並連線同步。";
+      if(cloudConfigured)void synchronizeLeaderboard();
+      else setCloudStatus("共用排行榜尚未啟用；待補傳："+pendingWinners.length+"筆。"+(saved?"":" 瀏覽器無法保存紀錄，關閉本頁可能遺失成績。"));
     }
+    $("#refreshLeaderboardBtn").addEventListener("click",()=>void synchronizeLeaderboard());
+    $("#refreshFinalLeaderboardBtn").addEventListener("click",()=>void synchronizeLeaderboard());
+    window.addEventListener("online",()=>void synchronizeLeaderboard());
+    window.addEventListener("focus",()=>{if(cloudConfigured)void synchronizeLeaderboard();});
     loadLeaderboard();
 
     // ===== 最終結算：金幣歸零優先 =====
@@ -2045,7 +2161,7 @@ coins -= bet</code></pre><span class="web-link">網頁對應：依照勝負完�
       state.rolling = false;
       state.gameOver = false;
       state.lastRound = null;
-      state.draws=0; state.protectedLosses=0; state.lastSkillEffects=[]; state.rankingRecorded=false;
+      state.draws=0; state.protectedLosses=0; state.lastSkillEffects=[]; state.rankingRecorded=false; state.winnerRecordId=null;
       $("#skillEffects").textContent="";
       updateSkillUI();
       state.achievements = new Set();
