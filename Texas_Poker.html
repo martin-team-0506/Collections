@@ -1,0 +1,323 @@
+<!DOCTYPE html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="四人角色德州撲克：選擇八大角色，發動專屬絕技，體驗幸運與絕技指數、棄牌、梭哈及邊池結算。"><title>四人德州撲克｜八大角色・絕技對決</title><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b2e29'/%3E%3Ctext x='32' y='49' text-anchor='middle' font-size='50' fill='%23efcc82'%3E♠%3C/text%3E%3C/svg%3E">
+<style>
+:root{color-scheme:dark;--bg:#091c1b;--panel:#142c27;--line:#355449;--gold:#efcc82;--muted:#adc6ba;--cardw:70px}*{box-sizing:border-box}body{margin:0;min-height:100vh;color:#edf3ee;background:radial-gradient(ellipse at top left,#254d3c,transparent 65%),var(--bg);font:16px/1.55 system-ui,-apple-system,"Microsoft JhengHei",sans-serif}button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.42;cursor:default}button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid var(--gold);outline-offset:4px}button{transition:border-color .18s,background .18s}button:active:not(:disabled){transform:translateY(1px)}.hidden{display:none!important}.app{max-width:1350px;margin:auto;padding:24px}.header{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:23px}.brand{display:flex;align-items:center;gap:13px;min-width:0}.brand>b{font:48px/1 Georgia;color:var(--gold)}.brand small{display:block;font-size:12px;letter-spacing:.14em;color:var(--gold)}h1{font-size:clamp(21px,3vw,29px);letter-spacing:.04em;line-height:1.4;margin:0}.quiet,.secondary{background:#1a372f;color:#e1ebe4;border:1px solid var(--line);border-radius:8px;padding:9px 13px}.quiet:hover,.secondary:hover{border-color:var(--gold)}.header .quiet{flex-shrink:0}.selection-intro h2{margin:0;font-size:25px}.selection-intro p{color:var(--muted);font-size:15px;margin:5px 0 20px}.role-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}.role-card{display:flex;flex-direction:column;align-items:flex-start;text-align:left;border:1px solid var(--line);background:linear-gradient(145deg,#214234,#112720);color:#edf3ee;padding:19px 18px;border-radius:14px;min-height:268px}.role-card:hover{background:#234a39;border-color:#9dc1ac}.role-card.selected{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold);background:linear-gradient(145deg,#35472d,#173127)}.role-icon{font-size:33px}.role-card strong{font-size:22px;margin:5px 0 1px}.role-skill{color:var(--gold);font-size:15px;font-weight:650}.role-desc{font-size:14px;color:#c6dbce;margin-top:9px;flex:1}.role-stats{display:grid;gap:3px;font-size:13px;color:#b6cdc0;border-top:1px solid #a8c7b02a;padding-top:11px;margin-top:14px;width:100%}.selection-bottom{display:flex;justify-content:space-between;align-items:center;gap:15px;margin:20px 0}.selection-bottom span{color:var(--muted);font-size:14px}.selection-bottom b{color:var(--gold)}.primary{background:linear-gradient(120deg,#f6d895,#dab46a);border:0;color:#183125;border-radius:9px;padding:13px 20px;font-size:16px;font-weight:750}.primary:hover:not(:disabled){background:#ffe4a7}.layout{display:grid;grid-template-columns:minmax(0,1fr) 330px;gap:22px;align-items:start}.table-frame{padding:6px;border-radius:30px;background:linear-gradient(145deg,#c7ad74,#544431 48%,#a59067);box-shadow:0 20px 50px #0004}.table{background:radial-gradient(ellipse at center,#1a6148,#0d3b30 85%);border-radius:24px;padding:22px 18px;border:2px solid #ead5a750}.opponents{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.seat{text-align:center;padding:13px 9px 9px;border:1px solid #b8d6c634;border-radius:13px;background:#08312428;min-width:0}.seat.current{border-color:var(--gold)}.seat.winning{background:#bb994922;border-color:var(--gold)}.seat.folded{background:#0a201e55}.seat.folded .cards{opacity:.5}.seat-name{font-size:14px;font-weight:700;min-height:23px;margin-bottom:9px;overflow-wrap:anywhere}.seat-icon{font-size:19px;margin-right:4px}.seat-info{font-size:12px;color:#c3d6c9;margin-top:9px}.seat-info b{color:var(--gold);font-size:14px}.seat-status{font-size:13px;margin-top:7px;color:#d9e6dd;min-height:23px}.indices{display:flex;justify-content:center;gap:10px;font-size:12px;color:#b5cdbf;flex-wrap:wrap}.delta{font-size:12px;color:#f1dca8;min-height:18px;margin-top:4px}.cards{display:flex;align-items:center;justify-content:center;gap:9px;min-height:calc(var(--cardw)*1.4)}.opponents .cards{--cardw:clamp(40px,4.4vw,61px)}.card{flex:none;position:relative;width:var(--cardw);aspect-ratio:5/7;border:2px solid #f9fcf9;border-radius:8px;background:linear-gradient(140deg,#fff,#e4e9e3);color:#152d26;box-shadow:0 4px 8px #0004;user-select:none;padding:0}.card.red{color:#bf3546}.corner{position:absolute;top:4px;left:5px;display:flex;flex-direction:column;align-items:center;font:bold calc(var(--cardw)*.25)/1.03 Georgia}.corner small{font-size:calc(var(--cardw)*.2)}.corner.bottom{left:auto;top:auto;right:5px;bottom:4px;transform:rotate(180deg)}.pip{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:calc(var(--cardw)*.55) Georgia}.card.back{background:repeating-linear-gradient(45deg,transparent 0px,transparent 7px,#d3bc841a 7px,#d3bc841a 8px),repeating-linear-gradient(-45deg,#123148 0px,#123148 7px,#d3bc841a 7px,#d3bc841a 8px);border-color:#c0c7c5}.card.back:after{content:"";position:absolute;inset:6px;border:1px solid #d6c39566;border-radius:3px}.card.empty{background:#062a2355;border:1px dashed #bfd5c16b;box-shadow:none}.card.best,.card.picked{outline:3px solid var(--gold);outline-offset:2px}.card[aria-pressed=true]{outline:3px solid var(--gold);outline-offset:2px}.board{text-align:center;margin:18px 0}.pot-label{font-size:13px;color:#c0d5c7;letter-spacing:.07em}.pot{font-size:32px;line-height:1.3;font-weight:800;color:var(--gold);margin-bottom:14px}.pot small{font-size:14px;font-weight:400;color:#d1dfd4}.community-label{margin-top:10px;color:#99bdab;font-size:12px;letter-spacing:.1em}.human-seat{max-width:410px;margin:auto;--cardw:76px}.highlight-label{font-size:13px;text-align:center;color:#ddcfaa;margin:13px 0 0}.side{display:grid;gap:13px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:17px 18px}.bank-title{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:14px;color:var(--muted)}.round{font-size:12px;color:var(--gold);border:1px solid #ddc17b55;padding:2px 9px;border-radius:20px}.balance{font-size:36px;font-weight:800;color:var(--gold);line-height:1.3;margin-top:5px;font-variant-numeric:tabular-nums}.balance small{font-size:14px;color:#bdcebf;font-weight:400;margin-left:6px}.meter{margin-top:12px}.meter-label{display:flex;justify-content:space-between;font-size:13px;color:#c5d8cb;margin-bottom:5px}.track{height:6px;background:#061e1855;border-radius:5px;overflow:hidden}.track span{display:block;height:100%;background:#7ecdab;transition:width .3s}.track.power span{background:var(--gold)}.stage{font-size:13px;color:var(--gold);font-weight:650}.status{color:#c6d9cd;font-size:14px;margin:7px 0 14px}.control-panel .primary{width:100%}.bet-label{font-size:14px;color:#d0e1d3;display:block}.owed{font-size:12px;color:var(--muted);margin:3px 0 8px}.bet-input{display:flex;align-items:center;gap:8px;background:#081f19;border:1px solid var(--line);border-radius:8px;padding:8px 12px}.bet-input input{width:100%;min-width:0;background:none;color:var(--gold);border:0;font-size:25px;font-weight:700}.bet-input span{font-size:13px;color:var(--muted)}input[type=range]{width:100%;accent-color:var(--gold);margin:15px 0 8px}.button-row{display:flex;gap:7px;margin-top:9px}.button-row button{flex:1;font-size:14px;padding:9px 4px}.danger{border-color:#b3606066;color:#ffd0c8}.bet-error,.dialog-error{color:#ffb6b0;font-size:13px;min-height:20px;margin:5px 0}.skill-heading{display:flex;justify-content:space-between;gap:10px;align-items:center}.skill-heading strong{font-size:18px;color:var(--gold)}.skill-heading small{font-size:12px;color:var(--muted)}.skill-desc{font-size:14px;color:#c7d8cc;margin:8px 0 12px}.skill-button{display:block;width:100%;background:#2a4a3c;border:1px solid #beac75;color:#f0d99f;padding:10px;border-radius:8px;font-weight:650;font-size:15px}.skill-hint{font-size:12px;color:#adccba;margin:9px 0 0}.estimate{padding:10px;background:#102e21;border-radius:8px;border:1px solid #f3d68b55;color:#f3deaf;font-size:14px;margin-top:11px}.results{margin:19px 0}.results h2{font-size:20px;margin:0 0 5px}.results>p{font-size:14px;color:#c4d8ca;margin:0 0 12px}.results-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.result-card{background:var(--panel);border:1px solid var(--line);border-radius:10px;color:#eef2e9;padding:13px 14px;text-align:left;min-width:0}.result-card.selected{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}.result-card strong{display:block;font-size:15px}.result-card span{display:block;font-size:14px;color:#c0d5c6;margin-top:4px}.result-card small{display:block;font-size:12px;color:var(--gold);margin-top:7px}.activity{margin-top:18px;border:1px solid var(--line);border-radius:12px;padding:14px 18px;background:#0d251e}.activity summary,.rules summary{font-size:15px;cursor:pointer;font-weight:650;color:#d7e5d8}.activity ol{padding-left:22px;margin:12px 0 0;color:#b9d1be;font-size:14px;display:grid;gap:5px}.rules{margin-top:20px;border-top:1px solid var(--line);padding:14px 0}.rules-inner{color:#bcd1c1;font-size:14px;display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:10px}.rules-inner p{margin:0 0 10px}.rules-inner strong{color:#ece5ce}.rules-inner ul{padding-left:20px;margin:0}.rules-inner li{margin-bottom:8px}.footer{text-align:center;font-size:12px;color:#8cab97;margin:10px 0 0}dialog{background:#142f25;color:#edf4e9;border:1px solid #b9a775;border-radius:15px;padding:23px;width:min(600px,94vw);max-height:90vh;overflow:auto;box-shadow:0 20px 70px #0008}dialog::backdrop{background:#000b}dialog h2{margin:0 0 6px;font-size:23px}dialog p,dialog label{font-size:15px;color:#c4d9c9}dialog select{width:100%;padding:10px;border:1px solid var(--line);background:#0a211b;border-radius:8px;color:#edf3e9;margin-top:6px}.dialog-buttons{display:flex;justify-content:flex-end;gap:10px;margin-top:17px}.skill-cards{--cardw:clamp(37px,10.5vw,67px);margin:12px 0}.skill-cards button{cursor:pointer}#reset-dialog{width:min(440px,94vw)}
+@media(max-width:1050px){.role-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.layout{grid-template-columns:minmax(0,1fr) 300px;gap:16px}.table{padding:18px 12px}.opponents{gap:7px}.seat{padding:11px 4px 7px}.cards{gap:6px}.opponents .cards{--cardw:clamp(32px,4vw,46px)}}
+@media(max-width:780px){.app{padding:15px 12px 22px}.header{margin-bottom:18px}.brand{gap:9px}.brand>b{font-size:38px}.brand small{font-size:10px}.header .quiet{padding:8px 10px;font-size:13px}h1{font-size:clamp(17px,4.5vw,25px)}.layout{grid-template-columns:1fr}.opponents .cards{--cardw:clamp(30px,8.4vw,61px)}.seat-name{font-size:13px}.opponents .seat-icon{display:block;font-size:23px}.seat-info{font-size:12px}.seat-status{font-size:12px}.indices{gap:2px 8px}.board{--cardw:clamp(39px,13.2vw,76px);margin:15px 0}.side{grid-template-columns:1fr}.human-seat{--cardw:66px}.results-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.role-card{padding:15px 13px;min-height:270px}.role-card strong{font-size:20px}.role-desc{font-size:14px}.role-grid{gap:10px}.role-stats{font-size:12px}.selection-bottom{flex-direction:column;align-items:stretch;text-align:center}.rules-inner{grid-template-columns:1fr;gap:5px}.delta{font-size:11px}.seat{padding-left:3px;padding-right:3px}.corner{left:3px;top:3px}.corner.bottom{left:auto;top:auto;right:3px;bottom:3px}.highlight-label{font-size:12px}.result-card{padding:11px}.panel{padding:15px 17px}.selection-intro h2{font-size:23px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+.leaderboard{margin-top:24px}.rank-head{display:flex;justify-content:space-between;gap:14px;align-items:center}.rank-head h2{margin:0;font-size:23px;color:var(--gold)}.rank-intro{font-size:14px;color:var(--muted);margin:8px 0 15px}.rank-wrap{overflow:auto;border:1px solid var(--line);border-radius:10px}table{border-collapse:collapse;width:100%;font-size:14px;text-align:left}th,td{padding:12px 14px;border-bottom:1px solid #35544980}th{color:var(--gold);background:#0d251e;white-space:nowrap}td:first-child{font-weight:750;color:var(--gold);width:60px}td:nth-child(2){overflow-wrap:anywhere;max-width:250px}td:nth-child(3),td:nth-child(4){white-space:nowrap;font-variant-numeric:tabular-nums}.my-score{background:#c5ab4326}.rank-status{font-size:13px;color:var(--muted);margin:10px 0 0;min-height:22px}.score-entry{margin:20px 0;background:linear-gradient(135deg,#314b2b,#142c27);border-color:var(--gold)}.score-entry h2{color:var(--gold);margin:0;font-size:23px}.score-summary{font-size:19px;font-weight:700;color:#fff1c9;margin:8px 0}.score-form{display:flex;gap:10px;align-items:end;flex-wrap:wrap}.score-form label{display:grid;gap:6px;flex:1;min-width:180px;font-size:14px;color:#cadbce}.score-form input{background:#0a211b;color:#fff1c9;border:1px solid var(--line);border-radius:8px;padding:12px;width:100%}.rank-link{color:var(--gold)}@media(max-width:520px){th,td{padding:10px 8px;font-size:12px}.rank-head h2{font-size:20px}.score-form .primary{width:100%}.rank-head .quiet{font-size:13px;padding:8px}.score-summary{font-size:16px}}
+</style></head><body><main class="app">
+<header class="header"><div class="brand"><b aria-hidden="true">♠</b><div><small>FOUR PLAYERS · EIGHT HEROES</small><h1>四人德州撲克・絕技對決</h1></div></div><button class="quiet" id="reset">重新選角</button></header>
+<section id="selection"><div class="selection-intro"><h2>選擇你的牌桌角色</h2><p>8 位角色、8 招絕技。選好角色後，電腦會從其餘角色隨機挑選 3 位對手。本場最多 10 局；電腦歸零時，未進場角色可在下一局替補。</p></div><div class="role-grid" id="role-grid"></div><div class="selection-bottom"><span>目前選擇：<b id="selected-name">金牌神算</b> · 四人各有 500 枚起始金幣</span><button class="primary" id="start-match">確認角色・入座</button></div></section>
+<section id="play" class="hidden"><div class="layout"><section class="table-frame" aria-label="四人撲克牌桌"><div class="table"><div class="opponents">
+<div class="seat" id="seat-1"><div class="seat-name"><span class="seat-icon" id="icon-1"></span><span id="name-1">電腦 A</span></div><div class="cards" id="cards-1" aria-label="電腦 A 手牌"></div><div class="seat-status" id="seat-status-1"></div><div class="seat-info">金幣 <b id="bank-1">500</b></div><div class="indices"><span>幸運 <span id="luck-1"></span></span><span>絕技 <span id="power-1"></span></span></div><div class="delta" id="delta-1"></div></div>
+<div class="seat" id="seat-2"><div class="seat-name"><span class="seat-icon" id="icon-2"></span><span id="name-2">電腦 B</span></div><div class="cards" id="cards-2" aria-label="電腦 B 手牌"></div><div class="seat-status" id="seat-status-2"></div><div class="seat-info">金幣 <b id="bank-2">500</b></div><div class="indices"><span>幸運 <span id="luck-2"></span></span><span>絕技 <span id="power-2"></span></span></div><div class="delta" id="delta-2"></div></div>
+<div class="seat" id="seat-3"><div class="seat-name"><span class="seat-icon" id="icon-3"></span><span id="name-3">電腦 C</span></div><div class="cards" id="cards-3" aria-label="電腦 C 手牌"></div><div class="seat-status" id="seat-status-3"></div><div class="seat-info">金幣 <b id="bank-3">500</b></div><div class="indices"><span>幸運 <span id="luck-3"></span></span><span>絕技 <span id="power-3"></span></span></div><div class="delta" id="delta-3"></div></div>
+</div><div class="board"><div class="pot-label">本局底池（含主池與邊池）</div><div class="pot"><span id="pot">0</span> <small>枚金幣</small></div><div class="cards" id="community" aria-label="五張公用牌"></div><div class="community-label">COMMUNITY CARDS · 全桌共用</div></div>
+<div class="seat human-seat" id="seat-0"><div class="seat-name"><span class="seat-icon" id="icon-0"></span><span id="name-0">你</span></div><div class="cards" id="cards-0" aria-label="你的手牌"></div><div class="seat-status" id="seat-status-0"></div><div class="seat-info">金幣 <b id="bank-0">500</b></div><div class="indices"><span>幸運 <span id="luck-0"></span></span><span>絕技 <span id="power-0"></span></span></div><div class="delta" id="delta-0"></div></div><p class="highlight-label" id="highlight-label"></p></div></section>
+<aside class="side"><section class="panel"><div class="bank-title"><strong id="human-role">你的角色</strong><span class="round" id="round">第 1 / 10 局</span></div><div class="balance"><span id="coins">500</span><small>枚金幣</small></div><div class="meter"><div class="meter-label"><span>幸運指數</span><b id="human-luck"></b></div><div class="track"><span id="luck-bar"></span></div></div><div class="meter"><div class="meter-label"><span>絕技指數 · 達 80% 可發動</span><b id="human-power"></b></div><div class="track power"><span id="power-bar"></span></div></div><p class="owed" id="human-wins">本場勝利 0 局</p><p class="owed" id="reserve-note">候補角色剩餘 4 位</p></section>
+<section class="panel control-panel"><div class="stage" id="stage">準備開局</div><p class="status" id="status" role="status" aria-live="polite" aria-atomic="true"></p><div id="bet-panel" class="hidden"><label class="bet-label" for="bet">本次投入金額</label><p class="owed" id="owed"></p><div class="bet-input"><input id="bet" type="number" min="0" step="1" value="0" inputmode="numeric" aria-describedby="bet-error"><span>金幣</span></div><input id="bet-range" type="range" min="0" max="500" step="1" value="0" aria-label="調整本次投入金額"><p class="bet-error" id="bet-error" role="alert"></p><button class="primary" id="bet-action">過牌</button><div class="button-row"><button class="secondary" id="call-button">過牌</button><button class="secondary" id="allin-button">梭哈</button><button class="secondary danger" id="fold-button">棄牌</button></div></div><button class="primary" id="main-action">開始發牌</button></section>
+<section class="panel"><div class="skill-heading"><strong id="skill-name">專屬絕技</strong><small>每局一次</small></div><p class="skill-desc" id="skill-desc"></p><button class="skill-button" id="skill-button">發動絕技</button><p class="skill-hint" id="skill-hint" aria-live="polite"></p><div class="estimate hidden" id="estimate" role="status"></div></section></aside></div>
+<section class="results hidden" id="results"><h2>攤牌與金幣結算</h2><p id="outcome" role="status" aria-live="polite"></p><div class="results-grid" id="results-grid"></div><p style="margin-top:10px;font-size:12px">點選角色查看最佳五張；棄牌者顯示牌型，仍不參與底池爭奪。</p></section>
+<section class="panel score-entry hidden" id="score-entry"><h2>🏆 十局完成・留下你的戰績</h2><p class="score-summary" id="score-summary"></p><form class="score-form" id="score-form"><label for="score-name">排行榜名字或暱稱（1～20 字）<input id="score-name" name="name" maxlength="40" autocomplete="nickname" required placeholder="輸入你的名字或暱稱"></label><button type="submit" class="primary" id="score-submit">提交成績・挑戰前 50 名</button></form><p id="score-message" class="rank-status" role="status" aria-live="polite"></p><p class="owed">提交後，名字、金幣與勝率將顯示在共用排行榜。</p></section>
+<details class="activity" open><summary>牌桌動態・下注與絕技紀錄</summary><ol id="log"></ol></details></section>
+<section class="panel leaderboard" aria-labelledby="rank-title"><div class="rank-head"><h2 id="rank-title">🏆 雲端優勝排行榜</h2><button id="rank-refresh" class="quiet">重新整理</button></div><p class="rank-intro">前 50 名 · 先比金幣，再比勝率 · 完成 10 局且仍有金幣才可提交</p><div class="rank-wrap"><table><thead><tr><th scope="col">名次</th><th scope="col">名字</th><th scope="col">金幣</th><th scope="col">勝率</th></tr></thead><tbody id="rank-body"><tr><td colspan="4">正在連接雲端排行榜…</td></tr></tbody></table></div><p id="rank-status" class="rank-status" role="status" aria-live="polite"></p><p class="owed">勝率＝勝利局數 ÷ 10；平手分池計一次勝利。同金幣、同勝率時，較早提交者在前。<a class="rank-link" href="https://texas-poker-coins.stable-grape-2390.chatgpt.site" target="_blank" rel="noopener">開啟線上版</a></p></section>
+<details class="rules"><summary>完整遊戲規則・指數與絕技</summary><div class="rules-inner"><div><p><strong>四人牌桌</strong>：你選擇一位角色，電腦從其餘七位隨機選出三位，角色不重複。四人各有 500 枚金幣；每局底注 10 枚，餘額不足 10 枚則將剩餘金幣全押。</p><p><strong>兩輪下注</strong>：先看手牌下注，再一次翻開五張公用牌進行第二輪下注。可以過牌、跟注、加注、梭哈或棄牌。電腦依角色棄牌率／梭哈率決策，其餘機率採一般下注或過牌。</p><p><strong>必用 2 張手牌＋3 張公用牌</strong>：每位角色都固定使用自己的兩張手牌，從五張公用牌選三張。牌型大小依序為同花順、鐵支、葫蘆、同花、順子、三條、兩對、一對、高牌。同牌型比較完整點數序列；A 可組成 A2345 小順子。</p><p><strong>主池與邊池</strong>：投入不同時分開結算各層底池，只能爭奪自己有投入的池。棄牌者已投入的金幣留在池中。平手分池，餘幣依每局輪轉座位順序分配；未被跟注的多餘金幣先返還本人，不計入實際投入；護盾、返航與絕技指數增幅都以實際投入計算。某層邊池只剩一名有資格者時，該角色已取得該層金幣，不因後續其他層的棄牌而失去。</p><p><strong>本場結束</strong>：最多進行 10 局，第 10 局結算後結束；若你的金幣歸零，則提前結束（梭哈時先完成本局結算及技能返還）。金幣歸零的電腦在下一局由尚未進場的角色隨機替補，替補者有 500 枚金幣並使用該角色的初始指數。全場角色不重複進場；四位候補用完後，歸零電腦退出，牌桌人數隨之減少。護盾與返航返還由系統提供，於判定出局前加入餘額。</p></div><div><p><strong>幸運指數（0～100%）</strong>：八位角色的初始幸運與絕技指數均已降為原設定的 60%。發手牌時，每張牌按此機率抽取 10、J、Q、K、A 大點數牌，其他情況抽取 2～9；若該類牌已用完則從剩餘牌抽取。每局結算只更新一次：排名第 2～4 且未獲勝者隨機增加 1～20 個百分點，獲勝者減 10 個百分點。排名先比較未棄牌者牌型，再排棄牌者。</p><p><strong>絕技指數（0～100%）</strong>：達 80% 即可發動，每局限一次，發動後扣 50 個百分點，幸運同時扣 30 個百分點。每局結算後依「本局實際投入金幣 ×0.1」增加百分點（含底注），供下一局使用。例如投入 100 枚增加 10 個百分點。指數上限 100%，下限 0%。</p><ul><li><strong>神算預演</strong>：300 次隨機模擬估計勝率，僅使用自己的牌、公開牌與已偷看的資訊。</li><li><strong>幸運補給</strong>：選一張非 A 手牌，換成剩餘牌堆中點數更大的牌；沒有可換牌時不消耗絕技。</li><li><strong>烈焰爆發</strong>：指定未棄牌且仍有金幣的對手直接全押，其餘角色仍須決定是否跟注。</li><li><strong>寒冰護盾</strong>：可提前開啟；本局梭哈且未分得底池時，返還本局投入的 80%，小數無條件捨去。</li><li><strong>暗夜洞察</strong>：偷看指定未棄牌對手的一張隨機手牌。</li><li><strong>雷霆震懾</strong>：公用牌翻開後，選一張公用牌與一張手牌交換，立即影響全桌牌型。</li><li><strong>共享祝福</strong>：公用牌翻開後選一張保留，其餘四張換新。</li><li><strong>安全返航</strong>：棄牌並取回本局投入的全部金幣；攤牌前即使已梭哈，仍可使用此絕技棄牌返航。</li></ul><p>電腦也會依角色發動絕技；你可以在自己下注前或攤牌前發動。換下的牌不再進入本局牌堆。</p></div></div></details><p class="footer">虛擬金幣角色遊戲 · 單一 HTML 檔，下載後可離線遊玩 · 雲端排行榜需網路連線</p>
+</main>
+<dialog id="skill-dialog" aria-labelledby="dialog-skill-title"><h2 id="dialog-skill-title">發動絕技</h2><p id="dialog-skill-desc"></p><div id="skill-options"></div><p class="dialog-error" id="dialog-error" role="alert"></p><div class="dialog-buttons"><button class="quiet" id="cancel-skill">取消</button><button class="primary" id="confirm-skill">確認發動</button></div></dialog>
+<dialog id="reset-dialog" aria-labelledby="reset-title"><h2 id="reset-title">重新選擇角色？</h2><p>本場金幣與進度將重設。選角後，四人重新取得 500 枚起始金幣。</p><div class="dialog-buttons"><button class="quiet" id="cancel-reset">繼續遊戲</button><button class="primary" id="confirm-reset">重新選角</button></div></dialog>
+<script>
+
+// 固定使用兩張手牌，從五張公用牌選三張；以完整點數陣列比較同牌型。
+const HAND_NAMES=['高牌','一對','兩對','三條','順子','同花','葫蘆','鐵支（四條）','同花順'];
+function compareScores(a,b){for(let i=0;i<Math.max(a.length,b.length);i++){const d=(a[i]||0)-(b[i]||0);if(d)return Math.sign(d);}return 0;}
+function evaluateFive(cards){
+ const ranks=cards.map(c=>c.value).sort((a,b)=>b-a),counts=new Map();
+ ranks.forEach(v=>counts.set(v,(counts.get(v)||0)+1));
+ const groups=[...counts].sort((a,b)=>b[1]-a[1]||b[0]-a[0]);
+ const unique=[...new Set(ranks)],flush=cards.every(c=>c.suit===cards[0].suit);
+ let straight=0;if(unique.length===5){if(unique[0]-unique[4]===4)straight=unique[0];else if(unique.join(',')==='14,5,4,3,2')straight=5;}
+ if(flush&&straight)return [8,straight];
+ if(groups[0][1]===4)return [7,groups[0][0],groups[1][0]];
+ if(groups[0][1]===3&&groups[1][1]===2)return [6,groups[0][0],groups[1][0]];
+ if(flush)return [5,...ranks];
+ if(straight)return [4,straight];
+ if(groups[0][1]===3)return [3,groups[0][0],...groups.slice(1).map(g=>g[0]).sort((a,b)=>b-a)];
+ if(groups[0][1]===2&&groups[1][1]===2)return [2,Math.max(groups[0][0],groups[1][0]),Math.min(groups[0][0],groups[1][0]),groups[2][0]];
+ if(groups[0][1]===2)return [1,groups[0][0],...groups.slice(1).map(g=>g[0]).sort((a,b)=>b-a)];
+ return [0,...ranks];
+}
+function evaluateHand(holeCards,communityCards){
+ if(holeCards.length!==2||communityCards.length!==5)throw new Error('需要兩張手牌與五張公用牌');
+ let best=null;
+ for(let a=0;a<communityCards.length-2;a++)for(let b=a+1;b<communityCards.length-1;b++)for(let c=b+1;c<communityCards.length;c++){
+  const five=[...holeCards,communityCards[a],communityCards[b],communityCards[c]],score=evaluateFive(five);
+  if(!best||compareScores(score,best.score)>0)best={score,cards:five,name:HAND_NAMES[score[0]]};
+ }return best;
+}
+function createDeck(){const deck=[];for(const suit of ['♠','♥','♦','♣'])for(let value=2;value<=14;value++)deck.push({suit,value,rank:({11:'J',12:'Q',13:'K',14:'A'})[value]||String(value),id:suit+value});for(let i=deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]];}return deck;}
+
+'use strict';
+const ROLES=[
+ {title:'金牌神算',icon:'🧠',fold:25,shove:10,luck:39,power:52.8,skill:'神算預演',desc:'每局一次，查看目前手牌的估計勝率。'},
+ {title:'幸運甜心',icon:'🍀',fold:10,shove:18,luck:57,power:46.8,skill:'幸運補給',desc:'每局可更換一張手牌；A 不可換，新牌點數必定更大。'},
+ {title:'烈焰勇者',icon:'🔥',fold:5,shove:45,luck:43.2,power:55.2,skill:'烈焰爆發',desc:'每局一次，指定一名尚未棄牌且仍有金幣的對手，讓他直接梭哈。'},
+ {title:'冰山女王',icon:'❄️',fold:30,shove:8,luck:36,power:51,skill:'寒冰護盾',desc:'每局一次，梭哈落敗時返還本局投入金幣的 80%；可提前開啟。'},
+ {title:'夜行狐狸',icon:'🦊',fold:18,shove:15,luck:45,power:56.4,skill:'暗夜洞察',desc:'每局一次，偷看一名尚未棄牌對手的一張隨機手牌。'},
+ {title:'閃電高手',icon:'⚡',fold:12,shove:35,luck:40.8,power:54,skill:'雷霆震懾',desc:'每局一次，選一張公用牌與自己的一張手牌互換。'},
+ {title:'微笑天使',icon:'🌈',fold:15,shove:10,luck:51,power:45.6,skill:'共享祝福',desc:'每局一次，保留一張公用牌，更換其餘四張。'},
+ {title:'沉穩船長',icon:'⚓',fold:35,shove:5,luck:33,power:50.4,skill:'安全返航',desc:'每局一次，棄牌並取回本局已投入的全部金幣。'}
+];
+const MAX_ROUNDS=10;
+const $=id=>document.getElementById(id),fmt=n=>n.toLocaleString('zh-TW'),pct=n=>Number(n.toFixed(1))+'%',clamp=n=>Math.max(0,Math.min(100,n));
+let game=null,selectedRole=0,epoch=0;
+function choose(a){return a[Math.floor(Math.random()*a.length)];}
+function log(text){game.logs.push(text);if(game.logs.length>60)game.logs.shift();}
+function seatName(i){return i===0?'你':('電腦 '+String.fromCharCode(64+i));}
+function fullName(i){return seatName(i)+'・'+ROLES[game.players[i].role].title;}
+function drawWeighted(deck,luck){
+ if(!deck.length)throw Error('牌堆已空');const high=Math.random()*100<luck,candidates=deck.map((c,i)=>({c,i})).filter(x=>high?x.c.value>=10:x.c.value<10);
+ const pick=candidates.length?choose(candidates).i:Math.floor(Math.random()*deck.length);return deck.splice(pick,1)[0];
+}
+function randomCard(deck){if(!deck.length)throw Error('牌堆已空');return deck.splice(Math.floor(Math.random()*deck.length),1)[0];}
+function makePlayer(role){return {role,bank:500,luck:ROLES[role].luck,power:ROLES[role].power,holes:[],inRound:false,folded:false,allin:false,contrib:0,street:0,used:false,shield:false,refund:0,peek:{},discard:[],delta:'',foldOrder:0};}
+function replaceComputers(){
+ for(let i=1;i<4;i++)if(game.players[i].bank===0&&game.reserve.length){
+  const previous=ROLES[game.players[i].role].title,role=game.reserve.shift();game.players[i]=makePlayer(role);game.replacementCount++;game.usedRoles.add(role);
+  log(seatName(i)+'・'+previous+' 金幣歸零，由尚未進場的「'+ROLES[role].title+'」接替，以 500 枚金幣及初始指數入座。');
+ }
+}
+function startMatch(){
+ epoch++;const ids=ROLES.map((_,i)=>i).filter(i=>i!==selectedRole);for(let i=ids.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[ids[i],ids[j]]=[ids[j],ids[i]];}
+ game={players:[selectedRole,...ids.slice(0,3)].map(makePlayer),reserve:ids.slice(3),usedRoles:new Set([selectedRole,...ids.slice(0,3)]),replacementCount:0,foldSeq:0,round:0,phase:'ready',community:[],visible:false,deck:[],discard:[],publicDiscards:[],logs:[],pending:new Set(),turn:null,currentBet:0,result:null,focus:0,busy:false,settled:false,estimate:null,skillNotice:''};
+ game.matchId=globalThis.crypto?.randomUUID?.()||'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const n=Math.floor(Math.random()*16);return(c==='x'?n:(n&3)|8).toString(16);});game.wins=0;game.scoreSnapshot=null;game.rankSubmitted=false;
+ if(typeof resetScoreEntry==='function')resetScoreEntry();
+ $('selection').classList.add('hidden');$('play').classList.remove('hidden');$('reset-dialog').close();log('你選擇 '+ROLES[selectedRole].title+'，三位電腦角色已隨機入座。');render();
+}
+function backToSelection(){epoch++;game=null;if(typeof resetScoreEntry==='function')resetScoreEntry();$('reset-dialog').close();$('play').classList.add('hidden');$('selection').classList.remove('hidden');renderSelection();}
+function renderSelection(){
+ $('role-grid').innerHTML=ROLES.map((r,i)=>`<button class="role-card ${selectedRole===i?'selected':''}" id="role-${i}" data-role="${i}" aria-pressed="${selectedRole===i}"><span class="role-icon" aria-hidden="true">${r.icon}</span><strong>${r.title}</strong><span class="role-skill">${r.skill}</span><span class="role-desc">${r.desc}</span><span class="role-stats"><span>棄牌 ${r.fold}% · 梭哈 ${r.shove}%</span><span>幸運 ${r.luck}% · 絕技 ${r.power}%</span></span></button>`).join('');
+ $('selected-name').textContent=ROLES[selectedRole].title;
+}
+function participants(){return game.players.flatMap((p,i)=>p.inRound?[i]:[]);}
+function liveSeats(){return participants().filter(i=>!game.players[i].folded);}
+function eligible(i){const p=game.players[i];return p.inRound&&!p.folded&&!p.allin&&p.bank>0;}
+function pot(){return game.players.reduce((s,p)=>s+p.contrib,0);}
+function cardMarkup(c,{back=false,highlight=false,click=null,selected=false}={}){
+ if(!c)return '<div class="card empty" role="img" aria-label="尚未發牌"></div>';
+ if(back)return '<div class="card back" role="img" aria-label="尚未揭曉的手牌"></div>';
+ const inner=`<span class="corner">${c.rank}<small>${c.suit}</small></span><span class="pip" aria-hidden="true">${c.suit}</span><span class="corner bottom" aria-hidden="true">${c.rank}<small>${c.suit}</small></span>`,cls=`card ${['♥','♦'].includes(c.suit)?'red':''} ${highlight?'best':''} ${selected?'picked':''}`;
+ return click!==null?`<button type="button" class="${cls}" data-pick="${click}" aria-label="選擇 ${c.suit}${c.rank}" aria-pressed="${selected}">${inner}</button>`:`<div class="${cls}" role="img" aria-label="${c.suit}${c.rank}${highlight?'，最佳五張之一':''}">${inner}</div>`;
+}
+function roundPlayable(){return game&&['pre','post','showdown'].includes(game.phase)&&!game.busy;}
+function skillAvailable(i){const p=game.players[i];return roundPlayable()&&p.inRound&&!p.folded&&!p.used&&p.power>=80;}
+function humanCanAct(){return game&&['pre','post'].includes(game.phase)&&game.turn===0&&!game.busy&&eligible(0);}
+function setBet(n){$('bet').value=String(n);$('bet-range').value=String(n);updateBet();}
+function owed(i){return Math.max(0,game.currentBet-game.players[i].street);}
+function betValue(){const raw=$('bet').value.trim(),n=Number(raw),p=game.players[0];return raw!==''&&Number.isSafeInteger(n)&&n>=0&&n<=p.bank&&(n>=owed(0)||n===p.bank)?n:null;}
+function updateBet(){if(!game)return;const p=game.players[0],n=betValue();$('bet-error').textContent=n===null?'請輸入有效整數；至少跟注 '+fmt(Math.min(owed(0),p.bank))+' 枚，或選擇棄牌。':'';$('bet-action').disabled=!humanCanAct()||n===null;if(n!==null)$('bet-action').textContent=n===0?'過牌':n===p.bank?'梭哈 '+fmt(n)+' 枚':p.street+n>game.currentBet?'加注・投入 '+fmt(n)+' 枚':'跟注 '+fmt(n)+' 枚';}
+function render(){
+ if(!game)return;const p=game.players[0],r=ROLES[p.role],finished=!!game.result;
+ $('round').textContent='第 '+Math.max(1,game.round)+' / '+MAX_ROUNDS+' 局';$('coins').textContent=fmt(p.bank);$('pot').textContent=fmt(pot());$('human-role').textContent=r.icon+' '+r.title;
+ $('human-wins').textContent='本場勝利 '+(game.wins||0)+' 局';if(typeof renderScoreEntry==='function')renderScoreEntry();
+ const replacements=game.players.slice(1).filter(pl=>pl.bank===0).length;
+ $('reserve-note').textContent='候補角色剩餘 '+game.reserve.length+' 位'+(game.phase==='result'&&replacements&&game.reserve.length?' · 下一局補上 '+Math.min(replacements,game.reserve.length)+' 位':game.reserve.length===0?' · 歸零電腦將退出':'');
+ $('human-luck').textContent=pct(p.luck);$('human-power').textContent=pct(p.power);$('luck-bar').style.width=p.luck+'%';$('power-bar').style.width=p.power+'%';
+ const phaseText={ready:'準備開局',pre:'第一輪・翻牌前',post:'第二輪・公用牌已揭曉',showdown:'下注完成・準備攤牌',result:'本局結算',over:'本場結束'};
+ $('stage').textContent=phaseText[game.phase];$('status').textContent=game.busy?'電腦正在決策…':game.turn===0?('輪到你：'+(owed(0)?'需跟注 '+fmt(Math.min(owed(0),p.bank))+' 枚。':'可過牌、下注或棄牌。')):game.phase==='showdown'?'可使用尚未發動的絕技，再進行攤牌。':game.phase==='ready'?'四位角色各有 500 枚金幣，本場最多進行 10 局。':game.phase==='over'?(p.bank===0?'你的金幣已歸零，本場結束。':'已完成 10 局！你的最終金幣：'+fmt(p.bank)+' 枚。'):game.result?'本局指數已更新，下一局將使用新數值。':'等待下注完成。';
+ const ids=new Set(finished&&game.result.hands[game.focus]?game.result.hands[game.focus].cards.map(c=>c.id):[]);
+ for(let i=0;i<4;i++){
+  const pl=game.players[i],role=ROLES[pl.role],win=finished&&game.result.winners.includes(i),known=pl.peek;
+  $('name-'+i).textContent=(i===0?'你':seatName(i))+' · '+role.title;$('icon-'+i).textContent=role.icon;
+  $('seat-'+i).classList.toggle('folded',pl.folded);$('seat-'+i).classList.toggle('winning',win);$('seat-'+i).classList.toggle('current',game.turn===i&&!game.busy);
+  $('cards-'+i).innerHTML=[0,1].map(j=>cardMarkup(pl.holes[j],{back:i!==0&&!finished&&!game.players[0].peek[i]?.includes(j),highlight:ids.has(pl.holes[j]?.id)})).join('');
+  const label=!pl.inRound&&game.round?'已出局':pl.folded?'已棄牌':pl.allin?'已梭哈':game.round?'本局投入 '+fmt(pl.contrib)+' 枚':'等待發牌';
+  $('seat-status-'+i).textContent=finished&&game.result.hands[i]?game.result.hands[i].name+' · '+(win?'勝出':pl.folded?'已棄牌':'未勝出'):label;
+  $('bank-'+i).textContent=fmt(pl.bank);$('luck-'+i).textContent=pct(pl.luck);$('power-'+i).textContent=pct(pl.power);$('delta-'+i).textContent=finished?pl.delta:'';
+ }
+ $('community').innerHTML=[0,1,2,3,4].map(j=>cardMarkup(game.visible?game.community[j]:null,{highlight:ids.has(game.community[j]?.id)})).join('');
+ $('highlight-label').textContent=finished?'金框：'+fullName(game.focus)+'的最佳五張（2 張手牌＋3 張公用牌）':'四人共用五張公用牌 · 必用自己的兩張手牌';
+ $('bet-panel').classList.toggle('hidden',!humanCanAct());
+ if(humanCanAct()){$('bet').max=p.bank;$('bet-range').max=p.bank;$('owed').textContent='需跟注 '+fmt(Math.min(owed(0),p.bank))+' 枚 · 最多 '+fmt(p.bank)+' 枚';updateBet();}
+ $('main-action').classList.toggle('hidden',!['ready','showdown','result','over'].includes(game.phase)||game.busy);
+ $('main-action').textContent=game.phase==='ready'?'支付底注・開始發牌':game.phase==='showdown'?'四人攤牌・結算':game.phase==='over'?'重新選擇角色':'下一局・支付底注';
+ $('fold-button').disabled=!humanCanAct();$('allin-button').disabled=!humanCanAct();$('call-button').disabled=!humanCanAct();$('call-button').textContent=owed(0)?'跟注 '+fmt(Math.min(owed(0),p.bank)):'過牌';
+ $('skill-name').textContent=r.skill;$('skill-desc').textContent=r.desc;
+ $('skill-button').disabled=!skillAvailable(0);$('skill-button').textContent=p.used?'本局已使用':p.power<80?'絕技未就緒・需 80%':'發動 '+r.skill;
+ $('skill-hint').textContent=game.skillNotice||(p.used?'下一局才可再次發動。':'發動後：幸運 −30、絕技 −50 個百分點。');
+ $('estimate').classList.toggle('hidden',!game.estimate);$('estimate').textContent=game.estimate||'';
+ $('results').classList.toggle('hidden',!finished);
+ if(finished){$('results-grid').innerHTML=game.players.map((pl,i)=>`<button type="button" class="result-card ${game.focus===i?'selected':''}" id="inspect-${i}" data-inspect="${i}" aria-pressed="${game.focus===i}" ${!game.result.hands[i]?'disabled':''}><strong>${fullName(i)}${game.result.winners.includes(i)?' · 勝出':''}</strong><span>${game.result.hands[i]?.name||'未參與本局'}${pl.folded?'（棄牌）':''}</span><span>分得 ${fmt(game.result.awards[i])} 枚${pl.refund?' · 技能返還 '+fmt(pl.refund)+' 枚':''}</span><small>${pl.delta}</small></button>`).join('');const net=game.result.awards[0]+p.refund-p.contrib;$('outcome').textContent='你分得 '+fmt(game.result.awards[0])+' 枚'+(p.refund?'，技能返還 '+fmt(p.refund)+' 枚':'')+'；本局淨'+(net>=0?'賺 ':'損 ')+fmt(Math.abs(net))+' 枚。';}
+ $('log').innerHTML=game.logs.slice(-14).map(t=>'<li>'+t+'</li>').join('');
+}
+function pay(i,amount){const p=game.players[i],n=Math.min(p.bank,amount);p.bank-=n;p.contrib+=n;p.street+=n;if(p.bank===0)p.allin=true;return n;}
+function move(i,action,n=0){
+ if(!eligible(i))return false;const p=game.players[i];
+ if(action==='fold'){p.folded=true;p.foldOrder=++game.foldSeq;game.pending.delete(i);log(fullName(i)+' 棄牌。');return true;}
+ const due=owed(i);if(!Number.isSafeInteger(n)||n<0||n>p.bank||(n<due&&n!==p.bank))return false;
+ const old=game.currentBet,paid=pay(i,n);if(p.street>old){game.currentBet=p.street;game.pending=new Set(participants().filter(j=>j!==i&&eligible(j)));}else game.pending.delete(i);
+ log(fullName(i)+' '+(p.allin?'梭哈':p.street>old?'加注':paid?'跟注':'過牌')+(paid?' '+fmt(paid)+' 枚':'')+'。');return true;
+}
+function forceAllin(i){
+ if(!eligible(i))return false;const p=game.players[i],paid=pay(i,p.bank);if(p.street>game.currentBet){game.currentBet=p.street;game.pending=new Set(participants().filter(j=>j!==i&&eligible(j)));}else game.pending.delete(i);
+ if(game.phase==='showdown')game.phase='post';log(fullName(i)+' 被迫梭哈 '+fmt(paid)+' 枚！');return true;
+}
+function consumeSkill(i){const p=game.players[i];p.used=true;p.luck=clamp(p.luck-30);p.power=clamp(p.power-50);game.estimate=null;log(fullName(i)+' 發動「'+ROLES[p.role].skill+'」。');}
+function allowedSkill(i){const p=game.players[i];return p.inRound&&!p.folded&&!p.used&&p.power>=80&&['pre','post','showdown'].includes(game.phase);}
+function activateSkill(i,{target=null,hole=0,board=0}={}){
+ if(!allowedSkill(i))return {ok:false,message:'絕技指數需達 80%，且本局尚未發動。'};
+ const p=game.players[i],type=p.role;
+ if([2,4].includes(type)&&(!Number.isInteger(target)||target===i||!game.players[target]?.inRound||game.players[target].folded||(type===2&&!eligible(target))))return {ok:false,message:'請選擇有效的未棄牌對手。'};
+ if([1,5].includes(type)&&(!Number.isInteger(hole)||hole<0||hole>1))return {ok:false,message:'請選擇一張手牌。'};
+ if([5,6].includes(type)&&(!game.visible||!Number.isInteger(board)||board<0||board>4))return {ok:false,message:'五張公用牌揭曉後才能使用。'};
+ if(type===1){const old=p.holes[hole];if(old.value===14)return {ok:false,message:'A 已是最大點數，不可更換。'};const candidates=game.deck.filter(c=>c.value>old.value);if(!candidates.length)return {ok:false,message:'剩餘牌堆沒有更大的牌，本次不消耗絕技。'};const next=choose(candidates);consumeSkill(i);game.deck.splice(game.deck.findIndex(c=>c.id===next.id),1);game.discard.push(old);p.discard.push(old);p.holes[hole]=next;game.players.forEach(pl=>{delete pl.peek[i];});log(fullName(i)+' 更換一張手牌，新牌點數更大。');}
+ else if(type===0){consumeSkill(i);const odds=estimateWin(i,300);if(i===0)game.estimate='神算預演：估計勝率 '+pct(odds*100)+'（300 次隨機模擬，平手按分池比例計入）。';else log(fullName(i)+' 已完成勝率預演。');}
+ else if(type===2){consumeSkill(i);forceAllin(target);}
+ else if(type===3){consumeSkill(i);p.shield=true;log(fullName(i)+' 寒冰護盾已開啟：本局梭哈且未分得底池時，返還投入的 80%。');}
+ else if(type===4){consumeSkill(i);const j=Math.floor(Math.random()*2);p.peek[target]=[j];if(i===0)log('你看見 '+fullName(target)+' 的 '+game.players[target].holes[j].suit+game.players[target].holes[j].rank+'。');else log(fullName(i)+' 偷看了 '+fullName(target)+' 的一張牌。');}
+ else if(type===5){consumeSkill(i);const old=p.holes[hole];p.holes[hole]=game.community[board];game.community[board]=old;game.players.forEach(pl=>{delete pl.peek[i];});game.estimate=null;log(fullName(i)+' 交換一張手牌與一張公用牌；全桌牌型同步改變。');}
+ else if(type===6){if(game.deck.length<4)return {ok:false,message:'剩餘牌堆不足四張。'};consumeSkill(i);for(let j=0;j<5;j++)if(j!==board){game.discard.push(game.community[j]);game.publicDiscards.push(game.community[j]);game.community[j]=randomCard(game.deck);}game.estimate=null;log(fullName(i)+' 保留第 '+(board+1)+' 張公用牌，其餘四張已換新。');}
+ else if(type===7){if(liveSeats().length<2)return {ok:false,message:'其餘對手已棄牌，本局即將結算。'};consumeSkill(i);p.refund=p.contrib;p.bank+=p.refund;p.folded=true;p.foldOrder=++game.foldSeq;game.pending.delete(i);log(fullName(i)+' 安全返航，棄牌並由系統返還 '+fmt(p.refund)+' 枚。');}
+ if(type!==0)game.estimate=null;return {ok:true,message:'絕技已發動。'};
+}
+function estimateWin(i,trials=300){
+ const player=game.players[i],others=liveSeats().filter(j=>j!==i);if(!others.length)return 1;
+ const known=[...player.holes,...(game.visible?game.community:[]),...game.publicDiscards,...player.discard],peeks={};others.forEach(j=>{peeks[j]=(player.peek[j]||[]).map(k=>({k,c:game.players[j].holes[k]}));known.push(...peeks[j].map(x=>x.c));});const ids=new Set(known.map(c=>c.id));const base=createDeck().filter(c=>!ids.has(c.id));let sum=0;
+ for(let t=0;t<trials;t++){const pool=base.slice(),board=game.visible?game.community:Array.from({length:5},()=>randomCard(pool)),own=evaluateHand(player.holes,board).score;let tied=1,beaten=false;for(const j of others){const holes=[null,null];peeks[j].forEach(x=>holes[x.k]=x.c);for(let k=0;k<2;k++)if(!holes[k])holes[k]=drawWeighted(pool,game.players[j].luck);const cmp=compareScores(evaluateHand(holes,board).score,own);if(cmp>0){beaten=true;break;}if(cmp===0)tied++;}if(!beaten)sum+=1/tied;}
+ return sum/trials;
+}
+function chooseAiSkill(i,planningFold=false){
+ const p=game.players[i];if(!allowedSkill(i))return false;
+ let opts={};if(p.role===7){if(!planningFold)return false;}
+ else if(planningFold)return false;
+ if([2,4].includes(p.role)){const targets=liveSeats().filter(j=>j!==i&&(p.role!==2||eligible(j)));if(!targets.length)return false;opts.target=choose(targets);}
+ if(p.role===1){opts.hole=p.holes[0].value<=p.holes[1].value?0:1;}
+ if([5,6].includes(p.role)){if(!game.visible)return false;if(p.role===5){let best=null;for(let h=0;h<2;h++)for(let b=0;b<5;b++){const holes=p.holes.slice(),board=game.community.slice();[holes[h],board[b]]=[board[b],holes[h]];const score=evaluateHand(holes,board).score;if(!best||compareScores(score,best.score)>0)best={score,hole:h,board:b};}opts={hole:best.hole,board:best.board};}else opts.board=game.community.reduce((best,c,j)=>c.value>game.community[best].value?j:best,0);}
+ return activateSkill(i,opts).ok;
+}
+function nextPending(after){for(let k=1;k<=4;k++){const i=(after+k)%4;if(game.pending.has(i)&&eligible(i))return i;}return null;}
+const pause=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+async function advance(after=3){
+ const token=epoch;game.busy=true;game.turn=null;render();let cursor=after;
+ while(token===epoch){
+  if(liveSeats().length<=1){game.busy=false;settleRound();return;}
+  for(const i of [...game.pending])if(!eligible(i))game.pending.delete(i);
+  if(!game.pending.size){
+   if(game.phase==='pre'){game.phase='post';game.visible=true;game.estimate=null;game.currentBet=0;game.players.forEach(p=>p.street=0);game.pending=new Set(participants().filter(eligible));log('五張公用牌已翻開，進入第二輪下注。');for(const seat of liveSeats())if(seat>0&&game.players[seat].allin)chooseAiSkill(seat);cursor=3;render();if(!game.pending.size)continue;}
+   else{game.phase='showdown';game.busy=false;game.turn=null;render();return;}
+  }
+  const i=nextPending(cursor);if(i===null){game.pending.clear();continue;}
+  if(i===0){game.turn=0;game.busy=false;setBet(Math.min(owed(0),game.players[0].bank));render();return;}
+  game.turn=i;render();await pause(550);if(token!==epoch)return;
+  const p=game.players[i],r=ROLES[p.role],roll=Math.random()*100,fold=roll<r.fold;
+  const skill=chooseAiSkill(i,fold);if(p.folded){cursor=i;continue;}
+  if(fold){move(i,'fold');}
+  else if(roll<r.fold+r.shove){move(i,'bet',p.bank);}
+  else{const due=owed(i),base=Math.min(due,p.bank),n=due===0?(Math.random()<.5?0:Math.min(p.bank,choose([10,20,30]))):base;move(i,'bet',n);}
+  cursor=i;render();
+ }
+}
+async function startRound(){
+ if(!game||!['ready','result'].includes(game.phase))return;
+ if(game.players[0].bank===0||game.round>=MAX_ROUNDS){game.phase='over';render();return;}
+ replaceComputers();
+ epoch++;game.round++;game.phase='pre';game.deck=createDeck();game.community=[];game.discard=[];game.publicDiscards=[];game.visible=false;game.result=null;game.focus=0;game.settled=false;game.currentBet=0;game.pending=new Set();game.foldSeq=0;game.skillNotice='';game.estimate=null;
+ game.players.forEach(p=>{p.inRound=p.bank>0;p.holes=[];p.folded=false;p.allin=false;p.contrib=0;p.street=0;p.used=false;p.shield=false;p.refund=0;p.peek={};p.discard=[];p.delta='';p.foldOrder=0;});
+ for(let pass=0;pass<2;pass++)for(const p of game.players)if(p.inRound)p.holes.push(drawWeighted(game.deck,p.luck));
+ game.community=Array.from({length:5},()=>randomCard(game.deck));for(const i of participants()){pay(i,Math.min(10,game.players[i].bank));game.players[i].street=0;}game.pending=new Set(participants().filter(eligible));
+ log('第 '+game.round+' 局：'+participants().length+' 人入座，底注合計 '+fmt(pot())+' 枚。');await advance(3);
+}
+function splitAmount(amount,winners,round){const awards=[0,0,0,0],base=Math.floor(amount/winners.length),extra=amount%winners.length,start=(round-1)%4,order=Array.from({length:4},(_,j)=>(start+j)%4).filter(i=>winners.includes(i));order.forEach((i,j)=>awards[i]=base+(j<extra?1:0));return awards;}
+function distributePots(players,hands,round){
+ const awards=[0,0,0,0],levels=[...new Set(players.map(p=>p.contrib).filter(n=>n>0))].sort((a,b)=>a-b),pots=[];let previous=0;
+ for(const level of levels){const members=players.flatMap((p,i)=>p.contrib>=level?[i]:[]),amount=(level-previous)*members.length,eligible=members.filter(i=>!players[i].folded),contenders=eligible.length?eligible:members;let best=hands[contenders[0]].score;contenders.forEach(i=>{if(compareScores(hands[i].score,best)>0)best=hands[i].score;});const winners=eligible.length?contenders.filter(i=>compareScores(hands[i].score,best)===0):[members.reduce((a,b)=>(players[a].foldOrder||0)>(players[b].foldOrder||0)?a:b)],part=splitAmount(amount,winners,round);part.forEach((n,i)=>awards[i]+=n);pots.push({amount,winners,uncalled:members.length===1});previous=level;}
+ return {awards,pots};
+}
+function settleRound(){
+ if(game.settled)return;game.settled=true;game.busy=false;game.turn=null;game.visible=true;
+ const funding=game.players.map((p,i)=>({i,n:p.contrib})).sort((a,b)=>b.n-a.n);if(funding[0].n>funding[1].n){const {i}=funding[0],p=game.players[i],returned=funding[0].n-funding[1].n;p.bank+=returned;p.contrib-=returned;p.street=Math.max(0,p.street-returned);if(p.refund){const correction=Math.min(p.refund,returned);p.refund-=correction;p.bank-=correction;}log(fullName(i)+' 未被跟注的 '+fmt(returned)+' 枚已返還，不計入本局實際投入。');}
+ const hands=game.players.map(p=>p.inRound?evaluateHand(p.holes,game.community):null);
+ const {awards,pots}=distributePots(game.players,hands,game.round);game.players.forEach((p,i)=>{p.bank+=awards[i];if(p.inRound&&p.shield&&p.allin&&awards[i]===0){p.refund=Math.floor(p.contrib*.8);p.bank+=p.refund;log(fullName(i)+' 梭哈落敗，寒冰護盾返還 '+fmt(p.refund)+' 枚。');}});
+ const live=liveSeats();let best=hands[live[0]].score;live.forEach(i=>{if(compareScores(hands[i].score,best)>0)best=hands[i].score;});const winners=[...new Set(pots.filter(p=>!p.uncalled).flatMap(p=>p.winners))];
+ const order=participants().sort((a,b)=>Number(game.players[a].folded)-Number(game.players[b].folded)||-compareScores(hands[a].score,hands[b].score)||a-b);
+ order.forEach((i,rank)=>{const p=game.players[i],oldLuck=p.luck,oldPower=p.power;if(winners.includes(i))p.luck=clamp(p.luck-10);else if(rank>=1&&rank<=3)p.luck=clamp(p.luck+1+Math.floor(Math.random()*20));p.power=clamp(p.power+p.contrib*.1);p.delta='幸運 '+(p.luck-oldLuck>=0?'+':'')+Number((p.luck-oldLuck).toFixed(1))+' · 絕技 +'+Number((p.power-oldPower).toFixed(1));});
+ if(winners.includes(0)&&!game.players[0].folded)game.wins=(game.wins||0)+1;
+ game.result={hands,winners,awards,pots};game.phase=game.players[0].bank===0||game.round>=MAX_ROUNDS?'over':'result';
+ if(game.phase==='over'&&game.round===MAX_ROUNDS&&game.players[0].bank>0)game.scoreSnapshot=Object.freeze({matchId:game.matchId,coins:game.players[0].bank,wins:game.wins,rounds:MAX_ROUNDS,role:game.players[0].role});
+ log(winners.length?'本局贏家：'+winners.map(fullName).join('、')+'。':'本局沒有對手跟注，投入金幣已返還。');pots.forEach((p,j)=>log((p.uncalled?'未被跟注金幣':j===0?'主池':'邊池 '+j)+' '+fmt(p.amount)+' 枚 → '+p.winners.map(fullName).join('、')));log('指數已更新一次；本局每人投入 ×0.1，增加絕技百分點。');if(game.phase==='over')log(game.players[0].bank===0?'玩家金幣歸零，本場結束。':'已完成 10 局，本場結束。');render();
+}
+function openSkillDialog(){
+ if(!skillAvailable(0))return;const p=game.players[0],r=ROLES[p.role];game.skillChoice={hole:0,board:0,target:null};$('dialog-skill-title').textContent=r.skill;$('dialog-skill-desc').textContent=r.desc;$('dialog-error').textContent='';
+ const content=[];if([2,4].includes(p.role)){const targets=liveSeats().filter(i=>i!==0&&(p.role!==2||eligible(i)));if(!targets.length){game.skillNotice='沒有可選擇的有效對手。';render();return;}game.skillChoice.target=targets[0];content.push('<label for="target-select">選擇對手</label><select id="target-select">'+targets.map(i=>'<option value="'+i+'">'+fullName(i)+'</option>').join('')+'</select>');}
+ if([1,5].includes(p.role))content.push('<p>選擇你的手牌</p><div class="cards skill-cards">'+p.holes.map((c,i)=>cardMarkup(c,{click:'hole-'+i,selected:i===0})).join('')+'</div>');
+ if([5,6].includes(p.role)){if(!game.visible){game.skillNotice='請等五張公用牌翻開後再使用。';render();return;}content.push('<p>'+(p.role===6?'選擇要保留的公用牌，其餘四張會換新':'選擇要交換的公用牌')+'</p><div class="cards skill-cards">'+game.community.map((c,i)=>cardMarkup(c,{click:'board-'+i,selected:i===0})).join('')+'</div>');}
+  $('skill-options').innerHTML=content.join('');$('skill-dialog').showModal();
+}
+function bindUI(){
+ $('role-grid').addEventListener('click',e=>{const b=e.target.closest('[data-role]');if(!b)return;selectedRole=Number(b.dataset.role);renderSelection();$('role-'+selectedRole)?.focus?.();});
+ $('start-match').addEventListener('click',startMatch);
+ $('main-action').addEventListener('click',()=>{if(game.phase==='ready'||game.phase==='result')startRound();else if(game.phase==='showdown')settleRound();else if(game.phase==='over')backToSelection();});
+ $('bet').addEventListener('input',()=>{$('bet-range').value=$('bet').value;updateBet();});$('bet-range').addEventListener('input',()=>setBet(Number($('bet-range').value)));
+ $('bet-action').addEventListener('click',()=>{if(!humanCanAct())return;const n=betValue();if(n!==null&&move(0,'bet',n)){game.estimate=null;advance(0);}});
+ $('call-button').addEventListener('click',()=>{if(humanCanAct()&&move(0,'bet',Math.min(owed(0),game.players[0].bank)))advance(0);});
+ $('allin-button').addEventListener('click',()=>{if(humanCanAct()&&move(0,'bet',game.players[0].bank))advance(0);});
+ $('fold-button').addEventListener('click',()=>{if(humanCanAct()&&move(0,'fold'))advance(0);});
+ $('skill-button').addEventListener('click',openSkillDialog);$('cancel-skill').addEventListener('click',()=>$('skill-dialog').close());
+ $('skill-options').addEventListener('click',e=>{const b=e.target.closest('[data-pick]');if(!b)return;const [kind,raw]=b.dataset.pick.split('-');game.skillChoice[kind]=Number(raw);$('skill-options').querySelectorAll('[data-pick]').forEach(el=>el.setAttribute('aria-pressed',String(game.skillChoice[el.dataset.pick.split('-')[0]]===Number(el.dataset.pick.split('-')[1]))));$('skill-options').querySelectorAll('[data-pick]').forEach(el=>el.classList.toggle('picked',el.getAttribute('aria-pressed')==='true'));});
+ $('confirm-skill').addEventListener('click',()=>{const select=$('target-select');if([2,4].includes(game.players[0].role))game.skillChoice.target=Number(select.value);const result=activateSkill(0,game.skillChoice);if(!result.ok){$('dialog-error').textContent=result.message;return;}$('skill-dialog').close();game.skillNotice=result.message;if(game.players[0].folded){advance(0);return;}if(game.players[0].role===2){advance(3);return;}if(['pre','post'].includes(game.phase)&&!eligible(0)){advance(0);return;}if(game.turn===0)setBet(Math.min(owed(0),game.players[0].bank));render();});
+ $('results-grid').addEventListener('click',e=>{const b=e.target.closest('[data-inspect]');if(!b||!game.result)return;game.focus=Number(b.dataset.inspect);render();$('inspect-'+game.focus).focus();});
+ $('reset').addEventListener('click',()=>$('reset-dialog').showModal());$('cancel-reset').addEventListener('click',()=>$('reset-dialog').close());$('confirm-reset').addEventListener('click',backToSelection);
+}
+bindUI();renderSelection();
+
+const CLOUD_ORIGIN='https://texas-poker-coins.stable-grape-2390.chatgpt.site';
+let scoreSending=false,rankLoading=false,submittedMatch=null,rankRequest=0;
+function resetScoreEntry(){
+ $('score-entry').classList.add('hidden');$('score-name').value='';$('score-message').textContent='';$('score-submit').disabled=false;submittedMatch=null;
+}
+function renderScoreEntry(){
+ const score=game?.scoreSnapshot,eligible=game?.phase==='over'&&game.round===10&&game.players[0].bank>0&&!!score;
+ $('score-entry').classList.toggle('hidden',!eligible);if(!eligible)return;
+ $('score-summary').textContent=fmt(score.coins)+' 枚金幣 · '+score.wins+' / 10 局勝利 · 勝率 '+(score.wins*10)+'%';
+ $('score-submit').disabled=scoreSending||game.rankSubmitted;
+ $('score-submit').textContent=game.rankSubmitted?'本場已提交':scoreSending?'正在提交…':'提交成績・挑戰前 50 名';
+ $('score-name').disabled=scoreSending||game.rankSubmitted;
+}
+async function rankFetch(options={}){
+ const control=new AbortController(),timer=setTimeout(()=>control.abort(),12000);
+ try{
+  const res=await fetch(CLOUD_ORIGIN+'/api/leaderboard',{...options,credentials:'same-origin',signal:control.signal});
+  const type=res.headers.get('content-type')||'';
+  if(!type.includes('application/json'))throw Error('雲端服務需要存取權限，請開啟線上版登入後使用。');
+  const data=await res.json();if(!res.ok)throw Error(data.error||'雲端服務暫時無法使用。');return data;
+ }catch(error){if(error.name==='AbortError')throw Error('連線逾時，請稍後重試。');if(error instanceof TypeError)throw Error('無法連接雲端。請確認網路，或開啟線上版登入後使用。');throw error;}finally{clearTimeout(timer);}
+}
+function rankRows(rows){
+ const body=$('rank-body');body.replaceChildren();
+ if(!rows.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=4;td.textContent='尚無成績，完成 10 局後挑戰第一名！';tr.append(td);body.append(tr);return;}
+ rows.forEach((row,i)=>{const tr=document.createElement('tr');if(row.matchId===submittedMatch)tr.classList.add('my-score');
+  [String(i+1),row.name,fmt(row.coins),(row.wins*10)+'%（'+row.wins+'/10）'].forEach(text=>{const td=document.createElement('td');td.textContent=text;tr.append(td);});body.append(tr);
+ });
+}
+async function loadLeaderboard(){
+ if(rankLoading)return;rankLoading=true;const request=++rankRequest;$('rank-refresh').disabled=true;$('rank-status').textContent='正在讀取雲端排行榜…';
+ try{const data=await rankFetch();if(request!==rankRequest)return;rankRows(data.entries);$('rank-status').textContent='已同步雲端 · '+data.entries.length+' / 50 筆成績 · '+new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});}
+ catch(error){if(request===rankRequest)$('rank-status').textContent=error.message;}
+ finally{rankLoading=false;$('rank-refresh').disabled=false;}
+}
+async function submitScore(event){
+ event?.preventDefault();if(scoreSending||!game?.scoreSnapshot||game.phase!=='over'||game.round!==10||game.players[0].bank<=0||game.rankSubmitted)return;
+ const name=$('score-name').value.trim().normalize('NFC');
+ if(!name||[...name].length>20||/[\u0000-\u001f\u007f]/u.test(name)){$('score-message').textContent='請輸入 1～20 個字的名字或暱稱。';$('score-name').focus();return;}
+ const match=game,payload={...match.scoreSnapshot,name};scoreSending=true;renderScoreEntry();$('score-message').textContent='正在保存本場成績…';
+ try{
+  const data=await rankFetch({method:'POST',headers:{'Content-Type':'text/plain;charset=UTF-8'},body:JSON.stringify(payload)});
+  rankRequest++;submittedMatch=payload.matchId;match.rankSubmitted=true;rankRows(data.entries);$('rank-status').textContent='已同步雲端 · '+data.entries.length+' / 50 筆成績';
+  if(game===match)$('score-message').textContent=data.rank?'成績已保存！目前第 '+data.rank+' 名。':'成績已保存，目前未進入前 50 名，再挑戰一次吧！';
+ }catch(error){if(game===match)$('score-message').textContent=error.message+' 成績尚未提交，可重試。';}
+ finally{scoreSending=false;renderScoreEntry();}
+}
+$('score-form').addEventListener('submit',submitScore);$('rank-refresh').addEventListener('click',loadLeaderboard);
+if(typeof fetch==='function')loadLeaderboard();
+
+</script>
+</body></html>
