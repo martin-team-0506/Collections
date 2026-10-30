@@ -1,1769 +1,248 @@
-<!DOCTYPE html>
-<html lang="zh-Hant">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="豹子通殺！適合國中生的互動式進階雙骰對決與 Python 學習遊戲。">
-  <meta name="theme-color" content="#6555e8">
-  <title>豹子通殺！進階雙骰終極對決</title>
-  <style>
-    :root {
-      --bg-1: #5038d5;
-      --bg-2: #a43cbb;
-      --bg-3: #f36f64;
-      --panel: rgba(255, 255, 255, .91);
-      --panel-solid: #ffffff;
-      --panel-soft: rgba(255, 255, 255, .65);
-      --ink: #28203f;
-      --muted: #6d6482;
-      --primary: #6555e8;
-      --primary-deep: #4738bd;
-      --pink: #e54b9f;
-      --orange: #f4773e;
-      --gold: #ffc83d;
-      --green: #168a62;
-      --red: #d7465e;
-      --line: rgba(96, 75, 207, .17);
-      --shadow: 0 22px 65px rgba(37, 21, 91, .27);
-      --dice-color: #7657ee;
-      --pip-color: #ffffff;
-    }
-
-    html[data-theme="dark"] {
-      --bg-1: #12102f;
-      --bg-2: #321a50;
-      --bg-3: #642b4c;
-      --panel: rgba(29, 25, 53, .93);
-      --panel-solid: #25203f;
-      --panel-soft: rgba(52, 44, 79, .72);
-      --ink: #faf7ff;
-      --muted: #c8bfdd;
-      --primary: #a99dff;
-      --primary-deep: #c0b8ff;
-      --line: rgba(194, 181, 255, .22);
-      --shadow: 0 24px 68px rgba(4, 2, 19, .54);
-    }
-
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      overflow-x: hidden;
-      color: var(--ink);
-      font: 16px/1.6 "Noto Sans TC", "Microsoft JhengHei", system-ui, -apple-system, sans-serif;
-      background:
-        radial-gradient(circle at 8% 17%, rgba(255,255,255,.3) 0 2px, transparent 3px),
-        radial-gradient(circle at 88% 12%, rgba(255,225,73,.8) 0 3px, transparent 4px),
-        radial-gradient(circle at 92% 73%, rgba(255,255,255,.25) 0 2px, transparent 3px),
-        linear-gradient(135deg, var(--bg-1), var(--bg-2) 55%, var(--bg-3));
-      background-attachment: fixed;
-      transition: color .3s ease, background .3s ease;
-    }
-    body::before,
-    body::after {
-      content: "";
-      position: fixed;
-      z-index: -1;
-      border-radius: 50%;
-      pointer-events: none;
-    }
-    body::before {
-      width: 360px;
-      height: 360px;
-      left: -150px;
-      top: 18%;
-      background: rgba(255, 204, 61, .17);
-      box-shadow: 0 0 90px rgba(255, 204, 61, .16);
-    }
-    body::after {
-      width: 450px;
-      height: 450px;
-      right: -190px;
-      bottom: -110px;
-      background: rgba(73, 213, 255, .13);
-      box-shadow: 0 0 100px rgba(73, 213, 255, .13);
-    }
-
-    button, input { font: inherit; }
-    button { -webkit-tap-highlight-color: transparent; }
-    button:focus-visible,
-    input:focus-visible,
-    summary:focus-visible {
-      outline: 4px solid rgba(255, 209, 58, .8);
-      outline-offset: 3px;
-    }
-    [hidden] { display: none !important; }
-
-    .visually-hidden {
-      position: absolute !important;
-      width: 1px !important;
-      height: 1px !important;
-      padding: 0 !important;
-      margin: -1px !important;
-      overflow: hidden !important;
-      clip: rect(0, 0, 0, 0) !important;
-      white-space: nowrap !important;
-      border: 0 !important;
-    }
-    .skip-link {
-      position: fixed;
-      left: 16px;
-      top: -80px;
-      z-index: 200;
-      padding: 10px 16px;
-      color: #fff;
-      border-radius: 12px;
-      background: #201840;
-      transition: top .2s;
-    }
-    .skip-link:focus { top: 16px; }
-
-    .app {
-      width: min(1160px, calc(100% - 28px));
-      margin: 0 auto;
-      padding: 18px 0 34px;
-    }
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      margin-bottom: 17px;
-      padding: 11px 13px 11px 17px;
-      color: #fff;
-      border: 1px solid rgba(255,255,255,.3);
-      border-radius: 22px;
-      background: rgba(32, 21, 77, .25);
-      box-shadow: 0 10px 34px rgba(31, 16, 75, .16);
-      backdrop-filter: blur(15px);
-    }
-    .brand {
-      display: flex;
-      align-items: center;
-      min-width: 0;
-      gap: 12px;
-    }
-    .brand-icon {
-      display: grid;
-      place-items: center;
-      flex: 0 0 auto;
-      width: 48px;
-      height: 48px;
-      font-size: 1.75rem;
-      border-radius: 15px;
-      background: linear-gradient(145deg, #fff4a1, #ffb53d);
-      box-shadow: 0 8px 20px rgba(49, 24, 82, .28);
-      transform: rotate(-6deg);
-    }
-    .brand h1 {
-      overflow: hidden;
-      margin: 0;
-      font-size: clamp(1.05rem, 3vw, 1.42rem);
-      line-height: 1.25;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .brand small {
-      display: block;
-      color: rgba(255,255,255,.82);
-      font-size: .78rem;
-      font-weight: 750;
-    }
-    .tools { display: flex; gap: 8px; }
-    .icon-btn {
-      display: grid;
-      place-items: center;
-      width: 44px;
-      height: 44px;
-      padding: 0;
-      color: #fff;
-      cursor: pointer;
-      border: 1px solid rgba(255,255,255,.36);
-      border-radius: 14px;
-      background: rgba(255,255,255,.13);
-      transition: transform .18s, background .18s;
-    }
-    .icon-btn:hover { transform: translateY(-2px); background: rgba(255,255,255,.24); }
-    .icon-btn:active { transform: scale(.94); }
-
-    .panel {
-      position: relative;
-      overflow: hidden;
-      padding: clamp(19px, 4vw, 34px);
-      border: 1px solid rgba(255,255,255,.55);
-      border-radius: 28px;
-      background: var(--panel);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(18px);
-    }
-    .panel::after {
-      content: "";
-      position: absolute;
-      top: -110px;
-      right: -75px;
-      width: 205px;
-      height: 205px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, rgba(108,83,238,.18), rgba(238,74,158,.1));
-      pointer-events: none;
-    }
-    .kicker {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 9px;
-      padding: 5px 11px;
-      color: var(--primary-deep);
-      font-size: .86rem;
-      font-weight: 900;
-      letter-spacing: .06em;
-      border-radius: 999px;
-      background: rgba(105, 85, 231, .12);
-    }
-    .section-title {
-      margin: 0 0 7px;
-      font-size: clamp(1.6rem, 4.5vw, 2.35rem);
-      line-height: 1.2;
-      letter-spacing: -.025em;
-    }
-    .lead {
-      max-width: 750px;
-      margin: 0 0 23px;
-      color: var(--muted);
-      font-weight: 650;
-    }
-
-    .setup-grid {
-      display: grid;
-      grid-template-columns: minmax(0, 1.18fr) minmax(270px, .82fr);
-      gap: 24px;
-      align-items: start;
-    }
-    .field-label {
-      display: block;
-      margin-bottom: 9px;
-      font-weight: 900;
-    }
-    .name-input {
-      width: 100%;
-      min-height: 54px;
-      padding: 12px 16px;
-      color: var(--ink);
-      border: 2px solid var(--line);
-      border-radius: 15px;
-      background: var(--panel-solid);
-      box-shadow: inset 0 2px 4px rgba(49,35,103,.04);
-      transition: border .18s, box-shadow .18s;
-    }
-    .name-input:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 4px rgba(102,87,237,.13);
-      outline: none;
-    }
-    .color-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-    }
-    .color-choice {
-      min-height: 94px;
-      padding: 10px 7px;
-      color: var(--ink);
-      cursor: pointer;
-      border: 2px solid transparent;
-      border-radius: 17px;
-      background: var(--panel-solid);
-      box-shadow: 0 7px 18px rgba(54,35,105,.1);
-      transition: transform .2s, border .2s, box-shadow .2s;
-    }
-    .color-choice:hover { transform: translateY(-4px) scale(1.02); }
-    .color-choice[aria-pressed="true"] {
-      border-color: var(--gold);
-      box-shadow: 0 0 0 4px rgba(255,200,61,.18), 0 12px 25px rgba(91,51,30,.16);
-      transform: translateY(-3px) scale(1.035);
-    }
-    .color-orb {
-      display: block;
-      width: 38px;
-      height: 38px;
-      margin: 0 auto 5px;
-      border: 4px solid rgba(255,255,255,.8);
-      border-radius: 12px;
-      background: var(--choice-color);
-      box-shadow: 0 5px 14px color-mix(in srgb, var(--choice-color) 45%, transparent);
-      transform: rotate(8deg);
-    }
-    .color-choice b { display: block; font-size: 1rem; line-height: 1.3; }
-    .color-choice small { display: block; margin-top: 8px; font-size: .875rem; line-height: 1.6; color: var(--muted); }
-    .color-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .skill-card { margin-bottom: 16px; padding: 15px 18px; border: 1px solid var(--line); border-radius: 18px; background: var(--panel-soft); }
-    .skill-card strong { color: var(--primary-deep); }
-    .skill-card p { margin: 7px 0 0; line-height: 1.7; }
-    .skill-card.active { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(255,200,61,.15); }
-    .score-card { min-width: 0; overflow-wrap: anywhere; }
-    .score-row, .enemy .score-row { flex-wrap: wrap; }
-    .badges { flex-wrap: wrap; }
-    .error {
-      min-height: 27px;
-      margin: 9px 0 0;
-      color: var(--red);
-      font-weight: 850;
-    }
-    .primary-btn,
-    .secondary-btn {
-      min-height: 52px;
-      padding: 12px 20px;
-      cursor: pointer;
-      border: 0;
-      border-radius: 16px;
-      font-weight: 950;
-      transition: transform .18s, filter .18s, box-shadow .18s;
-    }
-    .primary-btn {
-      color: #fff;
-      background: linear-gradient(135deg, var(--primary), var(--pink));
-      box-shadow: 0 12px 28px rgba(101,71,215,.32);
-    }
-    .primary-btn:hover { transform: translateY(-3px); filter: saturate(1.12); }
-    .primary-btn:active { transform: scale(.96); }
-    .primary-btn:disabled { cursor: not-allowed; opacity: .58; filter: grayscale(.3); transform: none; }
-    .secondary-btn {
-      color: var(--primary-deep);
-      border: 2px solid var(--line);
-      background: var(--panel-solid);
-    }
-    .secondary-btn:hover { transform: translateY(-2px); border-color: var(--primary); }
-    .start-btn { width: 100%; margin-top: 11px; }
-
-    .rules {
-      padding: 19px;
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      background:
-        linear-gradient(145deg, rgba(103,83,239,.13), rgba(244,92,171,.07)),
-        var(--panel-solid);
-    }
-    .rules h3 { margin: 0 0 8px; font-size: 1.18rem; }
-    .rules-goal { margin: 0 0 13px; color: var(--primary-deep); font-weight: 950; }
-    .rule-highlight {
-      display: flex;
-      align-items: center;
-      gap: 11px;
-      margin-bottom: 12px;
-      padding: 11px;
-      border-radius: 14px;
-      background: var(--panel-soft);
-    }
-    .rule-highlight span { font-size: 1.9rem; }
-    .rule-highlight b { display: block; }
-    .rule-highlight small { color: var(--muted); font-weight: 700; }
-    .rules ul { margin: 0; padding-left: 22px; color: var(--muted); }
-    .rules li + li { margin-top: 5px; }
-
-    .welcome {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 14px;
-      margin-bottom: 15px;
-      padding: 12px 15px;
-      border: 1px solid var(--line);
-      border-radius: 17px;
-      background: var(--panel-soft);
-    }
-    .welcome strong { display: block; color: var(--primary-deep); }
-    .welcome span { color: var(--muted); font-size: .9rem; }
-    .round-pill {
-      flex: 0 0 auto;
-      padding: 7px 13px;
-      color: #fff;
-      border-radius: 999px;
-      background: linear-gradient(135deg, var(--orange), var(--pink));
-      font-weight: 950;
-    }
-
-    .scoreboard {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      gap: 11px;
-      margin-bottom: 16px;
-    }
-    .score-card {
-      padding: 13px 15px;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      background: var(--panel-solid);
-    }
-    .score-card.enemy { text-align: right; }
-    .score-label { color: var(--muted); font-size: .84rem; font-weight: 850; }
-    .score-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 3px; }
-    .enemy .score-row { flex-direction: row-reverse; }
-    .score-number { font-size: 1.55rem; font-weight: 1000; line-height: 1; }
-    .badges { display: flex; gap: 5px; }
-    .badge {
-      display: grid;
-      place-items: center;
-      width: 29px;
-      height: 29px;
-      color: #aaa5b8;
-      border-radius: 50%;
-      background: var(--panel-soft);
-      filter: grayscale(1);
-      opacity: .5;
-      transition: transform .3s, filter .3s, opacity .3s, background .3s;
-    }
-    .badge.lit {
-      color: #604200;
-      background: linear-gradient(145deg, #fff59c, #ffc238);
-      filter: none;
-      opacity: 1;
-      transform: scale(1.1) rotate(8deg);
-      box-shadow: 0 5px 14px rgba(240,176,28,.27);
-    }
-    .score-vs {
-      display: grid;
-      place-items: center;
-      min-width: 52px;
-      color: var(--primary-deep);
-      font-weight: 1000;
-    }
-
-    .arena {
-      position: relative;
-      display: grid;
-      grid-template-columns: 1fr minmax(105px, .34fr) 1fr;
-      align-items: stretch;
-      gap: 12px;
-      min-height: 304px;
-      padding: 18px;
-      overflow: hidden;
-      border: 1px solid rgba(255,255,255,.38);
-      border-radius: 24px;
-      background:
-        radial-gradient(circle at 50% 48%, rgba(255,228,93,.3), transparent 28%),
-        linear-gradient(135deg, rgba(80,65,214,.2), rgba(229,75,159,.18));
-    }
-    .arena::before {
-      content: "";
-      position: absolute;
-      inset: 11px;
-      border: 2px dashed rgba(105,80,226,.14);
-      border-radius: 19px;
-      pointer-events: none;
-    }
-    .arena.shake { animation: gentleShake .38s ease; }
-    .fighter {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      min-width: 0;
-      padding: 13px;
-      text-align: center;
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      background: rgba(255,255,255,.17);
-    }
-    .fighter-name { margin-bottom: 11px; color: var(--muted); font-weight: 950; }
-    .dice-pair {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: clamp(9px, 2vw, 15px);
-      min-height: 106px;
-    }
-    .die {
-      position: relative;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(3, 1fr);
-      flex: 0 1 104px;
-      width: min(104px, 41%);
-      aspect-ratio: 1;
-      padding: 12px;
-      border: 4px solid rgba(255,255,255,.62);
-      border-radius: 23px;
-      background:
-        linear-gradient(145deg, rgba(255,255,255,.22), transparent 40%),
-        var(--dice-color);
-      box-shadow:
-        inset -7px -8px 15px rgba(30,18,71,.18),
-        inset 5px 5px 12px rgba(255,255,255,.23),
-        0 13px 24px rgba(38,23,91,.24);
-      transform: rotate(var(--tilt, 0deg));
-      transition: background .3s, box-shadow .3s;
-    }
-    .die:nth-child(1) { --tilt: -4deg; }
-    .die:nth-child(2) { --tilt: 5deg; }
-    .enemy-dice .die {
-      --dice-color: #34314b;
-      --pip-color: #ffdd5c;
-    }
-    .pip {
-      width: clamp(10px, 1.6vw, 16px);
-      height: clamp(10px, 1.6vw, 16px);
-      place-self: center;
-      border-radius: 50%;
-      background: var(--pip-color);
-      box-shadow: inset 0 2px 3px rgba(0,0,0,.2), 0 1px 2px rgba(255,255,255,.2);
-    }
-    .p-tl { grid-area: 1 / 1; }
-    .p-tc { grid-area: 1 / 2; }
-    .p-tr { grid-area: 1 / 3; }
-    .p-ml { grid-area: 2 / 1; }
-    .p-mc { grid-area: 2 / 2; }
-    .p-mr { grid-area: 2 / 3; }
-    .p-bl { grid-area: 3 / 1; }
-    .p-bc { grid-area: 3 / 2; }
-    .p-br { grid-area: 3 / 3; }
-    .die.rolling { animation: diceRoll .28s linear infinite; }
-    .die.reveal { animation: diceReveal .52s cubic-bezier(.18,1.45,.35,1); }
-    .dice-pair.double .die {
-      border-color: #ffe268;
-      box-shadow:
-        inset -7px -8px 15px rgba(30,18,71,.15),
-        0 0 0 5px rgba(255,212,62,.2),
-        0 0 32px rgba(255,193,49,.78);
-      animation: doublePulse .8s ease 2;
-    }
-    .fighter-stats {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 13px;
-    }
-    .total-chip, .double-chip {
-      padding: 5px 10px;
-      border-radius: 999px;
-      background: var(--panel-solid);
-      font-size: .86rem;
-      font-weight: 900;
-    }
-    .double-chip {
-      color: #5c3e00;
-      background: linear-gradient(135deg, #fff4a5, #ffc344);
-    }
-    .battle-center {
-      position: relative;
-      z-index: 2;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-    }
-    .vs-orb {
-      display: grid;
-      place-items: center;
-      width: 76px;
-      height: 76px;
-      color: #fff;
-      border: 4px solid rgba(255,255,255,.65);
-      border-radius: 50%;
-      background: linear-gradient(145deg, var(--orange), var(--pink));
-      box-shadow: 0 12px 26px rgba(81,37,111,.28);
-      font-size: 1.35rem;
-      font-weight: 1000;
-    }
-    .battle-status {
-      min-height: 50px;
-      margin-top: 10px;
-      color: var(--primary-deep);
-      font-size: .93rem;
-      font-weight: 950;
-      line-height: 1.35;
-    }
-    .leopard-alert {
-      min-height: 32px;
-      margin: 12px 0 0;
-      text-align: center;
-      color: #704800;
-      font-weight: 1000;
-    }
-    html[data-theme="dark"] .leopard-alert { color: #ffe26d; }
-    .round-result {
-      min-height: 53px;
-      margin: 5px 0 0;
-      text-align: center;
-      font-size: clamp(1.05rem, 2.7vw, 1.2rem);
-      font-weight: 1000;
-    }
-    .round-result.player { color: var(--green); }
-    .round-result.computer { color: var(--red); }
-    .round-result.draw { color: var(--primary-deep); }
-
-    .roll-zone { margin-top: 14px; text-align: center; }
-    .roll-btn {
-      width: min(430px, 100%);
-      min-height: 62px;
-      font-size: 1.15rem;
-      letter-spacing: .03em;
-    }
-    .roll-hint { margin: 7px 0 0; color: var(--muted); font-size: .86rem; }
-
-    .lower-grid {
-      display: grid;
-      grid-template-columns: 1.22fr .78fr;
-      gap: 16px;
-      margin-top: 17px;
-    }
-    .mini-card {
-      padding: 16px;
-      border: 1px solid var(--line);
-      border-radius: 19px;
-      background: var(--panel-soft);
-    }
-    .mini-card h3 { margin: 0 0 10px; font-size: 1.05rem; }
-    .battle-log {
-      max-height: 215px;
-      margin: 0;
-      padding: 0;
-      overflow-y: auto;
-      list-style: none;
-    }
-    .battle-log li {
-      padding: 9px 10px;
-      border-left: 4px solid var(--primary);
-      border-radius: 10px;
-      background: var(--panel-solid);
-      font-size: .91rem;
-    }
-    .battle-log li + li { margin-top: 7px; }
-    .battle-log .empty-log {
-      color: var(--muted);
-      border-left-color: transparent;
-      text-align: center;
-    }
-    .quick-rules { display: grid; gap: 8px; }
-    .quick-rule {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      padding: 9px 10px;
-      border-radius: 11px;
-      background: var(--panel-solid);
-    }
-    .quick-rule span { font-size: 1.45rem; }
-    .quick-rule b { display: block; font-size: .9rem; }
-    .quick-rule small { display: block; color: var(--muted); font-size: .76rem; }
-
-    .learning {
-      margin-top: 18px;
-      border: 1px solid rgba(255,255,255,.55);
-      border-radius: 24px;
-      background: var(--panel);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(18px);
-    }
-    .learning > summary {
-      padding: 18px 22px;
-      cursor: pointer;
-      font-size: 1.12rem;
-      font-weight: 1000;
-      list-style: none;
-    }
-    .learning > summary::-webkit-details-marker { display: none; }
-    .learning > summary::after { content: "＋"; float: right; color: var(--primary); font-size: 1.35rem; }
-    .learning[open] > summary::after { content: "－"; }
-    .lesson-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      padding: 0 22px 22px;
-    }
-    .lesson {
-      padding: 14px;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: var(--panel-soft);
-    }
-    .lesson h3 { margin: 0 0 4px; color: var(--primary-deep); font-size: 1rem; }
-    .lesson p { margin: 0 0 8px; color: var(--muted); font-size: .9rem; }
-    .lesson .web-link { display: block; margin-top: 8px; color: var(--green); font-size: .8rem; font-weight: 850; }
-    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .88em; }
-    pre {
-      margin: 0;
-      padding: 10px 11px;
-      overflow-x: auto;
-      color: #f9f6ff;
-      border-radius: 11px;
-      background: #28213f;
-      line-height: 1.5;
-    }
-    footer {
-      padding: 23px 10px 4px;
-      color: rgba(255,255,255,.91);
-      text-align: center;
-      font-weight: 750;
-      text-shadow: 0 2px 8px rgba(40,19,92,.3);
-    }
-
-    dialog {
-      width: min(575px, calc(100% - 28px));
-      max-height: calc(100vh - 36px);
-      padding: 0;
-      overflow-y: auto;
-      color: var(--ink);
-      border: 1px solid rgba(255,255,255,.58);
-      border-radius: 26px;
-      background: var(--panel-solid);
-      box-shadow: 0 30px 90px rgba(28,17,71,.52);
-    }
-    dialog::backdrop {
-      background: rgba(18,11,45,.69);
-      backdrop-filter: blur(8px);
-    }
-    .dialog-inner { padding: clamp(21px, 5vw, 33px); text-align: center; }
-    .dialog-icon { font-size: 4rem; line-height: 1.1; animation: crownFloat 1.8s ease-in-out infinite; }
-    .dialog-inner h2 { margin: 8px 0 7px; font-size: clamp(1.55rem, 5vw, 2.05rem); }
-    .dialog-inner > p { margin: 6px 0; color: var(--muted); }
-    .tutorial-steps { display: grid; gap: 9px; margin: 17px 0; text-align: left; }
-    .tutorial-step {
-      display: grid;
-      grid-template-columns: 46px 1fr;
-      gap: 11px;
-      align-items: center;
-      padding: 11px;
-      border-radius: 14px;
-      background: var(--panel-soft);
-    }
-    .step-icon { font-size: 1.8rem; text-align: center; }
-    .tutorial-step b { display: block; }
-    .tutorial-step span { color: var(--muted); font-size: .88rem; }
-    .result-stats {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 7px;
-      margin: 16px 0;
-    }
-    .stat { padding: 10px 5px; border-radius: 13px; background: var(--panel-soft); }
-    .stat strong { display: block; color: var(--primary-deep); font-size: 1.12rem; }
-    .stat span { color: var(--muted); font-size: .73rem; font-weight: 850; }
-    .dialog-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 17px; }
-    .dialog-actions .wide { grid-column: 1 / -1; }
-    .modal-log { max-height: 190px; margin-top: 11px; text-align: left; }
-
-    .toast {
-      position: fixed;
-      z-index: 150;
-      top: 18px;
-      right: 18px;
-      width: min(340px, calc(100% - 36px));
-      padding: 13px 15px;
-      color: #38273c;
-      border: 2px solid rgba(255,255,255,.75);
-      border-radius: 17px;
-      background: linear-gradient(135deg, #fff4a2, #ffc35e);
-      box-shadow: 0 18px 48px rgba(38,21,76,.35);
-      transform: translateX(calc(100% + 38px));
-      transition: transform .4s cubic-bezier(.2,1.25,.45,1);
-    }
-    .toast.show { transform: translateX(0); }
-    .toast strong { display: block; font-size: 1.03rem; }
-    .toast span { font-size: .87rem; font-weight: 750; }
-    .confetti {
-      position: fixed;
-      inset: 0;
-      z-index: 120;
-      overflow: hidden;
-      pointer-events: none;
-    }
-    .confetti-piece {
-      position: absolute;
-      top: -22px;
-      width: 10px;
-      height: 16px;
-      border-radius: 3px;
-      background: hsl(var(--hue), 90%, 58%);
-      animation: confettiFall var(--duration) linear forwards;
-    }
-
-    @keyframes diceRoll {
-      0% { transform: translateY(0) rotate(0) scale(1); }
-      35% { transform: translateY(-10px) rotate(95deg) scale(.93); }
-      70% { transform: translateY(2px) rotate(205deg) scale(1.04); }
-      100% { transform: translateY(0) rotate(360deg) scale(1); }
-    }
-    @keyframes diceReveal {
-      0% { transform: scale(.45) rotate(-30deg); opacity: .35; }
-      72% { transform: scale(1.12) rotate(8deg); }
-      100% { transform: scale(1) rotate(var(--tilt)); opacity: 1; }
-    }
-    @keyframes doublePulse {
-      0%,100% { transform: scale(1) rotate(var(--tilt)); }
-      50% { transform: scale(1.1) rotate(var(--tilt)); }
-    }
-    @keyframes gentleShake {
-      0%,100% { transform: translateX(0); }
-      25% { transform: translateX(-5px); }
-      75% { transform: translateX(5px); }
-    }
-    @keyframes crownFloat {
-      0%,100% { transform: translateY(0) rotate(-4deg); }
-      50% { transform: translateY(-8px) rotate(5deg); }
-    }
-    @keyframes confettiFall {
-      to { transform: translate(var(--drift), 108vh) rotate(760deg); opacity: .82; }
-    }
-
-    @media (max-width: 820px) {
-      .setup-grid, .lower-grid { grid-template-columns: 1fr; }
-      .rules { order: -1; }
-      .arena { grid-template-columns: 1fr 88px 1fr; min-height: 275px; padding: 13px 8px; gap: 7px; }
-      .fighter { padding: 9px 6px; }
-      .lesson-grid { grid-template-columns: 1fr; }
-    }
-    @media (max-width: 580px) {
-      .app { width: calc(100% - 18px); padding-top: 9px; }
-      .topbar { padding: 9px; border-radius: 18px; }
-      .brand-icon { width: 40px; height: 40px; font-size: 1.5rem; border-radius: 12px; }
-      .brand small { display: none; }
-      .brand h1 { font-size: .98rem; }
-      .icon-btn { width: 39px; height: 39px; }
-      .panel { padding: 16px 12px; border-radius: 22px; }
-      .color-grid { grid-template-columns: repeat(2, 1fr); }
-      .color-choice { min-height: 78px; }
-      .color-orb { width: 31px; height: 31px; margin-bottom: 3px; }
-      .welcome { align-items: flex-start; flex-wrap: wrap; }
-      .welcome span { display: none; }
-      .scoreboard { grid-template-columns: 1fr 32px 1fr; gap: 5px; }
-      .score-card { padding: 10px 8px; }
-      .score-vs { min-width: 32px; font-size: .78rem; }
-      .score-row, .enemy .score-row { display: block; }
-      .score-number { font-size: 1.27rem; }
-      .badges { margin-top: 7px; gap: 2px; flex-wrap: nowrap; }
-      .enemy .badges { justify-content: flex-end; }
-      .badge { flex: 1 1 0; min-width: 0; max-width: 24px; width: auto; height: auto; aspect-ratio: 1; font-size: .78rem; }
-      .arena {
-        grid-template-columns: 1fr 54px 1fr;
-        min-height: 236px;
-        padding: 10px 4px;
-        gap: 3px;
-      }
-      .fighter-name { margin-bottom: 7px; font-size: .875rem; }
-      .dice-pair { min-height: 74px; gap: 4px; }
-      .die { width: min(70px, 47%); padding: 7px; border-width: 3px; border-radius: 16px; }
-      .pip { width: 9px; height: 9px; }
-      .fighter-stats { display: grid; gap: 4px; margin-top: 8px; }
-      .total-chip, .double-chip { padding: 3px 7px; font-size: .8rem; }
-      .vs-orb { width: 50px; height: 50px; border-width: 3px; font-size: .88rem; }
-      .battle-status { font-size: .875rem; min-height: 48px; }
-      .result-stats { grid-template-columns: repeat(2, 1fr); }
-      .dialog-actions { grid-template-columns: 1fr; }
-      .dialog-actions .wide { grid-column: auto; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        scroll-behavior: auto !important;
-        animation-duration: .001ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: .001ms !important;
-      }
-    }
-  </style>
-</head>
-<body>
-  <a class="skip-link" href="#main">跳到主要內容</a>
-  <div class="app">
-    <header class="topbar">
-      <div class="brand">
-        <span class="brand-icon" aria-hidden="true">🎲</span>
-        <div>
-          <h1>豹子通殺！進階雙骰終極對決</h1>
-          <small>擲出幸運雙骰，率先取得5勝，擊敗電腦骰子王！</small>
-        </div>
-      </div>
-      <nav class="tools" aria-label="遊戲工具">
-        <button class="icon-btn" id="tutorialBtn" type="button" aria-label="開啟遊戲教學" title="遊戲教學">❔</button>
-        <button class="icon-btn" id="soundBtn" type="button" aria-label="關閉音效" title="音效開關">🔊</button>
-        <button class="icon-btn" id="themeBtn" type="button" aria-label="切換為夜間模式" title="明亮或夜間模式">🌙</button>
-      </nav>
-    </header>
-
-    <main id="main">
-      <section class="panel" id="setupScreen" aria-labelledby="setupTitle">
-        <div class="kicker">✨ 魔法競技場報到處</div>
-        <h2 class="section-title" id="setupTitle">建立骰子冒險者</h2>
-        <p class="lead">留下你的冒險者名字，選一組幸運骰子。豹子能無條件擊敗一般點數，率先集滿五顆勝利星就能封王！</p>
-        <div class="setup-grid">
-          <div>
-            <label class="field-label" for="playerName">你的冒險者名字</label>
-            <input class="name-input" id="playerName" type="text" maxlength="20" autocomplete="nickname" placeholder="例如：Martin" aria-describedby="setupError">
-
-            <div class="field-label" id="colorLabel" style="margin-top:18px">選擇幸運骰子</div>
-            <div class="color-grid" role="group" aria-labelledby="colorLabel">
-              <button class="color-choice" type="button" data-id="purple" data-name="魔法紫" data-color="#7657ee" data-pip="#ffffff" aria-pressed="false" style="--choice-color:#7657ee">
-                <span class="color-orb" aria-hidden="true"></span><b>💜 魔法紫</b><small>前3回合，玩家其中一顆骰子保證6點，另一顆隨機。</small>
-              </button>
-              <button class="color-choice" type="button" data-id="blue" data-name="星空藍" data-color="#2985df" data-pip="#ffffff" aria-pressed="false" style="--choice-color:#2985df">
-                <span class="color-orb" aria-hidden="true"></span><b>💙 星空藍</b><small>第1回合，玩家必定擲出豹子，點數仍隨機。</small>
-              </button>
-              <button class="color-choice" type="button" data-id="red" data-name="勇氣紅" data-color="#e54b57" data-pip="#ffffff" aria-pressed="false" style="--choice-color:#e54b57">
-                <span class="color-orb" aria-hidden="true"></span><b>❤️ 勇氣紅</b><small>第1回合若電腦獲勝，抵銷該勝場；回合仍記錄。</small>
-              </button>
-              <button class="color-choice" type="button" data-id="gold" data-name="幸運金" data-color="#f5b82e" data-pip="#4a3200" aria-pressed="false" style="--choice-color:#f5b82e">
-                <span class="color-orb" aria-hidden="true"></span><b>💛 幸運金</b><small>前3回合，電腦若擲出豹子，重擲兩顆直到不是豹子。</small>
-              </button>
-            </div>
-            <p class="error" id="setupError" role="alert" aria-live="polite"></p>
-            <button class="primary-btn start-btn" id="startBtn" type="button">⚡ 開始挑戰</button>
-          </div>
-
-          <aside class="rules" aria-label="遊戲規則">
-            <h3>📜 雙骰競技場規則</h3>
-            <p class="rules-goal">先獲得5勝的一方，就是最終贏家！</p>
-            <div class="rule-highlight">
-              <span aria-hidden="true">🐆</span>
-              <div><b>豹子優先</b><small>兩顆骰子相同就是豹子，無條件擊敗一般點數。</small></div>
-            </div>
-            <ul>
-              <li>雙方都是豹子：比較總點數。</li>
-              <li>雙方都不是豹子：比較總點數。</li>
-              <li>需要比較時，總點數相同就是平手。</li>
-              <li>平手不計分，率先取得5勝就結束。</li>
-              <li>幸運骰子技能先處理，再依豹子優先與總點數規則判定。</li>
-              <li>勇氣紅首回合抵銷電腦勝場時，雙方不加分，回合仍計入紀錄。</li>
-            </ul>
-          </aside>
-        </div>
-      </section>
-
-      <section class="panel" id="gameScreen" aria-labelledby="gameTitle" hidden>
-        <h2 class="visually-hidden" id="gameTitle">雙骰終極對決</h2>
-        <div class="welcome">
-          <div>
-            <strong id="welcomeTitle">歡迎勇敢的骰子冒險者！</strong>
-            <span id="welcomeText">你的幸運雙骰已準備完成，現在開始挑戰電腦骰子王！</span>
-          </div>
-          <div class="round-pill" id="roundDisplay">第 1 回合</div>
-        </div>
-
-        <div class="scoreboard" aria-label="目前戰況">
-          <div class="score-card">
-            <div class="score-label" id="playerScoreLabel">🏆 玩家</div>
-            <div class="score-row">
-              <strong class="score-number"><span id="playerScore">0</span> 勝</strong>
-              <div class="badges" id="playerBadges" aria-label="玩家勝利徽章">
-                <span class="badge">★</span><span class="badge">★</span><span class="badge">★</span> <span class="badge">★</span><span class="badge">★</span>
-              </div>
-            </div>
-          </div>
-          <div class="score-vs" aria-hidden="true">VS</div>
-          <div class="score-card enemy">
-            <div class="score-label">🤖 電腦骰子王</div>
-            <div class="score-row">
-              <strong class="score-number"><span id="computerScore">0</span> 勝</strong>
-              <div class="badges" id="computerBadges" aria-label="電腦勝利徽章">
-                <span class="badge">★</span><span class="badge">★</span><span class="badge">★</span> <span class="badge">★</span><span class="badge">★</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="skill-card" id="skillCard">
-          <strong id="skillTitle">✨ 幸運骰子技能</strong>
-          <p id="skillDescription"></p>
-          <p id="skillStatus" role="status" aria-live="polite"></p>
-          <p id="skillEffects" role="status" aria-live="polite"></p>
-        </div>
-        <div class="arena" id="arena">
-          <section class="fighter" aria-labelledby="playerFighterName">
-            <div class="fighter-name" id="playerFighterName">玩家</div>
-            <div class="dice-pair" id="playerDice" aria-label="玩家骰子尚未擲出">
-              <div class="die" id="playerDie1" data-value="1"></div>
-              <div class="die" id="playerDie2" data-value="1"></div>
-            </div>
-            <div class="fighter-stats">
-              <span class="total-chip">總點數：<b id="playerTotal">—</b></span>
-              <span class="double-chip" id="playerDouble" hidden>🔥 豹子</span>
-            </div>
-          </section>
-
-          <div class="battle-center">
-            <div class="vs-orb" aria-hidden="true">VS</div>
-            <div class="battle-status" id="battleStatus" aria-live="polite">雙方準備完成</div>
-          </div>
-
-          <section class="fighter" aria-labelledby="computerFighterName">
-            <div class="fighter-name" id="computerFighterName">🤖 電腦骰子王</div>
-            <div class="dice-pair enemy-dice" id="computerDice" aria-label="電腦骰子尚未擲出">
-              <div class="die" id="computerDie1" data-value="1"></div>
-              <div class="die" id="computerDie2" data-value="1"></div>
-            </div>
-            <div class="fighter-stats">
-              <span class="total-chip">總點數：<b id="computerTotal">—</b></span>
-              <span class="double-chip" id="computerDouble" hidden>⚡ 豹子</span>
-            </div>
-          </section>
-        </div>
-
-        <div class="leopard-alert" id="leopardAlert" aria-live="polite"></div>
-        <div class="round-result" id="roundResult" role="status" aria-live="assertive">點擊按鈕，擲出你的幸運雙骰！</div>
-
-        <div class="roll-zone">
-          <button class="primary-btn roll-btn" id="rollBtn" type="button" aria-label="擲出玩家與電腦的雙骰">🎲 擲出幸運雙骰</button>
-          <p class="roll-hint">豹子優先於任何一般點數；雙方同類型時才比較總點數。</p>
-        </div>
-
-        <div class="lower-grid">
-          <section class="mini-card" aria-labelledby="logTitle">
-            <h3 id="logTitle">📋 骰子戰鬥紀錄</h3>
-            <ul class="battle-log" id="battleLog">
-              <li class="empty-log">尚無戰鬥紀錄，快來擲出你的幸運雙骰！</li>
-            </ul>
-          </section>
-          <aside class="mini-card" aria-label="快速判定規則">
-            <h3>💡 快速判定</h3>
-            <div class="quick-rules">
-              <div class="quick-rule"><span>🐆</span><div><b>一方豹子</b><small>豹子直接獲勝</small></div></div>
-              <div class="quick-rule"><span>⚖️</span><div><b>雙方同類型</b><small>比較兩顆骰子總點數</small></div></div>
-              <div class="quick-rule"><span>🤝</span><div><b>總點數相同</b><small>本回合平手、不計分</small></div></div>
-            </div>
-          </aside>
-        </div>
-      </section>
-
-      <details class="learning">
-        <summary>🐍 Python學習小教室</summary>
-        <div class="lesson-grid">
-          <article class="lesson">
-            <h3><code>import random</code></h3>
-            <p>載入Python的隨機工具，讓程式能模擬擲骰子。</p>
-            <pre><code>import random</code></pre>
-            <span class="web-link">網頁對應：使用JavaScript產生隨機點數。</span>
-          </article>
-          <article class="lesson">
-            <h3><code>random.randint(1, 6)</code></h3>
-            <p>從1到6中隨機產生一個整數，就像擲一顆六面骰。</p>
-            <pre><code>dice = random.randint(1, 6)</code></pre>
-            <span class="web-link">網頁對應：每回合隨機產生四顆骰子。</span>
-          </article>
-          <article class="lesson">
-            <h3>串列與索引</h3>
-            <p>把骰子圖案排成串列，再用點數找到對應位置。</p>
-            <pre><code>dice_faces = ["", "⚀", "⚁",
-              "⚂", "⚃", "⚄", "⚅"]
-print(dice_faces[3])</code></pre>
-            <span class="web-link">網頁對應：依點數排列骰面上的圓點。</span>
-          </article>
-          <article class="lesson">
-            <h3>變數</h3>
-            <p>使用變數保存骰子點數、總點數、勝場與回合。</p>
-            <pre><code>player_total = player_dice1 + player_dice2</code></pre>
-            <span class="web-link">網頁對應：即時更新總點數與計分板。</span>
-          </article>
-          <article class="lesson">
-            <h3>布林值</h3>
-            <p>比較兩顆骰子是否相同，結果只有True或False。</p>
-            <pre><code>player_is_double = (
-    player_dice1 == player_dice2
-)</code></pre>
-            <span class="web-link">網頁對應：判斷是否出現「豹子」。</span>
-          </article>
-          <article class="lesson">
-            <h3><code>while</code>迴圈</h3>
-            <p>雙方都還沒取得5勝時，比賽就持續進行。</p>
-            <pre><code>while player_wins &lt; 5 and computer_wins &lt; 5:</code></pre>
-            <span class="web-link">網頁對應：遊戲結束前可以不斷擲骰。</span>
-          </article>
-          <article class="lesson">
-            <h3><code>if / elif / else</code></h3>
-            <p>先判斷豹子，再比較點數，選出正確的回合結果。</p>
-            <pre><code>if player_is_double:
-    print("豹子！")
-elif player_total &gt; computer_total:
-    print("玩家獲勝")</code></pre>
-            <span class="web-link">網頁對應：決定勝負訊息與得分者。</span>
-          </article>
-          <article class="lesson">
-            <h3>技能條件與回合範圍</h3>
-            <p>先檢查骰子顏色與回合數。魔法紫在前3回合把一顆骰子設為6點。</p>
-            <pre><code>if color == "魔法紫" and round_num &lt;= 3:
-    player_dice1 = 6</code></pre>
-            <span class="web-link">網頁對應：技能處理完成後，才繪製正式骰面、判斷勝負。</span>
-          </article>
-          <article class="lesson">
-            <h3><code>while</code>：重擲電腦豹子</h3>
-            <p>幸運金在前3回合重擲電腦兩顆骰子；如果仍是豹子，就繼續重擲。</p>
-            <pre><code>if color == "幸運金" and round_num &lt;= 3:
-    while computer_dice1 == computer_dice2:
-        computer_dice1 = random.randint(1, 6)
-        computer_dice2 = random.randint(1, 6)</code></pre>
-            <span class="web-link">網頁對應：只使用最後的非豹子結果結算，不增加回合或重複計分。</span>
-          </article>
-          <article class="lesson">
-            <h3><code>+=</code>與 f-string</h3>
-            <p><code>+=</code>讓數值增加；f-string把變數放進顯示文字。</p>
-            <pre><code>player_wins += 1
-print(f"總點數是 {player_total}")</code></pre>
-            <span class="web-link">網頁對應：增加分數並產生戰鬥紀錄。</span>
-          </article>
-        </div>
-      </details>
-    </main>
-
-    <footer>用Python隨機邏輯打造的雙骰對決｜每一次擲骰，都是機率與程式思考的冒險！</footer>
-  </div>
-
-  <dialog id="tutorialDialog" aria-labelledby="tutorialTitle">
-    <div class="dialog-inner">
-      <div class="dialog-icon" aria-hidden="true">🗺️</div>
-      <h2 id="tutorialTitle">雙骰冒險指南</h2>
-      <p>選擇技能骰子，看懂豹子規則，率先取得5勝！</p>
-      <div class="tutorial-steps">
-        <div class="tutorial-step"><div class="step-icon">🎲</div><div><b>點擊擲骰</b><span>玩家與電腦每回合各擲兩顆六面骰。</span></div></div>
-        <div class="tutorial-step"><div class="step-icon">🐆</div><div><b>兩顆相同就是豹子</b><span>只有一方是豹子時，不管總點數多少都直接獲勝。</span></div></div>
-        <div class="tutorial-step"><div class="step-icon">⚖️</div><div><b>同類型才比總點數</b><span>雙方都是豹子或都不是豹子，才比較兩顆骰子的總和。</span></div></div>
-        <div class="tutorial-step"><div class="step-icon">🏆</div><div><b>率先取得5勝</b><span>平手不計分，先點亮五顆勝利星就能封王！</span></div></div>
-        <div class="tutorial-step"><div class="step-icon">✨</div><div><b>四種幸運骰子</b><span>魔法紫前3回合保證一顆6點；星空藍首回合保證豹子；勇氣紅抵銷首回合電腦勝場；幸運金前3回合重擲電腦豹子直到不是豹子。</span></div></div>
-      </div>
-      <button class="primary-btn" id="closeTutorialBtn" type="button">我知道了，開始冒險！</button>
-    </div>
-  </dialog>
-
-  <dialog id="resultDialog" aria-labelledby="finalTitle">
-    <div class="dialog-inner">
-      <div class="dialog-icon" id="finalIcon" aria-hidden="true">🏆</div>
-      <h2 id="finalTitle">對決結束</h2>
-      <p id="finalMessage"></p>
-      <div class="result-stats">
-        <div class="stat"><strong id="finalScore">5：0</strong><span>最終比分</span></div>
-        <div class="stat"><strong id="finalRounds">3</strong><span>總回合數</span></div>
-        <div class="stat"><strong id="finalDoubles">0</strong><span>玩家豹子</span></div>
-        <div class="stat"><strong id="finalColor">💜</strong><span>幸運骰子</span></div>
-      </div>
-      <div id="modalLogWrap" hidden>
-        <ul class="battle-log modal-log" id="modalLog"></ul>
-      </div>
-      <div class="dialog-actions">
-        <button class="primary-btn" id="playAgainBtn" type="button">🔄 再玩一次</button>
-        <button class="secondary-btn" id="changePlayerBtn" type="button">🧙 更換玩家</button>
-        <button class="secondary-btn wide" id="viewLogBtn" type="button" aria-expanded="false">📋 查看完整紀錄</button>
-      </div>
-    </div>
-  </dialog>
-
-  <aside class="toast" id="achievementToast" role="status" aria-live="polite">
-    <strong id="achievementTitle">🏅 解鎖新成就</strong>
-    <span id="achievementText">初次挑戰</span>
-  </aside>
-  <div class="confetti" id="confetti" aria-hidden="true"></div>
-
-  <script>
-    "use strict";
-
-    // ===== 骰面圓點位置：依照點數決定需要顯示的圓點 =====
-    const PIP_LAYOUTS = {
-      1: ["mc"],
-      2: ["tl", "br"],
-      3: ["tl", "mc", "br"],
-      4: ["tl", "tr", "bl", "br"],
-      5: ["tl", "tr", "mc", "bl", "br"],
-      6: ["tl", "ml", "bl", "tr", "mr", "br"]
-    };
-    const COLOR_ICONS = { purple: "💜", blue: "💙", red: "❤️", gold: "💛" };
-
-    const state = {
-      name: "",
-      colorId: "",
-      colorName: "",
-      color: "#7657ee",
-      pip: "#ffffff",
-      playerWins: 0,
-      computerWins: 0,
-      round: 1,
-      playerDoubles: 0,
-      winStreak: 0,
-      log: [],
-      rolling: false,
-      gameOver: false,
-      soundOn: true,
-      achievements: new Set(),
-      lastSkillEffects: []
-    };
-
-    const $ = (selector) => document.querySelector(selector);
-    const $$ = (selector) => [...document.querySelectorAll(selector)];
-    const dieElements = [
-      $("#playerDie1"), $("#playerDie2"), $("#computerDie1"), $("#computerDie2")
-    ];
-    const prefersReducedMotion = () =>
-      window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    // ===== 繪製骰面：所有圓點都由 CSS 與 HTML 產生，不需外部圖片 =====
-    function renderDie(element, value) {
-      const safeValue = Math.min(6, Math.max(1, Number(value) || 1));
-      element.dataset.value = String(safeValue);
-      element.innerHTML = "";
-      PIP_LAYOUTS[safeValue].forEach((position) => {
-        const pip = document.createElement("span");
-        pip.className = "pip p-" + position;
-        pip.setAttribute("aria-hidden", "true");
-        element.appendChild(pip);
-      });
-      element.setAttribute("aria-label", safeValue + "點");
-    }
-    dieElements.forEach((die) => renderDie(die, 1));
-
-    // ===== 深色模式：保留使用者上次選擇 =====
-    const savedTheme = localStorage.getItem("double-dice-theme");
-    const systemDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
-    applyTheme(savedTheme || (systemDark ? "dark" : "light"));
-
-    function applyTheme(theme) {
-      document.documentElement.dataset.theme = theme;
-      $("#themeBtn").textContent = theme === "dark" ? "☀️" : "🌙";
-      $("#themeBtn").setAttribute("aria-label", theme === "dark" ? "切換為明亮模式" : "切換為夜間模式");
-    }
-    $("#themeBtn").addEventListener("click", () => {
-      const nextTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
-      applyTheme(nextTheme);
-      localStorage.setItem("double-dice-theme", nextTheme);
-      playSound("click");
-    });
-
-    // ===== 使用 Web Audio API 產生簡單音效 =====
-    let audioContext;
-    function playSound(type) {
-      if (!state.soundOn) return;
-      try {
-        audioContext ||= new (window.AudioContext || window.webkitAudioContext)();
-        if (audioContext.state === "suspended") audioContext.resume();
-        const now = audioContext.currentTime;
-        const soundMap = {
-          click: [420],
-          roll: [190, 240, 300],
-          double: [620, 790, 980],
-          win: [523, 659, 784],
-          lose: [270, 215],
-          draw: [390, 390],
-          achievement: [659, 784, 988]
-        };
-        (soundMap[type] || [420]).forEach((frequency, index) => {
-          const oscillator = audioContext.createOscillator();
-          const gain = audioContext.createGain();
-          oscillator.type = type === "lose" ? "triangle" : "sine";
-          oscillator.frequency.value = frequency;
-          gain.gain.setValueAtTime(.0001, now + index * .1);
-          gain.gain.exponentialRampToValueAtTime(.1, now + index * .1 + .015);
-          gain.gain.exponentialRampToValueAtTime(.0001, now + index * .1 + .14);
-          oscillator.connect(gain);
-          gain.connect(audioContext.destination);
-          oscillator.start(now + index * .1);
-          oscillator.stop(now + index * .1 + .16);
-        });
-      } catch (error) {
-        // 瀏覽器不支援音效時，遊戲仍能正常進行。
-      }
-    }
-    $("#soundBtn").addEventListener("click", () => {
-      state.soundOn = !state.soundOn;
-      $("#soundBtn").textContent = state.soundOn ? "🔊" : "🔇";
-      $("#soundBtn").setAttribute("aria-label", state.soundOn ? "關閉音效" : "開啟音效");
-      if (state.soundOn) playSound("click");
-    });
-
-    // ===== 遊戲教學視窗 =====
-    const tutorialDialog = $("#tutorialDialog");
-    function openTutorial() {
-      if (!tutorialDialog.open) tutorialDialog.showModal();
-    }
-    $("#tutorialBtn").addEventListener("click", openTutorial);
-    $("#closeTutorialBtn").addEventListener("click", () => {
-      localStorage.setItem("double-dice-tutorial-seen", "yes");
-      tutorialDialog.close();
-      playSound("click");
-      if (!$("#setupScreen").hidden) $("#playerName").focus();
-    });
-    if (!localStorage.getItem("double-dice-tutorial-seen")) {
-      window.addEventListener("load", () => window.setTimeout(openTutorial, 180));
-    }
-
-    // ===== 玩家設定 =====
-    $$(".color-choice").forEach((button) => {
-      button.addEventListener("click", () => {
-        $$(".color-choice").forEach((item) => item.setAttribute("aria-pressed", "false"));
-        button.setAttribute("aria-pressed", "true");
-        state.colorId = button.dataset.id;
-        state.colorName = button.dataset.name;
-        state.color = button.dataset.color;
-        state.pip = button.dataset.pip;
-        $("#setupError").textContent = "";
-        playSound("click");
-      });
-    });
-    $("#playerName").addEventListener("input", () => {
-      if ($("#playerName").value.trim()) $("#setupError").textContent = "";
-    });
-    $("#playerName").addEventListener("keydown", (event) => {
-      if (event.key === "Enter") startGame();
-    });
-    $("#startBtn").addEventListener("click", startGame);
-
-    function startGame() {
-      const name = $("#playerName").value.trim().replace(/\s+/g, " ");
-      if (!name && !state.colorId) {
-        showSetupError("⚠️ 請先輸入名字，並選擇一組幸運骰子！", "name");
-        return;
-      }
-      if (!name) {
-        showSetupError("⚠️ 請輸入冒險者名字，讓我們知道如何稱呼你！", "name");
-        return;
-      }
-      if (!state.colorId) {
-        showSetupError("⚠️ 出發前，別忘了選擇一組幸運骰子！", "color");
-        return;
-      }
-
-      state.name = name;
-      document.documentElement.style.setProperty("--dice-color", state.color);
-      document.documentElement.style.setProperty("--pip-color", state.pip);
-      resetBattle();
-      $("#welcomeTitle").textContent = "歡迎勇敢的骰子冒險者【" + state.name + "】！";
-      $("#welcomeText").textContent = "你的【" + state.colorName + "】幸運雙骰已準備完成，現在開始挑戰電腦骰子王！";
-      $("#playerScoreLabel").textContent = "🏆 " + state.name;
-      $("#playerFighterName").textContent = state.name;
-      $("#setupScreen").hidden = true;
-      $("#gameScreen").hidden = false;
-      $("#gameScreen").scrollIntoView({ behavior: "smooth", block: "start" });
-      $("#rollBtn").focus({ preventScroll: true });
-      playSound("click");
-    }
-    function showSetupError(message, target) {
-      $("#setupError").textContent = message;
-      if (target === "name") $("#playerName").focus();
-      else $$(".color-choice")[0].focus();
-    }
-
-    // ===== 擲骰：每顆骰子產生 1 到 6 的隨機整數 =====
-    const randomDie = () => Math.floor(Math.random() * 6) + 1;
-    const SKILL_DESCRIPTIONS = {
-      purple: "💜 魔法紫：前3回合，玩家其中一顆骰子保證6點，另一顆保持隨機。",
-      blue: "💙 星空藍：第1回合玩家必定擲出豹子，豹子點數隨機，仍按原規則比勝負。",
-      red: "❤️ 勇氣紅：第1回合若電腦獲勝，該勝場不列計；回合與結果仍保留。",
-      gold: "💛 幸運金：前3回合，電腦的豹子必須重擲兩顆，直到不是豹子；不增加回合。"
-    };
-
-    function updateSkillStatus() {
-      const limit = state.colorId === "purple" || state.colorId === "gold" ? 3 : 1;
-      const active = !state.gameOver && state.round <= limit;
-      $("#skillTitle").textContent = "✨ " + state.colorName + " · 幸運骰子技能";
-      $("#skillDescription").textContent = SKILL_DESCRIPTIONS[state.colorId] || "";
-      $("#skillStatus").textContent = state.gameOver ? "本場對決已結束，技能停止。"
-        : active ? "第" + state.round + "回合技能可用（限前" + limit + "回合）。"
-        : "技能時效已結束；後續回合使用一般隨機雙骰。";
-      $("#skillCard").classList.toggle("active", active);
-    }
-
-    // 技能只改變正式揭曉的骰子；滾動動畫的骰面不參與勝負判斷。
-    function generateSkillDice(colorId, round, draw = randomDie) {
-      const values = { player1: draw(), player2: draw(), computer1: draw(), computer2: draw() };
-      const effects = [];
-      const rerolls = [];
-      if (colorId === "purple" && round <= 3) {
-        values.player1 = 6;
-        effects.push("💜 魔法紫發動：玩家第1顆骰子保證6點！");
-      }
-      if (colorId === "blue" && round === 1) {
-        values.player2 = values.player1;
-        effects.push("💙 星空藍發動：玩家必定擲出" + values.player1 + "＋" + values.player2 + "豹子！");
-      }
-      if (colorId === "gold" && round <= 3) {
-        // 每次電腦擲出豹子都重擲兩顆，只有最後的非豹子結果拿來結算。
-        while (values.computer1 === values.computer2) {
-          rerolls.push([values.computer1, values.computer2]);
-          values.computer1 = draw();
-          values.computer2 = draw();
-        }
-        if (rerolls.length) effects.push("💛 幸運金發動：電腦豹子" +
-          rerolls.map(pair => pair.join("＋")).join(" → ") +
-          "，共重擲" + rerolls.length + "次；最終為" + values.computer1 + "＋" + values.computer2 + "。");
-      }
-      return { values, effects, rerolls };
-    }
-
-    function resolveSkillResult(values, colorId, round) {
-      const result = decideWinner(values);
-      return { ...result, protectedLoss: colorId === "red" && round === 1 && result.winner === "computer" };
-    }
-
-    $("#rollBtn").addEventListener("click", rollRound);
-
-    async function rollRound() {
-      if ($("#gameScreen").hidden || state.rolling || state.gameOver) return;
-      state.rolling = true;
-      $("#rollBtn").disabled = true;
-      $("#rollBtn").textContent = "🎲 骰子滾動中……";
-      $("#battleStatus").textContent = "骰子滾動中……";
-      $("#roundResult").textContent = "魔法能量正在決定這一回合的命運！";
-      $("#roundResult").className = "round-result";
-      $("#leopardAlert").textContent = "";
-      clearDoubleEffects();
-      dieElements.forEach((die) => {
-        die.classList.remove("reveal");
-        die.classList.add("rolling");
-      });
-      playSound("roll");
-
-      const shuffle = window.setInterval(() => {
-        dieElements.forEach((die) => renderDie(die, randomDie()));
-      }, 85);
-      await wait(prefersReducedMotion() ? 220 : 1200);
-      window.clearInterval(shuffle);
-
-      const generated = generateSkillDice(state.colorId, state.round);
-      const values = generated.values;
-      state.lastSkillEffects = generated.effects;
-      if (generated.rerolls.length) {
-        // 先呈現電腦遭重擲的第一組豹子，再一起揭曉正式結果。
-        const original = generated.rerolls[0];
-        renderDie($("#computerDie1"), original[0]);
-        renderDie($("#computerDie2"), original[1]);
-        $("#battleStatus").textContent = "幸運金發動！電腦豹子重擲中……";
-        $("#skillEffects").textContent = generated.effects.join(" ");
-        playSound("double");
-        await wait(prefersReducedMotion() ? 80 : 450);
-      }
-      renderDie($("#playerDie1"), values.player1);
-      renderDie($("#playerDie2"), values.player2);
-      renderDie($("#computerDie1"), values.computer1);
-      renderDie($("#computerDie2"), values.computer2);
-      dieElements.forEach((die) => {
-        die.classList.remove("rolling");
-        die.classList.add("reveal");
-      });
-
-      const result = resolveSkillResult(values, state.colorId, state.round);
-      if (result.protectedLoss) state.lastSkillEffects.push("❤️ 勇氣紅發動：抵銷電腦首回合勝場，雙方不加分！");
-      $("#skillEffects").textContent = state.lastSkillEffects.length
-        ? state.lastSkillEffects.join(" ") : "本回合沒有技能發動。";
-      showDiceStats(values, result);
-      applyRoundResult(values, result);
-      state.round += 1;
-
-      if (state.playerWins >= 5 || state.computerWins >= 5) {
-        state.gameOver = true;
-        state.rolling = false;
-        updateSkillStatus();
-        $("#roundDisplay").textContent = "對決結束";
-        $("#rollBtn").textContent = "🏁 本場對決已結束";
-        await wait(prefersReducedMotion() ? 100 : 650);
-        showFinalResult();
-      } else {
-        $("#roundDisplay").textContent = "第 " + state.round + " 回合";
-        state.rolling = false;
-        $("#rollBtn").disabled = false;
-        $("#rollBtn").textContent = "🎲 擲出幸運雙骰";
-        updateSkillStatus();
-      }
-    }
-
-    // 集中處理勝負邏輯，確保「豹子優先」規則正確。
-    function decideWinner(values) {
-      const playerTotal = values.player1 + values.player2;
-      const computerTotal = values.computer1 + values.computer2;
-      const playerDouble = values.player1 === values.player2;
-      const computerDouble = values.computer1 === values.computer2;
-
-      if (playerDouble && !computerDouble) {
-        return { winner: "player", reason: "player-double", playerTotal, computerTotal, playerDouble, computerDouble };
-      }
-      if (computerDouble && !playerDouble) {
-        return { winner: "computer", reason: "computer-double", playerTotal, computerTotal, playerDouble, computerDouble };
-      }
-      if (playerTotal > computerTotal) {
-        return { winner: "player", reason: "higher-total", playerTotal, computerTotal, playerDouble, computerDouble };
-      }
-      if (playerTotal < computerTotal) {
-        return { winner: "computer", reason: "higher-total", playerTotal, computerTotal, playerDouble, computerDouble };
-      }
-      return { winner: "draw", reason: "equal-total", playerTotal, computerTotal, playerDouble, computerDouble };
-    }
-
-    function showDiceStats(values, result) {
-      $("#playerTotal").textContent = result.playerTotal;
-      $("#computerTotal").textContent = result.computerTotal;
-      $("#playerDouble").hidden = !result.playerDouble;
-      $("#computerDouble").hidden = !result.computerDouble;
-      $("#playerDice").classList.toggle("double", result.playerDouble);
-      $("#computerDice").classList.toggle("double", result.computerDouble);
-      $("#playerDice").setAttribute("aria-label",
-        "玩家擲出" + values.player1 + "點與" + values.player2 + "點，總計" + result.playerTotal + "點" + (result.playerDouble ? "，是豹子" : ""));
-      $("#computerDice").setAttribute("aria-label",
-        "電腦擲出" + values.computer1 + "點與" + values.computer2 + "點，總計" + result.computerTotal + "點" + (result.computerDouble ? "，是豹子" : ""));
-
-      if (result.playerDouble) {
-        state.playerDoubles += 1;
-        unlockAchievement("first-double", "🔥 豹子現身", "第一次擲出豹子！");
-        if (state.playerDoubles >= 2) unlockAchievement("double-hunter", "🐆 豹子獵人", "一場遊戲擲出2次豹子！");
-      }
-      if (result.playerDouble && result.computerDouble) {
-        $("#leopardAlert").textContent = "🔥 雙豹子對決！現在比較雙方總點數！";
-        playSound("double");
-      } else if (result.playerDouble) {
-        $("#leopardAlert").textContent = "🔥 豹子出現！你擲出了【" + values.player1 + "點】豹子！";
-        playSound("double");
-      } else if (result.computerDouble) {
-        $("#leopardAlert").textContent = "⚡ 電腦骰子王擲出了【" + values.computer1 + "點】豹子！";
-        playSound("double");
-      }
-    }
-
-    function applyRoundResult(values, result) {
-      const messages = {
-        "player-double": "🎉 豹子通殺！這回合你贏了！",
-        "computer-double": "💥 遭到豹子通殺！這回合由電腦獲勝！"
-      };
-      let message;
-      if (result.protectedLoss) {
-        message = "❤️ 勇氣紅發動！電腦贏得首回合，但該勝場不列計，雙方不加分。";
-        state.winStreak = 0;
-      } else if (result.winner === "draw") {
-        message = "🤝 勢均力敵，這回合平手！";
-        state.winStreak = 0;
-      } else if (result.winner === "player") {
-        message = messages[result.reason] || "🎉 你的總點數較大，贏得這一回合！";
-        state.playerWins += 1;
-        state.winStreak += 1;
-      } else {
-        message = messages[result.reason] || "💥 電腦總點數較大，贏得這一回合！";
-        state.computerWins += 1;
-        state.winStreak = 0;
-      }
-
-      $("#roundResult").textContent = message;
-      $("#roundResult").className = "round-result " + (result.protectedLoss ? "draw" : result.winner);
-      $("#battleStatus").textContent =
-        result.playerDouble && result.computerDouble ? "雙豹子・比較總點數" :
-        result.playerDouble || result.computerDouble ? "豹子通殺判定" :
-        "一般對決・比較總點數";
-
-      if (result.protectedLoss) {
-        $("#battleStatus").textContent = "勇氣紅抵銷敗場・不計分";
-        playSound("achievement");
-      } else if (result.winner === "player") {
-        launchConfetti(20);
-        playSound("win");
-      } else if (result.winner === "computer") {
-        $("#arena").classList.remove("shake");
-        void $("#arena").offsetWidth;
-        $("#arena").classList.add("shake");
-        playSound("lose");
-      } else {
-        playSound("draw");
-      }
-
-      if (state.winStreak >= 2) {
-        unlockAchievement("streak", "🍀 幸運冒險者", "連續贏得2回合！");
-      }
-      addBattleLog(values, result);
-      updateScoreboard();
-    }
-
-    function addBattleLog(values, result) {
-      const playerType = result.playerDouble ? "（豹子）" : "";
-      const computerType = result.computerDouble ? "（豹子）" : "";
-      const ending =
-        result.protectedLoss ? "電腦原本獲勝，勇氣紅抵銷該勝場，雙方不加分！" :
-        result.reason === "player-double" ? "豹子通殺，你獲勝！" :
-        result.reason === "computer-double" ? "電腦以豹子獲勝！" :
-        result.winner === "player" ? "比較總點數，你獲勝！" :
-        result.winner === "computer" ? "比較總點數，電腦獲勝！" :
-        "雙方總點數相同，平手！";
-      const text = "第" + state.round + "回合：你擲出" +
-        values.player1 + "＋" + values.player2 + "＝" + result.playerTotal + playerType +
-        "，電腦擲出" + values.computer1 + "＋" + values.computer2 + "＝" +
-        result.computerTotal + computerType + "，" + ending +
-        (state.lastSkillEffects.length ? "｜技能紀錄：" + state.lastSkillEffects.join(" ") : "");
-      state.log.unshift(text);
-      const list = $("#battleLog");
-      list.innerHTML = "";
-      state.log.forEach((entry) => {
-        const item = document.createElement("li");
-        item.textContent = entry;
-        list.appendChild(item);
-      });
-    }
-
-    function updateScoreboard() {
-      $("#playerScore").textContent = state.playerWins;
-      $("#computerScore").textContent = state.computerWins;
-      updateBadges("#playerBadges", state.playerWins);
-      updateBadges("#computerBadges", state.computerWins);
-    }
-    function updateBadges(selector, score) {
-      document.querySelectorAll(selector + " .badge").forEach((badge, index) => {
-        badge.classList.toggle("lit", index < score);
-      });
-    }
-    function clearDoubleEffects() {
-      $("#playerDice").classList.remove("double");
-      $("#computerDice").classList.remove("double");
-      $("#playerDouble").hidden = true;
-      $("#computerDouble").hidden = true;
-    }
-
-    // ===== 最終結算 =====
-    const resultDialog = $("#resultDialog");
-    function showFinalResult() {
-      const playerWon = state.playerWins === 5;
-      $("#finalIcon").textContent = playerWon ? "🏆" : "🤖";
-      $("#finalTitle").textContent = playerWon ? "恭喜【" + state.name + "】！" : "電腦骰子王獲勝！";
-      $("#finalMessage").textContent = playerWon
-        ? "你以5：" + state.computerWins + "擊敗電腦骰子王，成為傳說中的雙骰大師！"
-        : "電腦骰子王以5：" + state.playerWins + "獲勝。別灰心，幸運可能就在下一次擲骰！";
-      $("#finalScore").textContent = playerWon
-        ? state.playerWins + "：" + state.computerWins
-        : state.computerWins + "：" + state.playerWins;
-      $("#finalRounds").textContent = state.log.length;
-      $("#finalDoubles").textContent = state.playerDoubles;
-      $("#finalColor").textContent = COLOR_ICONS[state.colorId] || "🎲";
-      $("#finalColor").title = state.colorName;
-
-      const modalLog = $("#modalLog");
-      modalLog.innerHTML = "";
-      state.log.forEach((entry) => {
-        const item = document.createElement("li");
-        item.textContent = entry;
-        modalLog.appendChild(item);
-      });
-      $("#modalLogWrap").hidden = true;
-      $("#viewLogBtn").textContent = "📋 查看完整紀錄";
-      $("#viewLogBtn").setAttribute("aria-expanded", "false");
-
-      unlockAchievement("first-game", "🎯 初次挑戰", "完成第一場雙骰冒險！");
-      if (playerWon) {
-        unlockAchievement("master", "🎲 雙骰大師", "率先取得5勝！");
-        if (state.computerWins === 0) unlockAchievement("perfect", "👑 完美勝利", "以5：0擊敗電腦！");
-        launchConfetti(75);
-        playSound("win");
-      }
-      if (!resultDialog.open) resultDialog.showModal();
-    }
-
-    $("#playAgainBtn").addEventListener("click", () => {
-      resultDialog.close();
-      resetBattle();
-      $("#rollBtn").focus();
-      playSound("click");
-    });
-    $("#changePlayerBtn").addEventListener("click", () => {
-      resultDialog.close();
-      resetBattle();
-      state.name = "";
-      state.colorId = "";
-      state.colorName = "";
-      $("#playerName").value = "";
-      $$(".color-choice").forEach((button) => button.setAttribute("aria-pressed", "false"));
-      $("#gameScreen").hidden = true;
-      $("#setupScreen").hidden = false;
-      $("#setupError").textContent = "";
-      $("#setupScreen").scrollIntoView({ behavior: "smooth", block: "start" });
-      $("#playerName").focus({ preventScroll: true });
-      playSound("click");
-    });
-    $("#viewLogBtn").addEventListener("click", () => {
-      const wrap = $("#modalLogWrap");
-      wrap.hidden = !wrap.hidden;
-      $("#viewLogBtn").setAttribute("aria-expanded", String(!wrap.hidden));
-      $("#viewLogBtn").textContent = wrap.hidden ? "📋 查看完整紀錄" : "📋 收合完整紀錄";
-    });
-
-    function resetBattle() {
-      state.playerWins = 0;
-      state.computerWins = 0;
-      state.round = 1;
-      state.playerDoubles = 0;
-      state.winStreak = 0;
-      state.log = [];
-      state.lastSkillEffects = [];
-      state.rolling = false;
-      state.gameOver = false;
-      state.achievements = new Set();
-      clearAchievementNotifications();
-      $("#roundDisplay").textContent = "第 1 回合";
-      $("#playerTotal").textContent = "—";
-      $("#computerTotal").textContent = "—";
-      $("#battleStatus").textContent = "雙方準備完成";
-      $("#leopardAlert").textContent = "";
-      $("#roundResult").textContent = "點擊按鈕，擲出你的幸運雙骰！";
-      $("#roundResult").className = "round-result";
-      $("#skillEffects").textContent = "";
-      updateSkillStatus();
-      $("#battleLog").innerHTML = '<li class="empty-log">尚無戰鬥紀錄，快來擲出你的幸運雙骰！</li>';
-      $("#rollBtn").disabled = false;
-      $("#rollBtn").textContent = "🎲 擲出幸運雙骰";
-      clearDoubleEffects();
-      dieElements.forEach((die) => {
-        die.classList.remove("rolling", "reveal");
-        renderDie(die, 1);
-      });
-      $("#playerDice").setAttribute("aria-label", "玩家骰子尚未擲出");
-      $("#computerDice").setAttribute("aria-label", "電腦骰子尚未擲出");
-      updateScoreboard();
-    }
-
-    // ===== 成就通知佇列：多個成就會依序顯示，不會互相覆蓋 =====
-    const achievementQueue = [];
-    let toastBusy = false;
-    let toastTimer;
-    let toastGapTimer;
-    function unlockAchievement(id, title, description) {
-      if (state.achievements.has(id)) return;
-      state.achievements.add(id);
-      achievementQueue.push({ title, description });
-      showNextAchievement();
-    }
-    function showNextAchievement() {
-      if (toastBusy || achievementQueue.length === 0) return;
-      toastBusy = true;
-      const achievement = achievementQueue.shift();
-      $("#achievementTitle").textContent = achievement.title;
-      $("#achievementText").textContent = achievement.description;
-      $("#achievementToast").classList.add("show");
-      playSound("achievement");
-      toastTimer = window.setTimeout(() => {
-        $("#achievementToast").classList.remove("show");
-        toastGapTimer = window.setTimeout(() => {
-          toastBusy = false;
-          showNextAchievement();
-        }, 350);
-      }, 2350);
-    }
-    function clearAchievementNotifications() {
-      window.clearTimeout(toastTimer);
-      window.clearTimeout(toastGapTimer);
-      achievementQueue.length = 0;
-      toastBusy = false;
-      $("#achievementToast").classList.remove("show");
-    }
-
-    // ===== 彩紙特效 =====
-    function launchConfetti(amount) {
-      if (prefersReducedMotion()) return;
-      const container = $("#confetti");
-      for (let index = 0; index < amount; index += 1) {
-        const piece = document.createElement("i");
-        piece.className = "confetti-piece";
-        piece.style.left = Math.random() * 100 + "%";
-        piece.style.setProperty("--hue", Math.floor(Math.random() * 360));
-        piece.style.setProperty("--duration", 1.8 + Math.random() * 1.8 + "s");
-        piece.style.setProperty("--drift", -80 + Math.random() * 160 + "px");
-        piece.style.animationDelay = Math.random() * .35 + "s";
-        container.appendChild(piece);
-        window.setTimeout(() => piece.remove(), 4000);
-      }
-    }
-    function wait(milliseconds) {
-      return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
-    }
-
-    // 讓測試工具可以直接驗證勝負判斷函式，不影響一般遊戲。
-    window.doubleDiceGame = { decideWinner, randomDie, generateSkillDice, resolveSkillResult };
-  </script>
-</body>
-</html>
+<!doctype html>
+<html lang="zh-Hant"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f5f3eb"><meta name="description" content="豹子大富翁：雙骰決勝、36格環島競速、機會命運與裝備策略。完成兩圈，贏得冒險！"><title>豹子大富翁｜雙骰環島競速</title>
+<style>
+:root{--bg:#f5f3eb;--card:#fffdf7;--ink:#243d3a;--muted:#667672;--line:#dedfd2;--green:#286552;--orange:#d85e32;--soft:#eaf0e2;--shadow:0 12px 36px #324d3810;--tile:#fcfff2;--blue:#32799d}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-rounded,"Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;line-height:1.6}body.dark{--bg:#152725;--card:#203936;--ink:#eff4e9;--muted:#b4c9c0;--line:#496159;--soft:#2c4941;--shadow:0 12px 36px #0003}button,input,select{font:inherit}button{cursor:pointer;color:inherit}button:disabled{cursor:not-allowed;opacity:.5}button,a,input,select{ -webkit-tap-highlight-color:transparent}button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #db8238;outline-offset:4px}button{touch-action:manipulation}button:not(.tile){min-height:44px}a{color:var(--green)}.skip{position:absolute;left:12px;top:-100px;z-index:50;background:var(--card);padding:10px}.skip:focus{top:10px}.wrap{max-width:1440px;padding:26px 34px 20px;margin:auto}.topbar,.brand,.tools,.maphead,.row,.panelhead{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{justify-content:flex-start}.brand-mark{display:grid;place-items:center;background:var(--green);color:white;font-size:28px;border-radius:17px;width:52px;height:52px;box-shadow:0 4px 0 #174d3e}.brand small{display:block;letter-spacing:.2em;font-size:14px;font-weight:800;color:var(--green)}h1{margin:0;font-size:24px;letter-spacing:.05em}h2,h3,p{margin:0}.tools{gap:8px}.tool,.ghost{border:1px solid var(--line);background:var(--card);border-radius:12px;padding:9px 13px;font-weight:700}.tool span{margin-left:5px}.eyebrow{font-size:15px;font-weight:900;letter-spacing:.16em;color:var(--orange)}.headline{margin:32px 0 24px;display:flex;justify-content:space-between;align-items:flex-end;gap:16px}.headline h2{font-size:clamp(24px,3vw,36px);letter-spacing:-.04em;line-height:1.4}.headline h2 em{font-style:normal;color:var(--orange)}.headline p{color:var(--muted);font-size:17px;margin-top:8px}.goal{display:flex;gap:20px;border-left:1px solid var(--line);padding-left:24px}.goal strong{display:block;font-size:28px;line-height:1.2}.goal small{font-size:15px;color:var(--muted)}.layout{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px;align-items:start}.map-card{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:20px;box-shadow:var(--shadow);min-width:0}.maphead h3{font-size:20px}.pill{font-size:15px;background:var(--soft);border-radius:20px;padding:5px 11px;font-weight:700}.round{display:flex;align-items:center;gap:7px;color:var(--green);font-size:16px;font-weight:800}.dot{width:7px;height:7px;background:#df7e42;border-radius:50%;box-shadow:0 0 0 4px #df7e421a}.board-wrap{padding:17px 4px 23px;isolation:isolate}.board{width:100%;aspect-ratio:1;display:grid;grid-template-columns:repeat(10,minmax(0,1fr));grid-template-rows:repeat(10,minmax(0,1fr));gap:3px;position:relative;border:7px solid #779c71;border-radius:17px;background:#bdd49f;box-shadow:0 10px 0 #547b53,0 16px 0 #d0d3ad,0 23px 22px #2b4c3324;transform:perspective(1600px) rotateX(3deg);transform-origin:bottom;overflow:visible}.tile{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1px;padding:1px;border:0;border-bottom:4px solid #d6dec4;border-radius:6px;min-width:0;line-height:1.1;position:relative;z-index:2;color:#2b453c;background:#f6f8e9;box-shadow:inset 0 1px 0 #fff}.tile:after{content:"";position:absolute;inset:0;border-radius:6px;pointer-events:none}.tile:hover:after,.tile:focus-visible:after{box-shadow:inset 0 0 0 2px #274f40}.tile .icon{font-size:clamp(14px,1.8vw,25px);filter:drop-shadow(0 2px 1px #3f67472b)}.tile .number{font-size:13px;position:absolute;top:3px;left:4px;color:#4e6558}.tile .tile-name{font-size:12px;font-weight:700;white-space:nowrap}.tile.start{background:#ed9b60;border-color:#bf7040;color:#473628}.tile.water{background:#d9eff2;border-color:#a6ced2}.tile.fate{background:#eadff5;border-color:#cdb8df}.tile.chance{background:#fff0bf;border-color:#e2c981}.tile.swamp{background:#cfe2bd;border-color:#a1c18d}.tile.parking{background:#f6dfc9;border-color:#d6b495}.tile.mystery{background:#d7dced;border-color:#abb5ce}.tile.occupied:after{box-shadow:inset 0 0 0 2px #e67e3e}.centerland{grid-column:2/10;grid-row:2/10;background:#c5dca9;position:relative;overflow:hidden;border-radius:12px;display:flex;align-items:center;justify-content:center;border:2px solid #aec78f}.centerland:before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 38%,#f8edb377,transparent 65%),repeating-linear-gradient(0deg,transparent,transparent 24px,#ffffff12 24px,#ffffff12 25px)}.island-art{position:absolute;width:100%;height:85%;top:-4%;overflow:visible}.map-title{position:absolute;bottom:8%;left:10px;right:10px;text-align:center;color:#315841}.map-title .mini{font-size:13px;letter-spacing:.2em;font-weight:900}.map-title strong{display:block;font-size:clamp(18px,2.5vw,32px);letter-spacing:.12em}.map-title p{font-size:15px;margin:5px 0 9px;color:#4d6c4e}.map-title .direction{font-size:14px;display:inline-block;padding:5px 14px;background:#ffffff91;border-radius:20px}.token{position:absolute;width:6.9%;height:9%;top:0;left:0;z-index:8;pointer-events:none;transform:translate(-50%,-75%);filter:drop-shadow(0 4px 2px #253e3a55);transition:left .13s ease,top .13s ease}.token svg{width:100%;height:100%;overflow:visible}.token.hop{animation:hop .18s ease}.token-label{position:absolute;left:50%;top:100%;transform:translate(-50%,-4px);font-size:12px;background:#fff9;color:#284736;border-radius:5px;padding:0 3px;white-space:nowrap}.legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}.legend span{font-size:14px;color:var(--muted);padding:3px 8px;background:var(--soft);border-radius:6px}.map-hint{font-size:15px;color:var(--muted);margin-top:10px}.side{display:grid;gap:14px}.panel{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:18px;box-shadow:var(--shadow);min-width:0}.panelhead h3{font-size:18px}.panelhead small{font-size:14px;color:var(--muted)}.racer{display:grid;grid-template-columns:52px 1fr;gap:12px;align-items:center;margin-top:13px}.portrait{width:52px;height:56px;background:#f8e0bd;border-radius:14px;overflow:hidden}.portrait.bot{background:#d3e8ec}.portrait svg{width:100%;height:100%;transform:translateY(7px) scale(1.1)}.racer-name{font-size:17px;font-weight:800;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.racer-info{display:flex;justify-content:space-between;gap:8px;font-size:14px;color:var(--muted);margin-top:3px}.racer-info strong{color:var(--ink)}.bar{height:6px;border-radius:8px;background:var(--soft);overflow:hidden;margin-top:7px}.bar i{display:block;height:100%;width:0;background:#df8453;border-radius:8px;transition:width .4s}.bot-bar i{background:#5798b4}.statuses{display:flex;gap:4px;flex-wrap:wrap;font-size:14px;margin-top:5px}.statuses span{background:var(--soft);padding:1px 6px;border-radius:4px}.duel{padding:18px;background:var(--card)}.duel-heading{display:flex;justify-content:space-between;font-size:15px;color:var(--muted)}.dice-arena{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:16px 0 12px}.dice-side{text-align:center;flex:1;min-width:0}.dice-set{display:flex;justify-content:center;gap:8px}.die{width:48px;height:48px;border-radius:11px;background:linear-gradient(135deg,#fff,#fff6df);box-shadow:0 5px 0 #d1bda1,0 7px 10px #58432d22;border:1px solid #e9d4b9;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:8px;gap:3px;transform:rotate(-6deg)}.dice-side:last-child .die{background:linear-gradient(135deg,#fff,#e5f3fa);box-shadow:0 5px 0 #b0cad3,0 7px 10px #2d455822;border-color:#c0d9e0;transform:rotate(6deg)}.pip{border-radius:50%;background:#b95431;visibility:hidden;box-shadow:inset 0 1px 1px #67301a55}.dice-side:last-child .pip{background:#326787}.die.unset:after{content:'?';font-weight:800;color:#a5a793;font-size:26px;grid-area:1/1/4/4;place-self:center}.die.unset .pip{display:none}.dice-meta{font-size:15px;margin-top:12px;color:var(--muted)}.dice-meta strong{color:var(--orange)}.vs{font-size:15px;font-weight:900;color:var(--muted)}.rolling .die{animation:shake .17s infinite alternate}.battle-result{min-height:68px;padding:10px 12px;border-radius:12px;background:var(--soft);font-size:16px}.battle-result strong{display:block;font-size:18px}.roll-btn,.primary{border:0;border-radius:13px;background:var(--green);color:white;font-weight:800;padding:13px 20px;box-shadow:0 4px 0 #174c3d;transition:transform .12s}.roll-btn{display:block;width:100%;font-size:20px;margin-top:15px}.roll-btn:active,.primary:active{transform:translateY(3px);box-shadow:0 1px 0 #174c3d}.fine{font-size:14px;color:var(--muted);text-align:center;margin-top:9px}.mode-note{font-size:15px;color:var(--muted);border-top:1px dashed var(--line);padding-top:10px;margin-top:12px}.speed{font-size:15px;color:var(--muted);display:flex;align-items:center;gap:5px;cursor:pointer}.speed input{accent-color:var(--green);width:16px;height:16px}.equipment-empty{font-size:16px;color:var(--muted);padding:14px 0 2px}.equipment-list{display:grid;gap:8px;margin-top:12px}.equipment-card{border:1px solid var(--line);border-radius:10px;padding:9px;display:flex;align-items:center;gap:9px;font-size:16px}.equipment-card b{font-size:21px}.equipment-card div{flex:1}.equipment-card small{display:block;color:var(--muted);font-size:14px}.equip-use{font-size:15px;background:var(--soft);border:0;border-radius:8px;padding:3px 10px;min-width:48px}.bag-info{font-size:14px;color:var(--muted);margin-top:9px}.below{display:grid;grid-template-columns:1.25fr 1fr;gap:24px;margin-top:24px}.empty-log{color:var(--muted);font-size:16px;padding:22px 0}.log{max-height:320px;overflow:auto;margin-top:12px;overscroll-behavior:contain}.log details{border-top:1px solid var(--line);padding:10px 0;font-size:16px}.log summary{font-weight:700;cursor:pointer;line-height:1.8}.log ul{padding-left:18px;color:var(--muted);font-size:15px;margin:8px 0}.log li{margin:4px 0}.log .good{color:var(--green)}.rule-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.rule-box{background:var(--soft);border-radius:10px;padding:12px;font-size:15px;color:var(--muted)}.rule-box strong{font-size:16px;color:var(--ink);display:block;margin-bottom:4px}.python{margin-top:24px}.python summary{cursor:pointer;font-size:18px;font-weight:800}.lesson{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:18px}.lesson h4{font-size:16px;margin:0 0 6px}.lesson p{color:var(--muted);font-size:15px}.lesson pre{white-space:pre-wrap;background:var(--soft);padding:12px;border-radius:9px;font-size:15px;line-height:1.7;overflow-wrap:anywhere}.footer{margin:24px auto 5px;text-align:center;font-size:15px;color:var(--muted)}.footer small{font-size:13px;display:block;margin-top:6px}.footer a{color:var(--muted)}dialog{border:1px solid var(--line);border-radius:24px;padding:28px;background:var(--card);color:var(--ink);max-width:min(560px,calc(100vw - 28px));width:560px;max-height:90dvh;overflow:auto;box-shadow:0 28px 90px #182e3844}dialog::backdrop{background:#203b395b;backdrop-filter:blur(5px)}dialog h2{font-size:26px;margin:5px 0 9px}dialog h3{font-size:19px;margin-top:20px}dialog p{font-size:17px;color:var(--muted)}dialog .close{float:right;border:0;background:var(--soft);border-radius:10px;padding:6px 12px}.form-label{font-size:16px;font-weight:800;display:block;margin:20px 0 7px}input[type=text],select{width:100%;padding:12px;border-radius:11px;border:1px solid var(--line);background:var(--bg);color:var(--ink);min-height:46px}.mode-desc{padding:10px 12px;background:var(--soft);border-radius:9px;font-size:16px;margin-top:8px}.full{width:100%;margin-top:22px}.dialog-icon{width:84px;height:90px;margin:auto;display:block}.dialog-icon svg{width:100%;height:100%}.dialog-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}.dialog-actions>*{flex:1}.tile-big{font-size:54px}.card-table{display:grid;gap:8px;margin-top:10px}.card-reference{padding:10px;background:var(--soft);border-radius:10px;font-size:16px}.card-reference small{display:block;color:var(--muted);font-size:15px}.result-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:20px 0}.result-stats div{background:var(--soft);border-radius:10px;padding:12px;text-align:center;font-size:15px}.result-stats strong{display:block;font-size:25px}.mobile-dock{display:none}.screen-reader{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.win-burst{position:fixed;inset:0;z-index:80;pointer-events:none;overflow:hidden}.confetti{position:absolute;width:9px;height:16px;top:-20px;animation:fall 2.3s ease-in forwards}.pending-note{font-size:15px;margin-top:8px;color:var(--orange)}@keyframes hop{50%{transform:translate(-50%,-105%)}}@keyframes shake{to{transform:rotate(15deg) translateY(-4px)}}@keyframes fall{to{transform:translateY(110vh) rotate(600deg)}}
+@media(min-width:1450px){.board{max-width:900px}.tile .icon{font-size:30px}}@media(max-width:1120px){.wrap{padding:22px}.layout{grid-template-columns:minmax(0,1fr) 310px;gap:18px}.map-card{padding:14px}.tile .tile-name{display:none}.tile .icon{font-size:21px}.die{width:44px;height:44px}.map-title strong{font-size:25px}.below{gap:18px}.goal{display:none}}
+@media(max-width:880px){.wrap{max-width:760px;padding:18px}.layout{grid-template-columns:1fr}.side{grid-template-columns:1fr 1fr;align-items:start}.duel{grid-column:2;grid-row:1/3}.equipment-panel{grid-column:1}.below{grid-template-columns:1fr}.tile .tile-name{display:block}.tile .icon{font-size:25px}.map-title strong{font-size:32px}.headline{margin:24px 0 18px}.lesson{grid-template-columns:1fr}.tools .tool span{display:none}.brand small{font-size:12px}.topbar h1{font-size:21px}.panel{padding:16px}}
+@media(max-width:560px){.wrap{padding:14px 11px}.topbar{align-items:center;gap:6px}.brand{gap:8px}.brand-mark{width:41px;height:41px;border-radius:13px;font-size:25px}h1{font-size:20px!important;letter-spacing:0}.brand small{letter-spacing:.12em;font-size:11px}.tools{gap:4px}.tool{padding:6px 9px;font-size:17px}.headline{margin-top:24px}.headline h2{font-size:27px}.headline p{font-size:15px}.eyebrow{font-size:13px}.map-card{padding:12px 8px;border-radius:18px}.maphead{padding:0 4px}.maphead h3{font-size:17px}.pill{font-size:13px;padding:4px 8px}.board-wrap{padding:12px 0 21px}.board{gap:2px;border-width:4px;border-radius:12px}.tile{border-bottom-width:3px;border-radius:4px}.tile .tile-name{display:none}.tile .icon{font-size:21px}.tile .number{font-size:11px;top:1px;left:2px}.token{width:7.6%;height:9.3%}.token-label{font-size:10px}.island-art{top:-13%;height:80%}.map-title strong{font-size:24px}.map-title p{font-size:13px}.map-title .mini{font-size:11px}.map-title .direction{font-size:12px;padding:4px 8px}.legend{gap:4px}.legend span{font-size:13px;padding:2px 5px}.side{grid-template-columns:1fr}.duel{grid-column:auto;grid-row:1}.equipment-panel{grid-column:auto}.die{width:55px;height:55px;padding:9px;gap:4px}.dice-arena{justify-content:center;gap:15px}.racer-name{max-width:250px}.duel .fine{font-size:15px}.racer{grid-template-columns:48px 1fr}.portrait{width:48px;height:52px}.below{margin-top:18px}.rule-box{padding:10px}.footer{font-size:14px}dialog{padding:22px}.map-hint{font-size:14px}}
+@media(max-width:560px){body{padding-bottom:90px}.mobile-dock{position:fixed;bottom:0;left:0;right:0;z-index:20;background:var(--card);border-top:1px solid var(--line);padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:12px;box-shadow:0 -5px 25px #25483714}.mobile-dock div{flex:1;min-width:0;font-size:15px}.mobile-dock strong{display:block;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mobile-dock small{color:var(--muted);font-size:14px}.mobile-dock button{min-width:124px;font-size:18px;padding:10px 14px;border:0;border-radius:11px;background:var(--green);color:white;font-weight:800}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}.board{transform:none}}
+
+/* 大字閱讀版：主文與互動說明至少16px，狀態與紀錄使用清楚行距。 */
+body{font-size:18px;line-height:1.7}.layout{grid-template-columns:minmax(0,1fr) 380px}.topbar,.maphead,.panelhead{flex-wrap:wrap}.tools{margin-left:auto}.racer-info{flex-wrap:wrap;font-size:15px;gap:2px 8px}.racer-name{font-size:18px}.racer{grid-template-columns:56px minmax(0,1fr)}.statuses{font-size:14px}.panelhead h3{font-size:20px}.maphead h3{font-size:20px}.battle-result{font-size:17px;min-height:96px}.battle-result strong{font-size:20px}.dice-meta{font-size:16px}.fine,.mode-note,.bag-info,.map-hint{font-size:15px}.equipment-card{font-size:17px;align-items:flex-start}.equipment-card small{font-size:15px}.equip-use{font-size:16px}.log{max-height:420px}.log details{font-size:17px}.log ul{font-size:16px;line-height:1.8}.rule-box{font-size:16px}.rule-box strong{font-size:18px}.rule-grid{grid-template-columns:1fr 1fr}.lesson p,.lesson pre{font-size:16px}.footer{font-size:15px}.footer small{font-size:13px}.map-title p{font-size:15px}.map-title .direction{font-size:14px}.tile .number{font-size:12px}.tile .tile-name{font-size:12px}.token-label{font-size:12px}.legend span{font-size:14px}.speed{font-size:15px}.ghost{font-size:16px!important}dialog{width:680px}dialog p{font-size:17px}dialog h3{font-size:20px}.form-label{font-size:17px}.card-reference{font-size:17px}.card-reference small{font-size:16px}.mode-desc{font-size:16px}.wish-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}.wish-option{border:2px solid var(--line);border-radius:15px;padding:16px;background:var(--soft);text-align:left;display:grid;gap:5px;line-height:1.6}.wish-option:hover,.wish-option:focus-visible{border-color:var(--green);background:var(--card)}.wish-option>span{font-size:30px}.wish-option strong{font-size:21px}.wish-option em{font-size:16px;font-style:normal;font-weight:800;color:var(--green)}.wish-option small{font-size:16px;color:var(--muted)}.wish-purple{border-top-color:#a678ca}.wish-blue{border-top-color:#579dc9}.wish-red{border-top-color:#db7d78}.wish-gold{border-top-color:#cbab46}
+@media(max-width:1120px){.layout{grid-template-columns:minmax(0,1fr) 350px}.map-title .mini{display:none}.map-title strong{font-size:26px}.map-title .direction{font-size:13px;padding:5px 8px}.tile .tile-name{display:none}.legend span{font-size:13px}}
+@media(max-width:880px){.layout{grid-template-columns:1fr}.side{grid-template-columns:1fr 1fr}.tile .tile-name{display:block}.tools .tool span{display:none}.map-title p{font-size:16px}.map-title .direction{font-size:15px}.headline p{font-size:17px}}
+@media(max-width:560px){.topbar{row-gap:14px}.brand small{font-size:9px;letter-spacing:.1em}h1{font-size:23px!important}.headline h2{font-size:29px}.headline p{font-size:17px}.eyebrow{font-size:12px}.maphead{gap:8px}.maphead h3{font-size:18px}.pill{font-size:13px}.round{font-size:16px}.side{grid-template-columns:1fr}.tile .tile-name{display:none}.tile .number{font-size:10px}.tile .icon{font-size:19px}.token-label{font-size:9px}.legend span{font-size:13px}.map-hint{font-size:15px}.map-title strong{font-size:24px;letter-spacing:.03em}.map-title p{font-size:13px;margin:4px 0}.map-title .mini{display:none}.map-title .direction{font-size:12px;line-height:1.5;padding:4px 6px}.map-title{bottom:5%;left:5px;right:5px}.island-art{top:-17%;height:75%}.die{width:49px;height:49px}.dice-arena{gap:8px}.dice-set{gap:7px}.fine,.duel .fine,.mode-note,.bag-info{font-size:16px}.racer-info{font-size:15px}.rule-grid{grid-template-columns:1fr}.mobile-dock strong{font-size:16px}.mobile-dock small{font-size:14px}.mobile-dock button{font-size:18px;min-width:130px}.mobile-dock{gap:9px;padding:10px 12px calc(10px + env(safe-area-inset-bottom))}.wish-grid{grid-template-columns:1fr}.wish-option{grid-template-columns:36px 1fr;gap:3px 12px;padding:14px}.wish-option>span{grid-row:1/3}.wish-option small{grid-column:1/3}.wish-option strong{font-size:20px}.wish-option em{font-size:16px}.equipment-card{flex-wrap:wrap}.equipment-card div{min-width:160px}.result-stats strong{font-size:25px}.result-stats div{font-size:15px;padding:10px 5px}.footer{font-size:14px}.map-title .direction{max-width:100%}}
+@media(max-width:360px){.brand small{font-size:8px}.die{width:44px;height:44px;padding:7px;gap:3px}.dice-set{gap:5px}.map-title strong{font-size:21px}.map-title p{font-size:12px}.map-title .direction{font-size:11px}.mobile-dock strong{font-size:14px}.mobile-dock small{font-size:12px}.mobile-dock button{min-width:118px}}
+
+/* 出發裝備以四個可用鍵盤操作的單選選項呈現。 */
+#setupDialog{width:800px}.starting-luck{border:0;padding:0;margin:14px 0}.starting-luck legend{padding:0}.starting-luck .wish-grid{margin-top:8px}.starting-luck .wish-option{position:relative;cursor:pointer;min-height:150px}.starting-luck .wish-option input{position:absolute;right:15px;top:16px;width:22px;height:22px;accent-color:var(--green)}.starting-luck .wish-option:has(input:checked){border-color:var(--green);box-shadow:0 0 0 2px var(--green)}.starting-luck .wish-option:has(input:focus-visible){outline:3px solid #db8238;outline-offset:3px}
+@media(max-width:560px){.starting-luck .wish-option{min-height:0;padding-right:44px}.starting-luck .wish-option small{grid-column:1/3}.starting-luck .wish-option input{right:12px;top:16px}.starting-luck .wish-option strong{font-size:20px}.starting-luck .wish-option em{font-size:15px}}
+</style></head><body>
+<a class="skip" href="#main">跳到遊戲</a>
+<!-- 以向量與漸層繪製立體角色，不依賴外部圖片或字型。 -->
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" aria-hidden="true" style="position:absolute"><defs>
+<linearGradient id="fur" x2=".8" y2="1"><stop stop-color="#ffca78"/><stop offset=".5" stop-color="#ee9147"/><stop offset="1" stop-color="#c86131"/></linearGradient><linearGradient id="blue" x2=".7" y2="1"><stop stop-color="#9ad9e7"/><stop offset="1" stop-color="#3683a0"/></linearGradient><linearGradient id="roof" x2="1" y2="1"><stop stop-color="#f5ae65"/><stop offset="1" stop-color="#ce6338"/></linearGradient>
+<symbol id="fox" viewBox="0 0 100 130"><ellipse cx="51" cy="119" rx="31" ry="7" fill="#355b402d"/><path d="M72 97Q111 102 88 67Q73 52 72 97" fill="url(#fur)"/><path d="M87 66Q103 77 94 92L81 79Z" fill="#fff3d7"/><ellipse cx="49" cy="91" rx="24" ry="28" fill="url(#fur)"/><ellipse cx="49" cy="91" rx="13" ry="19" fill="#fff0d3"/><ellipse cx="34" cy="115" rx="13" ry="7" fill="#ab5b33"/><ellipse cx="64" cy="115" rx="13" ry="7" fill="#ab5b33"/><path d="M18 47L12 9Q34 10 39 27L63 27Q74 7 90 12L83 51Z" fill="url(#fur)"/><path d="M19 18L23 43L35 29Z M81 19L77 42L65 30Z" fill="#874b3e"/><ellipse cx="50" cy="50" rx="38" ry="30" fill="url(#fur)"/><path d="M14 50Q31 43 50 59Q68 43 87 50Q83 78 50 80Q18 78 14 50" fill="#fff3d9"/><ellipse cx="34" cy="48" rx="4" ry="6" fill="#3e3731"/><ellipse cx="66" cy="48" rx="4" ry="6" fill="#3e3731"/><circle cx="35" cy="46" r="1.5" fill="white"/><circle cx="67" cy="46" r="1.5" fill="white"/><ellipse cx="50" cy="62" rx="6" ry="4" fill="#3d3b36"/><path d="M45 69Q50 75 56 69" fill="none" stroke="#6e4535" stroke-width="2" stroke-linecap="round"/><ellipse cx="24" cy="61" rx="6" ry="3" fill="#f0b79b"/><ellipse cx="76" cy="61" rx="6" ry="3" fill="#f0b79b"/><path d="M27 76Q51 88 73 75L73 87Q49 94 28 86Z" fill="#2c7c64"/><path d="M67 83L77 104L62 99L59 86" fill="#369e7a"/></symbol>
+<symbol id="robot" viewBox="0 0 100 130"><ellipse cx="51" cy="119" rx="31" ry="7" fill="#355b402d"/><path d="M35 99L35 117M65 99L65 117" stroke="#477991" stroke-width="13" stroke-linecap="round"/><rect x="24" y="69" width="52" height="40" rx="16" fill="url(#blue)"/><rect x="37" y="80" width="26" height="18" rx="6" fill="#e7eee4"/><circle cx="50" cy="89" r="5" fill="#ecaf53"/><path d="M20 77L12 93M80 77L89 91" stroke="#77b5c7" stroke-width="12" stroke-linecap="round"/><path d="M50 27L50 13" stroke="#477991" stroke-width="5"/><circle cx="50" cy="10" r="7" fill="#efab56"/><rect x="8" y="37" width="13" height="24" rx="6" fill="#457f9a"/><rect x="79" y="37" width="13" height="24" rx="6" fill="#457f9a"/><rect x="15" y="25" width="70" height="49" rx="19" fill="url(#blue)"/><rect x="24" y="36" width="52" height="29" rx="11" fill="#274d60"/><ellipse cx="38" cy="48" rx="4" ry="5" fill="#d6f8dc"/><ellipse cx="62" cy="48" rx="4" ry="5" fill="#d6f8dc"/><path d="M43 56Q50 62 57 56" fill="none" stroke="#b7e9df" stroke-width="2" stroke-linecap="round"/><path d="M24 32Q32 24 46 28" stroke="#d5f2ef" stroke-width="3" fill="none" stroke-linecap="round"/></symbol>
+<symbol id="tree" viewBox="0 0 60 90"><ellipse cx="30" cy="79" rx="23" ry="7" fill="#476c4626"/><path d="M28 50L27 79L34 79L33 46" fill="#926941"/><ellipse cx="30" cy="42" rx="25" ry="30" fill="#4e8b5b"/><ellipse cx="24" cy="33" rx="19" ry="24" fill="#71a66c"/><ellipse cx="22" cy="26" rx="12" ry="16" fill="#8ab87b"/></symbol>
+<symbol id="house" viewBox="0 0 120 120"><ellipse cx="60" cy="103" rx="51" ry="12" fill="#40613d21"/><path d="M17 60L65 39L103 59L103 96L57 114L17 92Z" fill="#f7e5be"/><path d="M57 75L103 59L103 96L57 114Z" fill="#d5b997"/><path d="M11 61L55 14L110 58L57 80Z" fill="url(#roof)"/><path d="M11 61L55 14L51 55L57 80Z" fill="#f7bf79"/><path d="M30 74L43 79L43 99L30 94Z" fill="#619ca3"/><path d="M72 79L88 73L88 94L72 100Z" fill="#477e7b"/><path d="M33 74L33 94M30 84L43 89" stroke="#f8e8c3" stroke-width="2"/><path d="M78 77L78 97M72 87L88 81" stroke="#e8d5b5" stroke-width="2"/></symbol>
+</defs></svg>
+<div class="wrap"><header class="topbar"><div class="brand"><div class="brand-mark" aria-hidden="true">⚄</div><div><small>LEOPARD DICE · ISLAND ADVENTURE</small><h1>豹子大富翁</h1></div></div><nav class="tools" aria-label="遊戲設定"><button class="tool" id="helpBtn" aria-label="開啟冒險指南">？<span>遊戲指南</span></button><button class="tool" id="soundBtn" aria-pressed="false" aria-label="開啟音效">♫<span>音效關</span></button><button class="tool" id="themeBtn" aria-pressed="false" aria-label="切換深色模式">☾<span>深色</span></button></nav></header>
+<section class="headline"><div><div class="eyebrow">ROLL THE DICE. EXPLORE THE ISLAND.</div><h2>一場雙骰對決，<em>一趟環島冒險。</em></h2><p>和小狐狸一起出發！擲出豹子、善用裝備，率先完成兩圈。</p></div><div class="goal"><div><strong>36</strong><small>格環島地圖</small></div><div><strong>2</strong><small>圈終點挑戰</small></div><div><strong>20</strong><small>種機會與裝備</small></div></div></section>
+<main id="main"><div class="layout"><section class="map-card" aria-label="十乘十環島地圖"><div class="maphead"><h3>🗺️ 微光冒險島</h3><span class="pill">10 × 10 外圈地圖</span><div class="round"><i class="dot"></i><span id="roundLabel">準備出發</span></div></div><div class="board-wrap"><div class="board" id="board"><div class="centerland">
+<svg class="island-art" viewBox="0 0 600 500" aria-hidden="true"><defs><linearGradient id="lake" x2="0" y2="1"><stop stop-color="#8fcfd2"/><stop offset="1" stop-color="#4fa0ad"/></linearGradient><linearGradient id="hill" x2=".7" y2="1"><stop stop-color="#b5ce8c"/><stop offset="1" stop-color="#82ad71"/></linearGradient></defs>
+<path d="M62 208Q56 79 192 73Q281 8 399 94Q544 98 536 225Q567 354 411 382Q282 438 154 374Q35 350 62 208" fill="#80ab6d" opacity=".26" transform="translate(0 13)"/>
+<path d="M62 208Q56 79 192 73Q281 8 399 94Q544 98 536 225Q567 354 411 382Q282 438 154 374Q35 350 62 208" fill="url(#hill)"/>
+<path d="M91 254Q180 318 286 246T499 211" stroke="#e1d7a2" stroke-width="40" fill="none" stroke-linecap="round"/><path d="M91 250Q180 314 286 242T499 207" stroke="#f2e6b8" stroke-width="28" fill="none" stroke-linecap="round"/>
+<path d="M291 103Q352 76 403 129Q471 140 446 187Q409 224 342 204Q273 177 291 103" fill="#699f782c" transform="translate(0 7)"/><path d="M291 103Q352 76 403 129Q471 140 446 187Q409 224 342 204Q273 177 291 103" fill="url(#lake)" stroke="#a9d4bb" stroke-width="9"/><path d="M320 132Q349 117 375 136M361 170L400 170M402 146L418 146" fill="none" stroke="#e7f8e7" stroke-width="3" opacity=".7" stroke-linecap="round"/>
+<use href="#tree" x="110" y="65" width="66" height="100"/><use href="#tree" x="157" y="44" width="74" height="111"/><use href="#tree" x="224" y="54" width="58" height="87"/><use href="#tree" x="442" y="193" width="70" height="105"/><use href="#tree" x="422" y="250" width="64" height="96"/><use href="#tree" x="91" y="278" width="57" height="86"/><use href="#tree" x="128" y="303" width="49" height="74"/>
+<use href="#house" x="148" y="134" width="116" height="116"/>
+<path d="M322 275L363 255L388 269L347 289Z" fill="#c58955"/><path d="M322 282L347 296L388 276L388 269L347 289L322 275Z" fill="#a5744f"/><path d="M331 271L356 285M341 267L367 280M351 262L378 275" stroke="#f3c994" stroke-width="3"/>
+<use href="#fox" x="239" y="231" width="88" height="115"/><use href="#robot" x="335" y="295" width="66" height="86"/>
+<g fill="#ecbe66"><circle cx="237" cy="331" r="4"/><circle cx="409" cy="238" r="4"/><circle cx="109" cy="211" r="4"/><circle cx="491" cy="316" r="4"/></g><g fill="#ecf0ce"><circle cx="278" cy="125" r="3"/><circle cx="181" cy="319" r="3"/><circle cx="385" cy="349" r="3"/><circle cx="204" cy="91" r="3"/></g>
+<path d="M478 100L478 164" stroke="#8a714c" stroke-width="4"/><path d="M480 101L514 111L480 126Z" fill="#ef9a59"/><ellipse cx="477" cy="167" rx="20" ry="5" fill="#60875433"/>
+</svg><div class="map-title"><div class="mini">A LITTLE ISLAND, A BIG ADVENTURE</div><strong>雙骰環島競速</strong><p>豹子優先 · 贏家移動 · 兩圈奪冠</p><span class="direction">🏁 從左下角出發 → 順時針 36 格 × 2 圈</span></div></div><div class="token" id="token0"><svg viewBox="0 0 100 130"><use href="#fox"/></svg><span class="token-label">你</span></div><div class="token" id="token1"><svg viewBox="0 0 100 130"><use href="#robot"/></svg><span class="token-label">電腦</span></div></div></div><div class="legend"><span>🌱 平地</span><span>⛲ 許願池</span><span>🃏 機會</span><span>🎒 命運</span><span>🚇 交通</span><span>🪷 沼澤</span><span>🅿️ 停車場</span><span>🌌 特殊地形</span></div><p class="map-hint">點選任一地圖格可查看效果。只觸發落點一次，傳送後不連鎖觸發。</p></section>
+<aside class="side"><section class="panel"><div class="panelhead"><h3>環島進度</h3><span class="pill">目標 72 格</span></div><div class="racer"><div class="portrait"><svg viewBox="0 0 100 130" aria-hidden="true"><use href="#fox"/></svg></div><div><div class="racer-name" id="playerName">小狐狸冒險者</div><div class="racer-info"><strong id="progress0">0 / 72 格</strong><span id="lap0">第 1 圈 · 起點</span></div><div class="bar" role="progressbar" id="bar0" aria-label="玩家環島進度" aria-valuemin="0" aria-valuemax="72" aria-valuenow="0"><i></i></div><div class="statuses" id="status0"></div></div></div><div class="racer"><div class="portrait bot"><svg viewBox="0 0 100 130" aria-hidden="true"><use href="#robot"/></svg></div><div><div class="racer-name">藍寶機器人</div><div class="racer-info"><strong id="progress1">0 / 72 格</strong><span id="lap1">第 1 圈 · 起點</span></div><div class="bar bot-bar" role="progressbar" id="bar1" aria-label="電腦環島進度" aria-valuemin="0" aria-valuemax="72" aria-valuenow="0"><i></i></div><div class="statuses" id="status1"></div></div></div></section>
+<section class="panel duel"><div class="panelhead"><h3>🎲 雙骰競技場</h3><label class="speed"><input id="fastToggle" type="checkbox">快速動畫</label></div><div class="dice-arena" id="diceArena"><div class="dice-side"><div class="dice-set" id="playerDice" aria-label="玩家尚未擲骰"></div><div class="dice-meta" id="diceMeta0">小狐狸 · 準備中</div></div><span class="vs">VS</span><div class="dice-side"><div class="dice-set" id="computerDice" aria-label="電腦尚未擲骰"></div><div class="dice-meta" id="diceMeta1">藍寶 · 準備中</div></div></div><div class="battle-result" id="battleResult" role="status" aria-live="polite"><strong>準備好踏上冒險了嗎？</strong><span>建立冒險者，從起點一起出發。</span></div><button class="roll-btn" id="rollBtn">開始環島冒險 →</button><p class="fine">豹子通殺；同類型比總點數。贏家前進自己的總點數。</p><p class="mode-note" id="modeNote">出發前自選幸運骰子，許願池再隨機贈禮</p></section>
+<section class="panel equipment-panel"><div class="panelhead"><h3>🎒 冒險背包</h3><button class="ghost" id="cardsBtn" style="font-size:14px;padding:3px 9px">卡牌圖鑑</button></div><div id="equipmentList" class="equipment-list"><p class="equipment-empty">踩到「命運」格，就有機會獲得裝備！</p></div><p class="bag-info" id="bagInfo">每回合可用 1 張主動卡；被動裝備自動發動。</p><p class="bag-info" id="computerBag">電腦裝備：尚無</p></section></aside></div>
+<div class="below"><section class="panel"><div class="panelhead"><h3>📜 環島冒險紀錄</h3><button class="ghost" id="restartBtn" style="font-size:15px;padding:4px 10px">重新挑戰</button></div><div class="log" id="log"><p class="empty-log">風吹過草地，故事正要開始。第一擲，會遇見什麼呢？</p></div></section><section class="panel"><div class="panelhead"><h3>探索之前，記住這四件事</h3></div><div class="rule-grid"><div class="rule-box"><strong>🐆 豹子優先</strong>兩顆相同就是豹子，無條件擊敗一般點數。同類型才比總點數。</div><div class="rule-box"><strong>🏃 贏家才移動</strong>勝方前進自己的總點數。平手不移動，停車場可讓勝方暫停一次。</div><div class="rule-box"><strong>🎒 裝備改變戰局</strong>擲骰前可用一張主動卡；被動裝備在符合條件時自動消耗。</div><div class="rule-box"><strong>🏁 先完成兩圈</strong>累積到72格立刻獲勝，不必剛好到達；地形後退可能讓圈數減少。</div></div></section></div>
+<details class="panel python"><summary>🐍 Python 小教室：把程式邏輯變成一場冒險</summary><div class="lesson"><div><h4>01｜用類別保存角色狀態</h4><p>位置、圈數與裝備都是角色的資料。把「總距離」當成唯一位置來源，跨圈後退也不會亂掉。</p><pre>class Player:
+    def total_distance(self):
+        return self.laps * 36 + self.pos
+
+new_total = max(0, old_total + steps)
+laps = new_total // 36
+pos = new_total % 36</pre></div><div><h4>02｜先判斷豹子，再比較總點數</h4><p>兩顆相同是布林條件。「幸運之神」機會卡的 +3 會影響總點數與前進步數，但不會改變骰面。</p><pre>is_double = (d1 == d2)
+if p_double and not c_double:
+    winner = player
+elif c_double and not p_double:
+    winner = computer
+else:
+    # 比較加成後的總點數</pre></div><div><h4>03｜條件、事件與遊戲迴圈</h4><p>每回合依序使用裝備、擲骰、判勝負、移動與落點事件。達到兩圈就離開迴圈。</p><pre>while player.laps < 2 and comp.laps < 2:
+    use_active_cards()
+    roll_dice()
+    compare_dice()
+    move_winner()
+    # 未衝線才觸發一次落點事件</pre></div></div></details></main>
+<footer class="footer">用 Python 隨機邏輯打造的雙骰環島競速｜每一次擲骰，都是機率與程式思考的冒險！<small>單檔離線遊戲 · 不需帳號或安裝 · <a href="https://martin-team-0506.github.io/Collections/index.html">返回創意作品收藏室</a></small></footer></div>
+<div class="mobile-dock"><div><strong id="mobileStatus">小狐狸與藍寶，準備出發！</strong><small id="mobileProgress">36 格 × 2 圈 · 72 格奪冠</small></div><button id="mobileRoll">開始冒險 →</button></div>
+<dialog id="setupDialog" aria-labelledby="setupTitle"><div class="eyebrow">YOUR ISLAND ADVENTURE STARTS HERE</div><h2 id="setupTitle">冒險者，歡迎登島！</h2><p>小狐狸與藍寶已經整裝待發。擲出雙骰，穿越驚喜，率先完成兩圈。</p><label class="form-label" for="nameInput">你的冒險者名字</label><input type="text" id="nameInput" maxlength="16" placeholder="例如：若望老師" autocomplete="nickname"><fieldset class="starting-luck"><legend class="form-label">出發前，選擇一種幸運骰子（四選一）</legend><div class="wish-grid" id="startingOptions"></div></fieldset><div class="mode-desc">⛲ 踩到第 2、10 或 26 格許願池時，會隨機獲得四種幸運骰子之一，取代原效果並重新計時。</div><button class="primary full" id="startBtn" disabled>🏁 出發，環島去！</button><p class="fine">36 格 × 2 圈，先到 72 格即獲勝。</p></dialog>
+<dialog id="infoDialog" aria-labelledby="infoTitle"><button class="close" id="closeInfo" aria-label="關閉說明">關閉 ×</button><div id="infoContent"></div></dialog>
+<dialog id="finishDialog" aria-labelledby="finishTitle"><div class="dialog-icon" id="finishIcon"></div><div class="eyebrow" style="text-align:center">THE END OF A WONDERFUL ADVENTURE</div><h2 id="finishTitle" style="text-align:center"></h2><p id="finishMessage" style="text-align:center"></p><div class="result-stats" id="finishStats"></div><div class="dialog-actions"><button class="primary" id="againBtn">再環島一次</button><button class="ghost" id="recordsBtn">查看紀錄</button></div><div class="dialog-actions"><button class="ghost" id="changeBtn">更換冒險者</button><button class="ghost" id="exitBtn">離開遊戲</button></div></dialog>
+<dialog id="confirmDialog" aria-labelledby="confirmTitle"><h2 id="confirmTitle">重新出發？</h2><p>本場位置、回合、背包與紀錄會重設。音效與深色設定會保留。</p><div class="dialog-actions"><button class="ghost" id="cancelReset">繼續冒險</button><button class="primary" id="confirmReset">確認重新挑戰</button></div></dialog>
+<script>
+/* 豹子大富翁：可獨立驗證的遊戲規則。距離是唯一位置來源，避免跨圈錯亂。 */
+(function(root){
+'use strict';
+const LENGTH=36, GOAL=72;
+const EQUIPMENT=[
+{id:'parking',name:'免費停車券',icon:'🎫',type:'passive',desc:'抵消一次停車場暫停。'},
+{id:'boots',name:'防滑登山鞋',icon:'🥾',type:'passive',desc:'抵消一次沼澤後退。'},
+{id:'vip',name:'高鐵 VIP 車票',icon:'🎟️',type:'passive',desc:'抵消第30格遣返，改前進2格。'},
+{id:'steal',name:'奪取裝備卡',icon:'🥷',type:'active',desc:'隨機奪取對手一張裝備。'},
+{id:'turtle',name:'重裝烏龜殼',icon:'🐢',type:'active',desc:'對手下次能移動的勝回合只能前進1格。'},
+{id:'shield',name:'金鐘罩',icon:'🛡️',type:'passive',desc:'擋下機會卡的命運交錯或暗箭傷人一次。'},
+{id:'tow',name:'強制拖吊',icon:'🚓',type:'active',desc:'將對手送至同一圈第9格，並觸發停車場。'},
+{id:'destroy',name:'衰神降臨',icon:'💥',type:'active',desc:'銷毀對手的所有裝備。'},
+{id:'scarecrow',name:'替身草人',icon:'🎎',type:'passive',desc:'迷宮或黑洞的退步改由對手承受一次。'},
+{id:'more',name:'多多益善',icon:'🎁',type:'active',desc:'立即再抽一張裝備卡。'}];
+const CHANCES=[
+{name:'命運交錯',icon:'🔄',desc:'雙方互換完整位置，包含圈數。'},
+{name:'神仙顯靈',icon:'✨',desc:'立即前進5格。'},
+{name:'踩到香蕉皮',icon:'🍌',desc:'立即後退3格。'},
+{name:'背後靈',icon:'👻',desc:'若落後，追上對手所在位置。'},
+{name:'暗箭傷人',icon:'🏹',desc:'讓對手後退4格。'},
+{name:'天降補給',icon:'🎁',desc:'立即抽取一張裝備卡。'},
+{name:'時光倒流',icon:'⏳',desc:'雙方回到本回合開始時的位置，含圈數。'},
+{name:'衝刺爆發',icon:'⚡',desc:'立即再前進3格。'},
+{name:'疲勞轟炸',icon:'💤',desc:'對手下次能移動的勝回合步數減半，最少1格。'},
+{name:'幸運之神',icon:'🍀',desc:'下回合擲骰，總點數額外加3。'}];
+const TILE_TYPES={
+start:{name:'起點',icon:'🏁',color:'start',desc:'順時針出發，每圈36格，累積72格即獲勝。'},
+plain:{name:'青青草原',icon:'🌱',color:'plain',desc:'安全平地，好好欣賞風景。'},
+fountain:{name:'許願池',icon:'⛲',color:'water',desc:'隨機贈予玩家魔法紫、星空藍、勇氣紅或幸運金之一，各25%機率；從下一回合生效，取代舊效果並重新計時。電腦無效。'},
+fate:{name:'命運',icon:'🎒',color:'fate',desc:'隨機獲得1張裝備，主動卡每回合可用1張；被動卡自動消耗。'},
+chance:{name:'機會',icon:'🃏',color:'chance',desc:'隨機抽取10種機會卡之一。'},
+metro:{name:'捷運站',icon:'🚇',color:'water',desc:'第5格前進3格；第19格前進2格。'},
+swamp:{name:'沼澤',icon:'🪷',color:'swamp',desc:'第7、16格退3格，第29格退5格；登山鞋可抵消。'},
+parking:{name:'停車場',icon:'🅿️',color:'parking',desc:'下次獲勝暫停移動1次；免費停車券可抵消。'},
+door:{name:'任意門',icon:'🚪',color:'fate',desc:'傳送至本圈第1、4、8、13、17或21格。'},
+rest:{name:'休息站',icon:'☕',color:'chance',desc:'下次能移動的勝回合額外前進2格，可累加。'},
+rail:{name:'高鐵站',icon:'🚄',color:'water',desc:'第18格直達同圈第30格，不再觸發遣返。'},
+return:{name:'驗票站',icon:'🎫',color:'parking',desc:'第30格遣返同圈第18格；VIP車票可改前進2格。'},
+maze:{name:'迷宮',icon:'🌀',color:'mystery',desc:'後退7格，替身草人可讓對手承受。'},
+blackhole:{name:'黑洞',icon:'🌌',color:'mystery',desc:'退回本圈第1格，替身草人可讓對手退32格。'}};
+const CELL_KEYS=['start','plain','fountain','chance','plain','metro','fate','swamp','plain','parking','fountain','door','fate','plain','rest','chance','swamp','plain','rail','metro','maze','plain','fate','fate','plain','chance','fountain','parking','plain','swamp','return','fate','rest','blackhole','chance','plain'];
+const LUCKY_DICE={
+purple:{name:'魔法紫',icon:'💜',rounds:3,desc:'接下來3回合，玩家其中一顆骰子保證6點，另一顆隨機。'},
+blue:{name:'星空藍',icon:'💙',rounds:1,desc:'接下來1回合，玩家必定擲出豹子，點數仍隨機。'},
+red:{name:'勇氣紅',icon:'❤️',rounds:1,desc:'接下來1回合，若電腦獲勝，抵銷該勝場，電腦不前進。'},
+gold:{name:'幸運金',icon:'💛',rounds:3,desc:'接下來3回合，電腦若擲出豹子，持續重擲兩顆直到不是豹子。'}};
+function compare(a,b,ab=0,bb=0){const ad=a[0]===a[1],bd=b[0]===b[1];const as=a[0]+a[1]+ab,bs=b[0]+b[1]+bb;return ad!==bd?(ad?1:-1):Math.sign(as-bs);}
+function coordinate(i){if(i<=9)return {r:9,c:i};if(i<=18)return {r:18-i,c:9};if(i<=27)return {r:0,c:27-i};return {r:i-27,c:0};}
+function person(id,name){return {id,name,distance:0,equipment:[],paused:false,bonus:0,exhausted:false,turtle:false,luckyGod:false,luckyDice:{type:null,rounds:0},wins:0,doubles:0};}
+class Game{
+ constructor(name='冒險者',rng=Math.random,startingLuck=null){this.rng=rng;this.players=[person(0,name),person(1,'藍寶機器人')];this.round=1;this.draws=0;this.protected=0;this.over=false;this.winner=null;this.activeUsed=false;this.history=[0,0];this.events=[];this.lastDice=null;if(LUCKY_DICE[startingLuck])this.grantLucky(startingLuck,'start');}
+ random(n){return Math.min(n-1,Math.max(0,Math.floor(this.rng()*n)));}
+ die(){return 1+this.random(6);}
+ emit(text,type='info',extra={}){this.events.push({text,type,positions:this.players.map(p=>p.distance),...extra});}
+ has(p,id){return p.equipment.includes(id);}
+ consume(p,id){const i=p.equipment.indexOf(id);if(i<0)return false;p.equipment.splice(i,1);this.emit(`${p.name} 使用【${EQUIPMENT.find(e=>e.id===id).name}】。`,'equipment');return true;}
+ checkFinish(p){if(p.distance>=GOAL&&!this.over){this.over=true;this.winner=p.id;this.emit(`🏆 ${p.name} 率先完成兩圈！`,'finish');}}
+ move(p,steps){if(this.over)return;const from=p.distance;p.distance=Math.max(0,Math.min(GOAL,from+steps));this.emit(`${p.name} ${steps<0?'後退':'前進'} ${Math.abs(p.distance-from)} 格。`,'move',{mover:p.id,from,to:p.distance});this.checkFinish(p);}
+ teleport(p,to,label){if(this.over)return;const from=p.distance;p.distance=Math.max(0,Math.min(GOAL,to));this.emit(`${p.name} ${label}，抵達第 ${p.distance%36} 格。`,'teleport',{mover:p.id,from,to:p.distance});this.checkFinish(p);}
+ drawEquipment(p){const card=EQUIPMENT[this.random(EQUIPMENT.length)];p.equipment.push(card.id);this.emit(`${p.name} 獲得 ${card.icon}【${card.name}】：${card.desc}`,'equipment');}
+ useActive(id,cardId){if(this.over||(id===0&&this.activeUsed))return false;const p=this.players[id],o=this.players[1-id];const card=EQUIPMENT.find(x=>x.id===cardId);if(!card||card.type!=='active'||!this.has(p,cardId))return false;
+ this.consume(p,cardId);if(id===0)this.activeUsed=true;
+ switch(cardId){
+ case 'steal':if(o.equipment.length){const k=this.random(o.equipment.length);const stolen=o.equipment.splice(k,1)[0];p.equipment.push(stolen);this.emit(`${p.name} 奪得【${EQUIPMENT.find(e=>e.id===stolen).name}】。`,'equipment');}else this.emit('對手背包是空的，沒有裝備可奪取。');break;
+ case 'turtle':o.turtle=true;this.emit(`${o.name} 下次能移動的勝回合只能前進1格。`,'warning');break;
+ case 'tow':this.teleport(o,Math.floor(o.distance/36)*36+9,'被拖吊');this.parking(o);break;
+ case 'destroy':o.equipment=[];this.emit(`${o.name} 所有裝備已銷毀。`,'warning');break;
+ case 'more':this.drawEquipment(p);break;}
+ return true;}
+ parking(p){if(!this.consume(p,'parking')){p.paused=true;this.emit(`${p.name} 下次獲勝暫停移動一次。`,'warning');}}
+ chance(p,index){const o=this.players[1-p.id],card=CHANCES[index];this.emit(`${p.name} 抽到 ${card.icon}【${card.name}】：${card.desc}`,'chance');
+ if([0,4].includes(index)&&this.consume(o,'shield')){this.emit('金鐘罩抵擋了這次負面機會！','equipment');return;}
+ switch(index){
+ case 0:{const a=p.distance,b=o.distance;p.distance=b;o.distance=a;this.emit('命運交錯！雙方交換位置與圈數。','teleport');break;}
+ case 1:this.move(p,5);break;
+ case 2:this.move(p,-3);break;
+ case 3:if(p.distance<o.distance)this.teleport(p,o.distance,'追上對手');else this.emit('目前沒有落後，位置不變。');break;
+ case 4:this.move(o,-4);break;
+ case 5:this.drawEquipment(p);break;
+ case 6:this.players.forEach((x,i)=>x.distance=this.history[i]);this.emit('時間倒流！雙方回到本回合開始時的位置。','teleport');break;
+ case 7:this.move(p,3);break;
+ case 8:o.exhausted=true;this.emit(`${o.name} 受到疲勞影響。`,'warning');break;
+ case 9:p.luckyGod=true;this.emit(`${p.name} 下回合總點數 +3。`,'equipment');break;}}
+ cellEvent(p){if(this.over)return;const o=this.players[1-p.id],cell=p.distance%36,base=Math.floor(p.distance/36)*36,key=CELL_KEYS[cell];this.emit(`${p.name} 停在第 ${cell} 格：${TILE_TYPES[key].icon} ${TILE_TYPES[key].name}。`,'tile');
+ switch(key){
+ case 'fountain':if(p.id===0){const types=Object.keys(LUCKY_DICE);this.grantLucky(types[this.random(types.length)],'fountain');}else this.emit('許願池只回應玩家；電腦沒有加成。');break;
+ case 'fate':this.drawEquipment(p);break;
+ case 'chance':this.chance(p,this.random(CHANCES.length));break;
+ case 'metro':this.move(p,cell===5?3:2);break;
+ case 'swamp':if(!this.consume(p,'boots'))this.move(p,cell===29?-5:-3);break;
+ case 'parking':this.parking(p);break;
+ case 'door':this.teleport(p,base+[1,4,8,13,17,21][this.random(6)],'穿越任意門');break;
+ case 'rest':p.bonus+=2;this.emit(`${p.name} 休息充電，下次能移動的勝回合 +${p.bonus} 格。`,'equipment');break;
+ case 'rail':this.teleport(p,base+30,'搭高鐵');break;
+ case 'return':if(this.consume(p,'vip'))this.move(p,2);else this.teleport(p,base+18,'未購票遣返');break;
+ case 'maze':case 'blackhole':{const penalty=cell===20?-7:-32;if(this.consume(p,'scarecrow'))this.move(o,penalty);else this.move(p,penalty);break;}
+ default:break;
+ }}
+ // 出發自選；許願池只由cellEvent抽出隨機類型，再統一替換與重設回合數。
+ grantLucky(type,source){if(this.over||!LUCKY_DICE[type])return false;const card=LUCKY_DICE[type];this.players[0].luckyDice={type,rounds:card.rounds};const text=source==='start'?`${card.icon} 出發裝備【${card.name}】，從第1回合開始生效，共 ${card.rounds} 回合。`:`⛲ 許願池隨機贈予 ${card.icon}【${card.name}】！從下一回合生效，共 ${card.rounds} 回合，取代原效果並重新計時。`;this.emit(text,source==='start'?'equipment':'wish',{luckyType:type,luckyRounds:card.rounds});return true;}
+ play(){if(this.over)return null;this.events=[];const round=this.round,p=this.players[0],c=this.players[1];
+ // 電腦在每回合以50%機率使用一張主動裝備；玩家在擲骰前手動選擇。
+ const active=c.equipment.filter(id=>EQUIPMENT.find(e=>e.id===id).type==='active');if(active.length&&this.rng()<0.5)this.useActive(1,active[this.random(active.length)]);
+ let a=[this.die(),this.die()],b=[this.die(),this.die()];
+ const luckyType=p.luckyDice.rounds>0?p.luckyDice.type:null;
+ if(luckyType==='purple'){a[0]=6;this.emit('魔法紫：一顆骰子固定6點。','equipment');}
+ if(luckyType==='blue'){a[1]=a[0];this.emit('星空藍：本回合保證豹子。','equipment');}
+ if(luckyType==='gold'){let n=0;while(b[0]===b[1]&&n<100){b=[this.die(),this.die()];n++;}if(b[0]===b[1]){const all=[];for(let i=1;i<=6;i++)for(let j=1;j<=6;j++)if(i!==j)all.push([i,j]);b=all[this.random(30)];}if(n)this.emit(`幸運金：電腦豹子已重擲 ${n} 次，採用非豹子結果。`,'equipment');}
+ const pb=p.luckyGod?3:0,cb=c.luckyGod?3:0;p.luckyGod=false;c.luckyGod=false;
+ if(pb)this.emit(`${p.name} 幸運加成：總點數 +3。`,'equipment');if(cb)this.emit('電腦幸運加成：總點數 +3。','equipment');
+ const result=compare(a,b,pb,cb),totals=[a[0]+a[1]+pb,b[0]+b[1]+cb];
+ if(a[0]===a[1])p.doubles++;if(b[0]===b[1])c.doubles++;
+ this.lastDice={a,b,pb,cb,result,totals,round,luckyType};this.emit(`第 ${round} 回合｜${p.name} ${a.join('、')}（${totals[0]}點）／電腦 ${b.join('、')}（${totals[1]}點）。`,'dice');
+ // 依Python規則，每個對決回合都消耗1次（含平手、停車與保護）。落點新取得的效果留給下一回合。
+ if(luckyType){p.luckyDice.rounds--;this.emit(`${LUCKY_DICE[luckyType].icon} ${LUCKY_DICE[luckyType].name} 已使用1回合，剩餘 ${p.luckyDice.rounds} 回合。`,'equipment');if(p.luckyDice.rounds===0)p.luckyDice.type=null;}
+ let protectedRound=false;
+ if(result===0){this.draws++;this.emit('🤝 平手！雙方都不移動。','result');}
+ else if(result===-1&&luckyType==='red'){protectedRound=true;this.protected++;this.emit('勇氣紅抵銷本回合電腦勝場，電腦不前進。','equipment');}
+ else{const w=result>0?p:c;w.wins++;const label=(a[0]===a[1])!==(b[0]===b[1])?'豹子通殺':'總點數較大';this.emit(`${w.name} ${label}，本回合獲勝！`,'result');if(w.paused){w.paused=false;this.emit('🅿️ 停車場效果發動，這次勝回合不移動；暫停解除。','warning');}else{let steps=totals[w.id]+w.bonus;w.bonus=0;if(w.exhausted){steps=Math.max(1,Math.floor(steps/2));w.exhausted=false;this.emit('疲勞生效：步數減半，最少1格。','warning');}if(w.turtle){steps=1;w.turtle=false;this.emit('烏龜殼生效：只能前進1格。','warning');}this.move(w,steps);if(!this.over)this.cellEvent(w);}}
+ this.round++;this.activeUsed=false;this.history=this.players.map(x=>x.distance);
+ return {...this.lastDice,protectedRound,events:[...this.events]};}
+}
+const api={LENGTH,GOAL,EQUIPMENT,CHANCES,TILE_TYPES,CELL_KEYS,LUCKY_DICE,compare,coordinate,Game};
+if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.DiceRace=api;
+})(typeof window!=='undefined'?window:globalThis);
+
+</script><script>
+/* 介面層：規則先結算一次，再播放移動，動畫期間鎖定所有遊戲操作。 */
+'use strict';
+const {Game,EQUIPMENT,CHANCES,TILE_TYPES,CELL_KEYS,LUCKY_DICE,coordinate}=DiceRace;
+const $=id=>document.getElementById(id);let game=null,started=false,busy=false,visual=[0,0],sound=false,fast=false,audioCtx=null;const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;const logs=[];
+function prefGet(k){try{return localStorage.getItem(k);}catch{return null;}}
+function prefSet(k,v){try{localStorage.setItem(k,v);}catch{/* 偏好設定無法儲存時，遊戲仍可正常執行。 */}}
+sound=prefGet('island.sound')==='1';document.body.classList.toggle('dark',prefGet('island.dark')==='1');fast=prefGet('island.fast')==='1';$('fastToggle').checked=fast;
+function settings(){const dark=document.body.classList.contains('dark');$('themeBtn').setAttribute('aria-pressed',String(dark));$('themeBtn').innerHTML=dark?'☀<span>淺色</span>':'☾<span>深色</span>';$('soundBtn').setAttribute('aria-pressed',String(sound));$('soundBtn').innerHTML=sound?'♫<span>音效開</span>':'♫<span>音效關</span>';$('soundBtn').setAttribute('aria-label',sound?'關閉音效':'開啟音效');}settings();
+function tone(freq=500,time=.07){if(!sound)return;try{audioCtx??=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();const osc=audioCtx.createOscillator(),gain=audioCtx.createGain();osc.type='sine';osc.frequency.value=freq;gain.gain.setValueAtTime(.07,audioCtx.currentTime);gain.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+time);osc.connect(gain);gain.connect(audioCtx.destination);osc.start();osc.stop(audioCtx.currentTime+time);}catch{}}
+$('soundBtn').onclick=()=>{sound=!sound;prefSet('island.sound',sound?'1':'0');settings();tone();};$('themeBtn').onclick=()=>{document.body.classList.toggle('dark');prefSet('island.dark',document.body.classList.contains('dark')?'1':'0');settings();};$('fastToggle').onchange=()=>{fast=$('fastToggle').checked;prefSet('island.fast',fast?'1':'0');};
+const PIPS={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
+function drawDice(target,values){const holder=$(target);holder.replaceChildren();(values||[null,null]).forEach(n=>{const d=document.createElement('div');d.className='die'+(n?'':' unset');d.setAttribute('role','img');d.setAttribute('aria-label',n?`${n} 點`:'尚未擲骰');for(let i=0;i<9;i++){const dot=document.createElement('i');dot.className='pip';if(n&&PIPS[n].includes(i))dot.style.visibility='visible';d.append(dot);}holder.append(d);});holder.setAttribute('aria-label',values?`${target==='playerDice'?'玩家':'電腦'}骰子：${values.join('、')}點`:'尚未擲骰');}
+drawDice('playerDice');drawDice('computerDice');
+function positionTokens(){visual.forEach((d,i)=>{const c=coordinate(d%36),same=visual[0]%36===visual[1]%36;const token=$('token'+i);const x=(c.c+.5)*10+(same?(i===0?-1.8:1.8):0);token.style.left=x+'%';token.style.top=(c.r+.63)*10+'%';token.setAttribute('aria-label',`${i===0?'玩家':'電腦'}，第${d%36}格，累積${d}格`);});document.querySelectorAll('.tile').forEach(t=>t.classList.toggle('occupied',visual.some(d=>d%36===+t.dataset.cell)));}
+for(let i=0;i<36;i++){const type=TILE_TYPES[CELL_KEYS[i]],co=coordinate(i),b=document.createElement('button');b.className='tile '+type.color;b.style.gridRow=co.r+1;b.style.gridColumn=co.c+1;b.dataset.cell=i;b.setAttribute('aria-label',`第${i}格：${type.name}，點選查看效果`);b.innerHTML=`<span class="number">${String(i).padStart(2,'0')}</span><span class="icon" aria-hidden="true">${type.icon}</span><span class="tile-name">${i===0?'START':type.name}</span>`;b.onclick=()=>showInfo(`<div class="tile-big">${type.icon}</div><div class="eyebrow">ISLAND MAP · ${String(i).padStart(2,'0')}</div><h2 id="infoTitle">第${i}格 · ${type.name}</h2><p>${type.desc}</p><h3>此格目前的冒險者</h3><p>${[0,1].filter(k=>visual[k]%36===i).map(k=>k===0?'小狐狸（你）':'藍寶機器人').join('、')||'尚無冒險者'}</p>`);$('board').append(b);}positionTokens();
+function showInfo(html){$('infoContent').innerHTML=html;if(!$('infoDialog').open)$('infoDialog').showModal();} $('closeInfo').onclick=()=>$('infoDialog').close();
+function reference(){showInfo(`<div class="eyebrow">ADVENTURE CARD COLLECTION</div><h2 id="infoTitle">機會與裝備圖鑑</h2><p>主動卡每回合最多使用1張；被動裝備自動發動並消耗1張。電腦每回合有50%機率使用1張主動卡。</p><h3>🎒 十種裝備</h3><div class="card-table">${EQUIPMENT.map(c=>`<div class="card-reference"><strong>${c.icon} ${c.name}</strong> · ${c.type==='active'?'主動':'被動'}<small>${c.desc}</small></div>`).join('')}</div><h3>🃏 十種機會</h3><div class="card-table">${CHANCES.map(c=>`<div class="card-reference"><strong>${c.icon} ${c.name}</strong><small>${c.desc}</small></div>`).join('')}</div>`);} $('cardsBtn').onclick=reference;
+$('helpBtn').onclick=()=>showInfo(`<div class="eyebrow">A GUIDE TO YOUR ADVENTURE</div><h2 id="infoTitle">雙骰環島冒險指南</h2><h3>01｜每回合雙方各擲兩顆骰子</h3><p>只有一方擲出豹子（兩顆相同）時，豹子一定獲勝。雙方都是豹子或都不是豹子時，比較總點數；相同為平手。</p><h3>02｜勝方才能前進</h3><p>前進自己加成後的總點數，平手雙方不動。只有「幸運之神」機會卡的 +3 在下回合擲骰時消耗，用於比點與步數，不改變骰面或豹子優先規則。</p><h3>03｜地圖與裝備</h3><p>地圖外圈共有36格，起點為第0格，順時針移動。點擊地圖格查看效果。每次移動只觸發落點事件一次，額外移動或傳送不會連鎖觸發。許願池只隨機贈予玩家幸運骰子，電腦踩到無效。</p><h3>04｜狀態結算順序</h3><p>先檢查停車場暫停：下次獲勝不移動，並保留步數增減益。能移動時，先加休息站獎勵，再將疲勞步數向下取整減半（最少1格），最後套用烏龜殼固定1格。暫停不妨礙擲骰，也不會讓對手直接移動。</p><h3>05｜完成兩圈奪冠</h3><p>累積72格立即獲勝，超過也算完成，不再觸發落點懲罰。後退最少到0格；向後跨過起點會減少圈數。一般傳送保留原圈數，命運交錯會互換完整位置；時光倒流回到回合開始的完整位置。</p><h3>06｜出發自選，許願池隨機贈禮</h3><p>每次出發前，玩家先選擇一種幸運骰子，從第1回合生效。踩到第2、10、26格許願池時，系統隨機贈予四種之一，各25%機率，玩家不用選擇：</p><p>魔法紫接下來3回合固定一顆6點；星空藍接下來1回合保證豹子；勇氣紅接下來1回合抵銷電腦勝場、不讓電腦前進；幸運金接下來3回合重擲電腦豹子直到不是豹子。</p><p>許願池贈予的骰子會取代原本的幸運骰子並重新計算回合數，從下一回合開始生效；抽到相同顏色也會重設完整回合數。平手、停車暫停或勇氣紅未觸發，仍會消耗1回合；「幸運之神」機會卡的 +3 是獨立加成，可以並用。</p><h3>操作方式</h3><p>滑鼠或觸控操作按鈕，鍵盤可用 Tab 移動、Enter 確認。未開啟視窗或輸入欄位時，空白鍵可擲骰。動畫期間鎖定裝備與重開，避免重複結算。</p>`);
+
+function startNew(name,type){if(!LUCKY_DICE[type])return;game=new Game(name.trim()||'小狐狸冒險者',Math.random,type);started=true;busy=false;visual=[0,0];logs.length=0;$('log').replaceChildren();$('log').innerHTML='<p class="empty-log">冒險啟程！擲出第一組雙骰，探索這座小島。</p>';$('playerName').textContent=game.players[0].name;$('roundLabel').textContent='第 1 回合';drawDice('playerDice');drawDice('computerDice');$('diceMeta0').textContent='小狐狸 · 準備中';$('diceMeta1').textContent='藍寶 · 準備中';setResult('🏁 冒險啟程！','雙方從起點出發，率先完成兩圈者獲勝。');$('setupDialog').close();addLog('🏁 出發裝備',game.events);update();positionTokens();$('rollBtn').focus({preventScroll:true});requestAnimationFrame(()=>window.scrollTo({top:0,behavior:'instant'}));tone(660);}
+$('startBtn').onclick=()=>startNew($('nameInput').value,document.querySelector('input[name=startingLuck]:checked')?.value);$('nameInput').onkeydown=e=>{if(e.key==='Enter')$('startBtn').click();};
+// 出發前以原生單選鈕選擇，未選擇時不能啟程；許願池不提供自選介面。
+for(const [type,card] of Object.entries(LUCKY_DICE)){const label=document.createElement('label');label.className='wish-option wish-'+type;label.innerHTML=`<input type="radio" name="startingLuck" value="${type}" aria-label="出發裝備${card.name}"><span aria-hidden="true">${card.icon}</span><strong>${card.name}</strong><em>出發起算，共 ${card.rounds} 回合</em><small>${card.desc.replace(/^接下來\d+回合，/,'')}</small>`;label.querySelector('input').onchange=()=>{$('startBtn').disabled=false;};$('startingOptions').append(label);}
+function openSetup(name){$('nameInput').value=name||'';document.querySelectorAll('input[name=startingLuck]').forEach(r=>r.checked=false);$('startBtn').disabled=true;if(!$('setupDialog').open)$('setupDialog').showModal();}
+function setResult(title,detail){$('battleResult').replaceChildren();const a=document.createElement('strong'),b=document.createElement('span');a.textContent=title;b.textContent=detail;$('battleResult').append(a,b);}
+function statusText(p){return [p.paused?'🅿️ 下次勝回合暫停':null,p.luckyGod?'🍀 幸運之神：下回合 +3':null,p.luckyDice.rounds?LUCKY_DICE[p.luckyDice.type].icon+' '+LUCKY_DICE[p.luckyDice.type].name+' 剩'+p.luckyDice.rounds+'回合':null,p.bonus?'☕ 勝回合 +'+p.bonus+'格':null,p.exhausted?'💤 勝回合步數減半':null,p.turtle?'🐢 勝回合固定1格':null].filter(Boolean);}
+function update(){if(!game)return;game.players.forEach((p,i)=>{$('progress'+i).textContent=p.distance+' / 72 格';$('lap'+i).textContent=p.distance>=72?'已完成兩圈':`第 ${Math.floor(p.distance/36)+1} 圈 · 第 ${p.distance%36} 格`;$('bar'+i).setAttribute('aria-valuenow',p.distance);$('bar'+i).firstElementChild.style.width=(p.distance/72*100)+'%';$('status'+i).replaceChildren();statusText(p).forEach(t=>{const s=document.createElement('span');s.textContent=t;$('status'+i).append(s);});});
+ const locked=busy||game.over;const luck=game.players[0].luckyDice;$('modeNote').textContent=luck.rounds?LUCKY_DICE[luck.type].icon+' '+LUCKY_DICE[luck.type].name+'｜剩餘 '+luck.rounds+' 回合 · '+LUCKY_DICE[luck.type].desc.replace(/^接下來\d+回合，/,''):'⛲ 幸運骰子已到期；踩到許願池會隨機獲得新效果。';$('mobileRoll').disabled=locked;$('mobileRoll').textContent=game.over?'冒險已完成':busy?'移動中…':'🎲 擲出雙骰';$('mobileStatus').textContent=game.over?'🏁 '+game.players[game.winner].name+' 完成兩圈':`第 ${game.round} 回合 · ${busy?'擲骰與移動中…':game.activeUsed?'主動卡已使用':'準備對決'}`;$('mobileProgress').textContent=`你 ${game.players[0].distance}/72 格 · 藍寶 ${game.players[1].distance}/72 格`;$('roundLabel').textContent=game.over?'冒險完成':`第 ${game.round} 回合`;$('rollBtn').disabled=locked;$('rollBtn').textContent=game.over?'🏁 冒險已完成':busy?'冒險進行中…':'🎲 擲出雙骰 · 開始對決';$('restartBtn').disabled=busy;$('fastToggle').disabled=busy;
+ const list=$('equipmentList');list.replaceChildren();const counts={};game.players[0].equipment.forEach(id=>counts[id]=(counts[id]||0)+1);if(!Object.keys(counts).length)list.innerHTML='<p class="equipment-empty">背包空空的，踩到「命運」格就能抽裝備。</p>';
+ for(const [id,n]of Object.entries(counts)){const c=EQUIPMENT.find(x=>x.id===id),div=document.createElement('div');div.className='equipment-card';div.innerHTML=`<b aria-hidden="true">${c.icon}</b><div><strong>${c.name}${n>1?' ×'+n:''}</strong><small>${c.desc}</small></div>`;if(c.type==='active'){const b=document.createElement('button');b.className='equip-use';b.textContent='使用';b.setAttribute('aria-label','使用'+c.name);b.disabled=locked||game.activeUsed;b.onclick=()=>useCard(id);div.append(b);}else{const s=document.createElement('small');s.textContent='自動';div.append(s);}list.append(div);}
+ $('bagInfo').textContent=game.activeUsed?'本回合已使用主動卡，擲骰後可在下一回合再次使用。':'每回合可用 1 張主動卡；被動裝備自動消耗。';$('computerBag').textContent='電腦裝備：'+(game.players[1].equipment.map(id=>EQUIPMENT.find(c=>c.id===id).icon).join(' ')||'尚無');}
+const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+async function animateEvents(events){for(const e of events){if(e.type==='move'&&e.from!==e.to){const dir=Math.sign(e.to-e.from);if(fast||reduced){visual[e.mover]=e.to;positionTokens();}else{for(let d=e.from+dir;dir>0?d<=e.to:d>=e.to;d+=dir){visual[e.mover]=d;positionTokens();$('token'+e.mover).classList.remove('hop');void $('token'+e.mover).offsetWidth;$('token'+e.mover).classList.add('hop');tone(dir>0?550+(d%5)*45:330,.035);await wait(105);}}}else if(e.type==='teleport'){visual=[...e.positions];positionTokens();if(!fast&&!reduced)await wait(260);}if(['tile','chance','equipment','warning','finish','wish'].includes(e.type)){setResult(e.type==='wish'?'⛲ 許願池隨機贈禮':e.type==='chance'?'🃏 機會卡':e.type==='equipment'?'🎒 裝備與加成':e.type==='warning'?'⚠️ 地形與狀態':e.type==='finish'?'🏆 率先完成兩圈':'🗺️ 落點事件',e.text);if(!fast&&!reduced)await wait(350);}}visual=game.players.map(p=>p.distance);positionTokens();}
+function addLog(title,events){const container=$('log');if(!logs.length)container.replaceChildren();container.querySelectorAll('details').forEach(d=>d.open=false);const detail=document.createElement('details');detail.open=true;const summary=document.createElement('summary');summary.textContent=title;const ul=document.createElement('ul');events.forEach(e=>{const li=document.createElement('li');li.textContent=e.text;if(['result','finish','equipment'].includes(e.type))li.className='good';ul.append(li);});detail.append(summary,ul);container.prepend(detail);logs.push(detail);container.scrollTop=0;}
+async function useCard(id){if(!game||busy||game.over)return;busy=true;update();game.events=[];try{if(game.useActive(0,id)){const events=[...game.events];await animateEvents(events);addLog(`第 ${game.round} 回合 · 裝備階段`,events);}}finally{busy=false;update();}}
+async function roll(){if(!started){$('setupDialog').showModal();return;}if(busy||game.over)return;busy=true;update();const currentRound=game.round;$('roundLabel').textContent=`第 ${currentRound} 回合`;$('diceArena').classList.add('rolling');setResult('🎲 雙骰在空中翻轉…','這回合，幸運會站在哪一邊？');let timer;
+ try{if(!reduced&&!fast){timer=setInterval(()=>{drawDice('playerDice',[1+Math.floor(Math.random()*6),1+Math.floor(Math.random()*6)]);drawDice('computerDice',[1+Math.floor(Math.random()*6),1+Math.floor(Math.random()*6)]);tone(200+Math.random()*200,.03);},100);await wait(750);}clearInterval(timer);$('diceArena').classList.remove('rolling');const result=game.play();drawDice('playerDice',result.a);drawDice('computerDice',result.b);[result.a,result.b].forEach((v,i)=>{const bonus=i===0?result.pb:result.cb;$('diceMeta'+i).textContent=(v[0]===v[1]?'🐆 豹子 · ':'')+result.totals[i]+' 點'+(bonus?'（含+3）':'');});const winner=result.result===0?'🤝 平手':result.protectedRound?'❤️ 勇氣紅保護':result.result>0?'🦊 玩家贏得對決':'🤖 藍寶贏得對決';setResult(winner,result.result===0?'勢均力敵，雙方都留在原地。':result.protectedRound?'勇氣紅抵銷勝場，電腦不前進。':'勝方前進自己的總點數，再觸發落點事件。');if(!fast&&!reduced)await wait(550);await animateEvents(result.events);addLog(`第 ${result.round} 回合｜${result.a.join('、')} vs ${result.b.join('、')}｜${winner}`,result.events);setResult(game.over?'🏁 環島冒險完成':winner,game.over?`${game.players[game.winner].name} 率先完成兩圈！`:`你：${game.players[0].distance}/72 格 · 藍寶：${game.players[1].distance}/72 格。${result.events.find(e=>e.type==='wish')?.text||'詳細事件已記入冒險紀錄。'}`);if(game.over)showFinish();}
+ catch(err){setResult('本回合發生問題','請重新挑戰以重設遊戲。');console.error(err);}finally{clearInterval(timer);$('diceArena').classList.remove('rolling');busy=false;update();}}
+$('rollBtn').onclick=roll;$('mobileRoll').onclick=roll;document.addEventListener('keydown',e=>{if(e.code==='Space'&&!e.repeat&&!document.querySelector('dialog[open]')&&!/^(INPUT|SELECT|TEXTAREA|BUTTON|A)$/.test(e.target.tagName)){e.preventDefault();roll();}});
+function showFinish(){const win=game.winner===0;$('finishTitle').textContent=win?'太棒了，你是環島冠軍！':'藍寶率先完成環島！';$('finishMessage').textContent=win?`${game.players[0].name} 完成了72格的旅程，謝謝你和小狐狸一起冒險。`:'每一次出發，都是新的故事。下次善用裝備，再來挑戰藍寶！';$('finishIcon').innerHTML=`<svg viewBox="0 0 100 130" aria-hidden="true"><use href="#${win?'fox':'robot'}"/></svg>`;$('finishStats').innerHTML=`<div><strong>${game.round-1}</strong>總回合</div><div><strong>${game.players[0].wins}：${game.players[1].wins}</strong>對決勝場</div><div><strong>${game.draws}</strong>平手回合</div>`;$('finishDialog').showModal();if(win){[600,750,900].forEach((f,i)=>setTimeout(()=>tone(f,.16),i*150));if(!reduced){const burst=document.createElement('div');burst.className='win-burst';for(let i=0;i<36;i++){const c=document.createElement('i');c.className='confetti';c.style.left=Math.random()*100+'%';c.style.background=['#eaa75d','#6b9c7a','#79bac8','#d39cb0'][i%4];c.style.animationDelay=Math.random()*.8+'s';burst.append(c);}document.body.append(burst);setTimeout(()=>burst.remove(),3400);}}else tone(300,.2);}
+function resetSame(){$('finishDialog').close();openSetup(game?.players[0].name);}
+$('againBtn').onclick=resetSame;$('recordsBtn').onclick=()=>{$('finishDialog').close();$('log').scrollIntoView({behavior:reduced?'auto':'smooth',block:'center'});};$('changeBtn').onclick=()=>{$('finishDialog').close();openSetup('');};$('exitBtn').onclick=()=>{if(location.protocol==='file:'){$('finishDialog').close();openSetup('');}else location.href='https://martin-team-0506.github.io/Collections/index.html';};
+$('restartBtn').onclick=()=>{if(busy)return;if(!started){$('setupDialog').showModal();return;}if(game.over){$('finishDialog').showModal();return;}$('confirmDialog').showModal();};$('cancelReset').onclick=()=>$('confirmDialog').close();$('confirmReset').onclick=()=>{$('confirmDialog').close();resetSame();};
+// 開始視窗只收集本場暱稱，不儲存個人資料；離線開啟也可完整遊玩。
+openSetup('');
+</script></body></html>
