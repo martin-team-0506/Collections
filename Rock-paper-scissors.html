@@ -760,7 +760,8 @@
         transition-duration: .001ms !important;
       }
     }
-  </style>
+  #gesturePreview[hidden] { display:none }
+</style>
 </head>
 <body>
   <a class="skip-link" href="#main">跳到主要內容</a>
@@ -882,6 +883,11 @@
 
         <div class="choice-area">
           <p class="choice-title">👇 選擇你要出的拳</p>
+          <div style="text-align:center;margin-bottom:12px">
+            <button type="button" class="secondary-btn" id="cameraButton">📷 開啟手勢出拳</button>
+            <div><video id="gesturePreview" muted playsinline hidden style="width:min(100%,290px);border-radius:16px;transform:scaleX(-1);margin-top:8px"></video></div>
+            <div role="status" id="gestureFeedback"></div>
+          </div>
           <div class="choices">
             <button class="choice-btn" type="button" data-choice="剪刀" aria-label="出剪刀">
               <span class="choice-emoji" aria-hidden="true">✌️</span><span class="choice-name">剪刀</span>
@@ -1355,6 +1361,7 @@ elif player == "石頭":
 
     // ===== 最終結算與重新開始 =====
     function showFinalResult() {
+      stopGestureCamera();
       const playerWon = state.playerWins === 5;
       $("#finalIcon").textContent = playerWon ? "🏆" : "🤖";
       $("#finalTitle").textContent = playerWon ? `恭喜【${state.name}】！` : "這次由電腦魔王獲勝！";
@@ -1499,5 +1506,99 @@ elif player == "石頭":
       return new Promise((resolve) => window.setTimeout(resolve, milliseconds));
     }
   </script>
+<script>
+const cameraButton = document.querySelector('#cameraButton');
+const preview = document.querySelector('#gesturePreview');
+const feedback = document.querySelector('#gestureFeedback');
+let cameraSession = 0, cameraActive = false, enginePromise;
+function stopGestureCamera(message = '') {
+  cameraSession++;
+  cameraActive = false;
+  preview.srcObject?.getTracks().forEach(track => track.stop());
+  preview.srcObject = null;
+  preview.hidden = true;
+  cameraButton.textContent = '📷 開啟手勢出拳';
+  feedback.textContent = message;
+}
+async function loadGestureEngine() {
+  const root = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
+  const {FilesetResolver,GestureRecognizer} = await import(root+'/vision_bundle.mjs');
+  const model = await GestureRecognizer.createFromOptions(await FilesetResolver.forVisionTasks(root+'/wasm'),{
+    baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/gesture_recognizer/gesture_recognizer/float16/1/gesture_recognizer.task'},
+    runningMode:'VIDEO'
+  });
+  const hands = {Closed_Fist:'石頭',Open_Palm:'布',Victory:'剪刀'};
+  return () => {
+    const result = model.recognizeForVideo(preview,performance.now()).gestures[0]?.[0];
+    return result?.score >= .75 ? hands[result.categoryName] : '';
+  };
+}
+cameraButton.onclick = async () => {
+  if (cameraActive) return stopGestureCamera();
+  const session = ++cameraSession;
+  cameraActive = true;
+  cameraButton.textContent = '關閉攝影機';
+  feedback.textContent = '請允許使用攝影機';
+  const embedded = window.self !== window.top;
+  const policy = document.permissionsPolicy || document.featurePolicy;
+  if (policy?.allowsFeature && !policy.allowsFeature('camera')) {
+    return stopGestureCamera('C1｜這個頁面的權限政策封鎖了相機。請用 Chrome 獨立開啟已發布的 HTTPS 遊戲頁。');
+  }
+  if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
+    return stopGestureCamera('C2｜目前的開啟方式無法呼叫相機。請用 Chrome 開啟已發布的 HTTPS 遊戲頁。');
+  }
+  let stage = 'camera';
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:480}},audio:false});
+    if (session !== cameraSession) { stream.getTracks().forEach(track=>track.stop()); return; }
+    preview.srcObject = stream; preview.hidden = false;
+    stage = 'preview';
+    await preview.play();
+    if (session !== cameraSession) return;
+    feedback.textContent = '正在載入 MediaPipe 手勢模型…';
+    stage = 'model';
+    enginePromise ??= loadGestureEngine().catch(error=>{enginePromise=null;throw error});
+    const predict = await enginePromise;
+    if (session !== cameraSession) return;
+    let previous = null, count = 0, lastPlayed = '';
+    while (session === cameraSession) {
+      if (state.gameOver) return stopGestureCamera();
+      if (state.locked || preview.readyState < 2) {
+        previous = null;
+        count = 0;
+      } else {
+        const choice = predict() || '';
+        count = choice === previous ? count + 1 : 1;
+        previous = choice;
+        if (count >= 3 && choice !== lastPlayed) {
+          lastPlayed = choice;
+          if (choice) {
+            feedback.textContent = '已自動出拳：' + choice;
+            choiceButtons.find(button => button.dataset.choice === choice).click();
+          }
+        }
+        if (!state.locked) {
+          feedback.textContent = lastPlayed ? '請換拳，或先收手再出相同的拳。' : '請比出剪刀、石頭或布，辨識成功即自動出拳。';
+        }
+      }
+      await wait(140);
+    }
+  } catch(error) {
+    if (session !== cameraSession) return;
+    let message;
+    if (stage === 'model') message = 'M1｜相機已啟動，但辨識模型載入或執行失敗。請確認網路連線後重試。';
+    else if (stage === 'preview') message = 'V1｜相機已授權，但影像預覽播放失敗。請關閉其他相機程式後重試。';
+    else if (error.name === 'NotAllowedError' && embedded) message = 'C3｜相機請求在內嵌頁中遭拒。請用 Chrome 獨立開啟已發布的 HTTPS 遊戲頁。';
+    else if (error.name === 'NotAllowedError') message = 'C4｜瀏覽器拒絕這次相機請求。請檢查手機的相機存取開關、Chrome 的相機權限及此網站權限。';
+    else if (error.name === 'NotFoundError') message = 'C5｜找不到可用的攝影機。';
+    else if (error.name === 'NotReadableError') message = 'C6｜攝影機無法啟動。請關閉可能占用相機的程式後重試。';
+    else message = 'C7｜相機啟動失敗。';
+    stopGestureCamera(message + '（' + error.name + '）');
+  }
+};
+window.addEventListener('pagehide',()=>stopGestureCamera());
+
+</script>
 </body>
 </html>
+
